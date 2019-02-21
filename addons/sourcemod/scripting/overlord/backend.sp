@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+// overlord_servers - Stores all servers.
 #define TABLE_SERVERS "\
 CREATE TABLE IF NOT EXISTS `overlord_servers` (\
     `id`        INT(11)     AUTO_INCREMENT,\
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `overlord_servers` (\
 ) ENGINE=InnoDB DEFAULT CHARSET 'utf8';\
 "
 
+// overlord_groups - Stores all admin groups.
 #define TABLE_GROUPS "\
 CREATE TABLE IF NOT EXISTS `overlord_groups` (\
     `id`       INT(11)     AUTO_INCREMENT,\
@@ -31,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `overlord_groups` (\
 ) ENGINE=InnoDB DEFAULT CHARSET 'utf8';\
 "
 
+// overlord_admins - Stores all active admins.
 #define TABLE_ADMINS "\
 CREATE TABLE IF NOT EXISTS `overlord_admins` (\
     `id`        INT(11)     AUTO_INCREMENT,\
@@ -47,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `overlord_admins` (\
 ) ENGINE=InnoDB DEFAULT CHARSET 'utf8';\
 "
 
+// overlord_admin_groups - Stores adminId, groupId, serverId relation.
 #define TABLE_ADMIN_GROUPS "\
 CREATE TABLE IF NOT EXISTS `overlord_admin_groups` (\
     `id`        INT(11)    AUTO_INCREMENT,\
@@ -66,18 +70,22 @@ CREATE TABLE IF NOT EXISTS `overlord_admin_groups` (\
 ) ENGINE=InnoDB DEFAULT CHARSET 'utf8';\
 "
 
+// Selects an existing server.
 #define GET_SERVER "\
 SELECT `overlord_servers`.`id` FROM `overlord_servers` WHERE `overlord_servers`.`ipAddress` = '%s' AND `overlord_servers`.`port` = '%s' LIMIT 1;\
 "
 
+// Inserts a new server.
 #define INSERT_SERVER "\
 INSERT INTO `overlord_servers` (`name`, `ipAddress`, `port`, `rconPass`) VALUES ('%s', '%s', '%s', '%s');\
 "
 
+// Selects all groups.
 #define GET_GROUPS "\
 SELECT `overlord_groups`.`id`, `overlord_groups`.`name`, `overlord_groups`.`tag`, `overlord_groups`.`immunity`, `overlord_groups`.`flags` FROM `overlord_groups`;\
 "
 
+// Selects an admin and their group id for this server.
 #define GET_ADMIN  "\
 SELECT `overlord_admins`.`id`, `overlord_admins`.`name`, `overlord_admins`.`steamId`, `overlord_admins`.`hidden`,\
     `overlord_admins`.`active`, UNIX_TIMESTAMP(`overlord_admins`.`createdAt`) AS `createdAt`, `overlord_admin_groups`.`groupId`\
@@ -87,10 +95,12 @@ FROM `overlord_admins`\
 WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
 "
 
+// Updates an admin's hidden state.
 #define UPDATE_ADMIN "\
 UPDATE `overlord_admins` SET `overlord_admins`.`hidden` = %i WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
 "
 
+// g_hDatabase - Stores the active database connection.
 Database g_hDatabase;
 
 /**
@@ -98,42 +108,70 @@ Database g_hDatabase;
  * Handles the database connection callback.
  */
 public void Backend_Connnection(Database database, const char[] error, any data) {
+    // Handle the connection error.
     if(database == null) {
         SetFailState("%s Failed to connect to server.  Error: %s", CONSOLE_PREFIX, error);
         return;
     }
 
+    // Set the global database object.
     g_hDatabase = database;
+
+    // Log our successful connection.
     LogMessage("%s Connected to database.", CONSOLE_PREFIX);
 
+    // Prepare a SQL transaction.
     Transaction transaction = SQL_CreateTransaction();
+
+    // Add create table if not exists queries.
     transaction.AddQuery(TABLE_SERVERS);
     transaction.AddQuery(TABLE_GROUPS);
     transaction.AddQuery(TABLE_ADMINS);
     transaction.AddQuery(TABLE_ADMIN_GROUPS);
+
+    // Execute the transaction.
     SQL_ExecuteTransaction(g_hDatabase, transaction, Callback_SuccessTableTransaction, Callback_ErrorTableTransaction);
+
+    // Load or create a server entry for this server.
     Backend_GetServerId();
+
+    // Load all admin groups.
     Backend_LoadGroups();
 
+    // Loop through all online clients.
     for(int i = 1; i <= MaxClients; i++) {
+        // Check if the client is invalid.
         if(!IsClientValid(i)) {
             continue;
         }
 
+        // Get the client's steam id.
         char steamId[64];
         GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));
+
+        // Load the client's admin.
+        // TODO: Use a transaction per 5-10 Backend_GetAdmin queries.
         Backend_GetAdmin(i, steamId);
-        // TODO: Transaction?
     }
 
+    // Create tag timer. (set all admin's clan tag)
     CreateTimer(15.0, Timer_TagAll, _, TIMER_REPEAT);
 }
 
+/**
+ * Callback_SuccessTableTransaction
+ * Successful backend callback for the table layout.
+ */
 static void Callback_SuccessTableTransaction(Database database, any data, int numQueries, Handle[] results, any[] queryData) {
     //LogMessage("%s Created database tables successfully.", CONSOLE_PREFIX);
 }
 
+/**
+ * Callback_ErrorTableTransaction
+ * Failed backend callback for the table layout.
+ */
 static void Callback_ErrorTableTransaction(Database database, any data, int numQueries, const char[] error, int failIndex, any[] queryData) {
+    // Handle query error.
     LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_ErrorTableTransaction", (strlen(error) > 0 ? error : "Unknown."));
 }
 
@@ -142,17 +180,28 @@ static void Callback_ErrorTableTransaction(Database database, any data, int numQ
  * Loads this server's id for loading admins.
  */
 static void Backend_GetServerId() {
+    // Get the server's ip address.
     char ipAddress[16];
     g_cvServerIp.GetString(ipAddress, sizeof(ipAddress));
+
+    // Get the server's port.
     char port[8];
     g_cvServerPort.GetString(port, sizeof(port));
 
+    // Create and format the query.
     char query[512];
     Format(query, sizeof(query), GET_SERVER, ipAddress, port);
+
+    // Execute the query.
     g_hDatabase.Query(Callback_GetServerId, query);
 }
 
+/**
+ * Callback_GetServerId
+ * Backend callback for Backend_GetServerId()
+ */
 static void Callback_GetServerId(Database database, DBResultSet results, const char[] error, any data) {
+    // Handle query error.
     if(results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_GetServerId", (strlen(error) > 0 ? error : "Unknown."));
         return;
@@ -165,9 +214,11 @@ static void Callback_GetServerId(Database database, DBResultSet results, const c
         return;
     }
 
+    // Get table column indexes.
     int idIndex;
     if(!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_servers\".", CONSOLE_PREFIX); return; }
 
+    // Loop through query results.
     while(results.FetchRow()) {
         g_iServerId = results.FetchInt(idIndex);
         LogMessage("%s Found server entry. (id: %i)", CONSOLE_PREFIX, g_iServerId);
@@ -179,27 +230,44 @@ static void Callback_GetServerId(Database database, DBResultSet results, const c
  * Inserts this server's information into the database.
  */
 static void Backend_InsertServer() {
+    // Get the server's hostname. (server list name)
     char name[64];
     g_cvServerHostname.GetString(name, sizeof(name));
+
+    // Get the server's ip address.
     char ipAddress[16];
     g_cvServerIp.GetString(ipAddress, sizeof(ipAddress));
+
+    // Get the server's port.
     char port[8];
     g_cvServerPort.GetString(port, sizeof(port));
+
+    // Get the server's rcon password.
     char rconPassword[64];
     g_cvServerRconPassword.GetString(rconPassword, sizeof(rconPassword));
 
+    // Create and format the query.
     char query[512];
     Format(query, sizeof(query), INSERT_SERVER, name, ipAddress, port, rconPassword);
+
+    // Execute the query.
     g_hDatabase.Query(Callback_InsertServer, query);
 }
 
+/**
+ * Callback_InsertServer
+ * Backend callback for Backend_InsertServer()
+ */
 static void Callback_InsertServer(Database database, DBResultSet results, const char[] error, any data) {
+    // Handle query error.
     if(results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_InsertServer", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }
 
+    // Log that the insertion was successful.
     LogMessage("%s Inserted server successfully.", CONSOLE_PREFIX);
+    // Retrieve the newly inserted server id. (potential insert/select loop, TODO: add limiter)
     Backend_GetServerId();
 }
 
@@ -208,9 +276,14 @@ static void Callback_InsertServer(Database database, DBResultSet results, const 
  * Loads all groups from the database.
  */
 public void Backend_LoadGroups() {
+    // Execute GET_GROUPS query.
     g_hDatabase.Query(Callback_LoadGroups, GET_GROUPS);
 }
 
+/**
+ * Callback_LoadGroups
+ * Backend callback for Backend_LoadGroups()
+ */
 static void Callback_LoadGroups(Database database, DBResultSet results, const char[] error, any data) {
     // Handle query error.
     if(results == null) {
@@ -276,11 +349,14 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
         AdminFlag flag;
         int i = 0;
         while(flags[i] != '\0') {
+            // Get an AdminFlag by using the char.
             if(!FindFlagByChar(flags[i], flag)) {
                 continue;
             }
 
+            // Add the AdminFlag to the group.
             groupId.SetFlag(flag, true);
+            // Increment. (what flag are we on)
             i++;
         }
         // END Set admin group flags.
@@ -304,11 +380,18 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
  * Loads a user's admin information.
  */
 public void Backend_GetAdmin(int client, const char[] steamId) {
+    // Create and format the query.
     char query[512];
     Format(query, sizeof(query), GET_ADMIN, g_iServerId, steamId);
+
+    // Execute the query.
     g_hDatabase.Query(Callback_GetAdmin, query, client);
 }
 
+/**
+ * Callback_GetAdmin
+ * Backend callback for Backend_GetAdmin(int, char[])
+ */
 static void Callback_GetAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
     if(results == null) {
@@ -404,10 +487,10 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         }
         // END Add admin group if one isn't already present.
 
-        // Set admin's tag.
+        // Set the admin's clan tag.
         Admin_SetTagDelayed(client);
 
-        // Add admin to admins array.
+        // Add admin to the admins array.
         g_hAdmins[client] = admin;
     }
 }
@@ -423,7 +506,7 @@ public void Backend_UpdateAdmin(int client) {
         return;
     }
 
-    // Get admin's steam id.
+    // Get the admin's steam id.
     char steamId[64];
     admin.GetSteamID(steamId, sizeof(steamId));
 
@@ -431,10 +514,14 @@ public void Backend_UpdateAdmin(int client) {
     char query[512];
     Format(query, sizeof(query), UPDATE_ADMIN, admin.IsHidden() ? 1 : 0, steamId);
 
-    // Run the query.
+    // Execute the query.
     g_hDatabase.Query(Callback_UpdateAdmin, query, client);
 }
 
+/**
+ * Callback_UpdateAdmin
+ * Backend callback for Backend_UpdateAdmin(int)
+ */
 static void Callback_UpdateAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
     if(results == null) {
