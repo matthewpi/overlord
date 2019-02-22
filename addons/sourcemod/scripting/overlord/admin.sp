@@ -10,11 +10,16 @@
 public void OnRebuildAdminCache(AdminCachePart part) {
     // Check if we are reloading groups.
     if(part == AdminCache_Groups) {
+        // Log that we are reloading admin groups.
         LogMessage("%s Reloading admin groups.", CONSOLE_PREFIX);
+
+        // Reload the admin groups.
         Backend_LoadGroups();
     // Check if we are reloading admins.
     } else if(part == AdminCache_Admins) {
+        // Log that we are reloading admins.
         LogMessage("%s Reloading admins.", CONSOLE_PREFIX);
+
         // Loop through all online clients.
         for(int i = 1; i <= MaxClients; i++) {
             // Check if the client is invalid.
@@ -27,6 +32,7 @@ public void OnRebuildAdminCache(AdminCachePart part) {
             GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));
 
             // Load the client's admin profile from the database.
+            // TODO: Use a transaction per 5-10 Backend_GetAdmin queries.
             Backend_GetAdmin(i, steamId);
         }
     }
@@ -97,6 +103,11 @@ static Action Timer_Tag(Handle timer, int client) {
 public Action Timer_TagAll(Handle timer) {
     // Loop through all online clients.
     for(int client = 1; client <= MaxClients; client++) {
+        // Check if the client is invalid.
+        if(!IsClientValid(client)) {
+            continue;
+        }
+
         // Attempt to set the client's tag.
         Admin_SetTag(client);
     }

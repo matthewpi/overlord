@@ -8,6 +8,7 @@
  * Prints a list of all online and non-hidden admins.
  */
 public Action Command_Admins(const int client, const int args) {
+	// Get the client's immunity level.
 	int immunity = 0;
 	AdminId adminId = GetUserAdmin(client);
 	if(adminId != INVALID_ADMIN_ID) {
@@ -57,6 +58,7 @@ public Action Command_Admins(const int client, const int args) {
 		matched++;
 	}
 
+	// Print a message if no admins were listed.
 	if(matched == 0) {
 		PrintToChat(client, "%s There are currently no \x10VIPs\x01 online.", PREFIX);
 	}
@@ -103,6 +105,7 @@ public Action Command_VIP(const int client, const int args) {
 		matched++;
 	}
 
+	// Print a message if no vips were listed.
 	if(matched == 0) {
 		PrintToChat(client, "%s There are currently no \x10VIPs\x01 online.", PREFIX);
 	}
@@ -115,9 +118,8 @@ public Action Command_VIP(const int client, const int args) {
  * Prints a list of all loaded groups.
  */
 public Action Command_Groups(const int client, const int args) {
-	PrintToChat(client, "%s Group List", PREFIX);
-
 	// Loop through all groups.
+	int matched = 0;
 	for(int i = 1; i < sizeof(g_hGroups); i++) {
 		// Get the group object from the groups array.
 		Group group = g_hGroups[i];
@@ -144,6 +146,11 @@ public Action Command_Groups(const int client, const int args) {
 		PrintToChat(client, "%s %i \x10%s \x01\"\x07%s\x01\" \x0E%i\x01 | \x09%s\x01", PREFIX, id, name, tag, group.GetImmunity(), flags);
 	}
 
+	// Print a message if no groups were listed.
+	if(matched == 0) {
+		PrintToChat(client, "%s There are no \x10Groups\x01 loaded.", PREFIX);
+	}
+
 	return Plugin_Handled;
 }
 
@@ -152,16 +159,9 @@ public Action Command_Groups(const int client, const int args) {
  * Admin command that allows them to toggle their hidden status.
  */
 public Action Command_Hide(const int client, const int args) {
-	int immunity = 0;
-	AdminId adminId = GetUserAdmin(client);
-	if(adminId != INVALID_ADMIN_ID) {
-		immunity = adminId.ImmunityLevel;
-	} else {
-		return Plugin_Handled;
-	}
-
-	// Check if the client is an actual admin. (not VIP or default)
-	if(immunity <= 5) {
+	// Check if the client isn't an admin
+	if(GetUserAdmin(client) == INVALID_ADMIN_ID) {
+		PrintToChat(client, "%s No permission.", PREFIX);
 		return Plugin_Handled;
 	}
 
@@ -171,7 +171,10 @@ public Action Command_Hide(const int client, const int args) {
 		return Plugin_Handled;
 	}
 
+	// Update the admin's hidden state.
 	admin.SetHidden(!admin.IsHidden());
+
+	// Notify the admin.
 	PrintToChat(client, "%s \x10%N\x01 is now %s\x01 to all players.", PREFIX, client, admin.IsHidden() ? "\x04Hidden" : "\x07Visible");
 
 	return Plugin_Handled;
