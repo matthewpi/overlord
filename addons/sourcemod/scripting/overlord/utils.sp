@@ -57,3 +57,59 @@ public void Colorize(char[] message, int size) {
         ReplaceString(message, size, _colorNames[i], _colorCodes[i]);
     }
 }
+
+/**
+ * GetClientTeamName
+ * Gets the string format of a client's team.
+ */
+public void GetClientTeamName(const int team, char[] buffer, int maxlen) {
+    switch(team) {
+        case CS_TEAM_T:
+            strcopy(buffer, maxlen, "T");
+        case CS_TEAM_CT:
+            strcopy(buffer, maxlen, "CT");
+        case CS_TEAM_SPECTATOR:
+            strcopy(buffer, maxlen, "Spec");
+    }
+}
+
+/**
+ * PrintToAdmins
+ * Prints a message to admins that match the function arguments.
+ */
+public void PrintToAdmins(const char[] message, const AdminFlag flag, int team, bool dead) {
+    for(int client = 1; client <= MaxClients; client++) {
+        // Check if the client is invalid.
+        if(!IsClientValid(client)) {
+            continue;
+        }
+
+        // Get the client's admin id.
+        AdminId adminId = GetUserAdmin(client);
+        // Check if the client is not an admin.
+        if(adminId == INVALID_ADMIN_ID) {
+            continue;
+        }
+
+        // Check if the client does not have the admin flag.
+        if(!GetAdminFlag(adminId, flag)) {
+            continue;
+        }
+
+        // Check if the function arguments set a team.
+        if(team != -1) {
+            // Check if the client's team is same as the argument.
+            if(GetClientTeam(client) == team) {
+                continue;
+            }
+        }
+
+        if(dead) {
+            if(!IsPlayerAlive(client)) {
+                continue;
+            }
+        }
+
+        PrintToChat(client, "%s %s", PREFIX, message);
+    }
+}

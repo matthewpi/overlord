@@ -34,6 +34,8 @@ ConVar g_cvDatabase;
 ConVar g_cvMessageJoin;
 // sm_overlord_message_quit - "" (Default: "1")
 ConVar g_cvMessageQuit;
+// sv_deadtalk
+ConVar g_cvDeadTalk;
 // ip
 ConVar g_cvServerIp;
 // hostport
@@ -79,6 +81,7 @@ int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 #include "overlord/commands/vip.sp"
 
 // Events
+#include "overlord/events/player_chat.sp"
 #include "overlord/events/round_end.sp"
 // END Project Files
 
@@ -110,6 +113,7 @@ public void OnPluginStart() {
     AutoExecConfig(true, "overlord");
 
     // Find server convars
+    g_cvDeadTalk = FindConVar("sv_deadtalk");
     g_cvServerIp = FindConVar("ip");
     g_cvServerPort = FindConVar("hostport");
     g_cvServerHostname = FindConVar("hostname");

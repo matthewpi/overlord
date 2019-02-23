@@ -28,7 +28,7 @@ public Action Command_Respawn(const int client, const int args) {
 	}
 
 	// Get the first command argument.
-	char potentialTarget[64];
+	char potentialTarget[512];
 	GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
 	// Define variables to store target information.
@@ -40,7 +40,7 @@ public Action Command_Respawn(const int client, const int args) {
 	int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
 
 	// Check if no clients were found.
-	if(targetCount < 1) {
+	if(targetCount <= 0) {
 		// Send a message to the client.
 		ReplyToTargetError(client, targetCount);
 		// Log the command execution.
@@ -49,18 +49,50 @@ public Action Command_Respawn(const int client, const int args) {
 	}
 
 	// Loop through all targets.
-	for(int target = 1; target < sizeof(targets); target++) {
-		// Check if the target isn't valid, is alive, or is on the spectator team.
-		if(!IsClientValid(target) || IsPlayerAlive(target) || GetClientTeam(target) == CS_TEAM_SPECTATOR) {
+	int respawned = 0;
+	for(int i = 0; i < targetCount; i++) {
+		int target = targets[i];
+		// Check if the target is invalid.
+		if(!IsClientValid(target)) {
+			continue;
+		}
+
+		// Check if the target is on spectator.
+		if(GetClientTeam(target) == CS_TEAM_SPECTATOR) {
+			if(targetCount == 1) {
+				ReplyToCommand(client, "%s \x10%N\x01 is a \x07Spectator\x01 and cannot be respawned.", PREFIX, target);
+			}
+			continue;
+		}
+
+		// Check if the target is alive.
+		if(IsPlayerAlive(target)) {
+			if(targetCount == 1) {
+				ReplyToCommand(client, "%s \x10%N\x01 is already alive.", PREFIX, target);
+			}
 			continue;
 		}
 
 		// Respawn the target.
 		CS_RespawnPlayer(target);
+		respawned++;
 	}
 
-	// Log the command execution.
-	LogCommand(client, -1, command, "");
+	// Add a space to the prefix.
+	char prefix[64];
+	Format(prefix, sizeof(prefix), "%s ", PREFIX);
+
+	if(respawned > 1) {
+		// Show the activity to the players.
+		ShowActivity2(client, prefix, " Respawned \x10%i\x01 players.");
+		// Log the command execution.
+		LogCommand(client, -1, command, "(Respawned: %i)", respawned);
+	} else if(respawned == 1) {
+		// Show the activity to the players.
+		ShowActivity2(client, prefix, " Respawned \x10%N\x01.", targets[0]);
+		// Log the command execution.
+		LogCommand(client, targets[0], command, "");
+	}
 
 	return Plugin_Handled;
 }

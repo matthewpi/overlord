@@ -42,15 +42,15 @@ static Action TeamCommand(const int client, const int args, const char[] command
 	// Check if the client did not pass an argument.
 	if(args != 1 && args != 2) {
 		// Send a message to the client.
-		PrintToChat(client, "%s \x07Usage: \x01%s <#userid;target> [true;false (on round end)]", PREFIX, command);
+		PrintToChat(client, "%s \x07Usage: \x01%s <#userid;target> [round end]", PREFIX, command);
 		// Log the command execution.
 		LogCommand(client, -1, command, "");
 		return Plugin_Handled;
 	}
 
 	// Get the first command argument.
-	char target[64];
-	GetCmdArg(1, target, sizeof(target));
+	char potentialTarget[64];
+	GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
 	// Define variables to store target information.
 	char targetName[MAX_TARGET_LENGTH];
@@ -58,10 +58,10 @@ static Action TeamCommand(const int client, const int args, const char[] command
 	bool tnIsMl;
 
 	// Process the target string.
-	int targetCount = ProcessTargetString(target, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
+	int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
 
 	// Check if no clients were found.
-	if(targetCount <= 0) {
+	if(targetCount < 1) {
 		// Send a message to the client.
 		ReplyToTargetError(client, targetCount);
 		// Log the command execution.
@@ -78,10 +78,10 @@ static Action TeamCommand(const int client, const int args, const char[] command
 	}
 
 	// Get the target's id.
-	int targetId = targets[0];
+	int target = targets[0];
 
 	// Check if the target is already on the selected team.
-	if(GetClientTeam(targetId) != commandTeam) {
+	if(GetClientTeam(target) != commandTeam) {
 		if(args == 2) {
 			// Get the second command argument.
 			char canSwap[512];
@@ -98,19 +98,19 @@ static Action TeamCommand(const int client, const int args, const char[] command
 			// Check if we should swap on round end.
 			if(swapOnRoundEnd) {
 				// Update the swap on round end array.
-				g_iSwapOnRoundEnd[targetId] = commandTeam;
+				g_iSwapOnRoundEnd[target] = commandTeam;
 				// Send a message to the client.
 				PrintToChat(client, "%s \x10%s \x01will be swapped to the \x07%s \x01team on round end.", PREFIX, targetName, commandTeamName);
 			// Else, make sure the client is not changing teams at round end.
 			} else {
 				// Update the swap on round end array.
-				g_iSwapOnRoundEnd[targetId] = -1;
+				g_iSwapOnRoundEnd[target] = -1;
 				// Send a message to the client.
 				PrintToChat(client, "%s \x10%s \x01will \x02NOT\x01 be swapped to the \x07%s \x01team on round end.", PREFIX, targetName, commandTeamName);
 			}
 		} else {
 			// Swap the target's team.
-			ChangeClientTeam(targetId, commandTeam);
+			ChangeClientTeam(target, commandTeam);
 			// Send a message to the client.
 			PrintToChat(client, "%s \x10%s \x01has been swapped to the \x07%s \x01team", PREFIX, targetName, commandTeamName);
 		}
@@ -120,7 +120,7 @@ static Action TeamCommand(const int client, const int args, const char[] command
 	}
 
 	// Log the command execution.
-	LogCommand(client, targetId, command, "(Target: '%s')", targetName);
+	LogCommand(client, target, command, "(Target: '%s')", targetName);
 
 	return Plugin_Handled;
 }
