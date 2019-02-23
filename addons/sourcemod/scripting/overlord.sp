@@ -43,7 +43,7 @@ ConVar g_cvServerHostname;
 // rcon_password
 ConVar g_cvServerRconPassword;
 
-// g_hDatabase - Stores the active database connection.
+// g_hDatabase Stores the active database connection.
 Database g_hDatabase;
 
 // g_iServerId .
@@ -55,7 +55,7 @@ Group g_hGroups[GROUP_MAX];
 // g_hAdmins stores an array of loaded Admins.
 Admin g_hAdmins[MAXPLAYERS + 1];
 
-// g_iSwapOnRoundEnd stores an array of players to swapteams.
+// g_iSwapOnRoundEnd stores an array of client to swap to another team.
 int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 // END Globals
 
