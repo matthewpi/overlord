@@ -5,8 +5,6 @@
 
 #include <cstrike>
 #include <geoip>
-#include <sdkhooks>
-#include <sdktools>
 #include <sourcemod>
 
 #pragma semicolon 1
@@ -17,6 +15,7 @@
 #define OVERLORD_VERSION "0.0.1-BETA"
 
 #define PREFIX "[\x06Overlord\x01]"
+#define ACTION_PREFIX "[\x06Overlord\x01] "
 #define CONSOLE_PREFIX "[Overlord]"
 
 #define GROUP_MAX 16
@@ -75,6 +74,7 @@ int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 // Commands
 #include "overlord/commands/admins.sp"
 #include "overlord/commands/groups.sp"
+#include "overlord/commands/heal.sp"
 #include "overlord/commands/hide.sp"
 #include "overlord/commands/respawn.sp"
 #include "overlord/commands/team.sp"
@@ -138,9 +138,11 @@ public void OnPluginStart() {
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "Respawns a dead player.");
     // overlord/commands/team.sp
-    RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_CHAT, "Swap a client to the terrorist team.");
-    RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_CHAT, "Swap a client to the counter-terrorist team.");
-    RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_CHAT, "Swap a client to the spectator team.");
+    RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "Swap a client to the terrorist team.");
+    RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "Swap a client to the counter-terrorist team.");
+    RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_SLAY, "Swap a client to the spectator team.");
+    // overlord/commands/heal.sp
+    RegAdminCmd("sm_heal", Command_Heal, ADMFLAG_SLAY, "Heals a player.");
     // END Commands
 
     // Events

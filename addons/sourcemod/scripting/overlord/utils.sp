@@ -62,7 +62,7 @@ public void Colorize(char[] message, int size) {
  * GetClientTeamName
  * Gets the string format of a client's team.
  */
-public void GetClientTeamName(const int team, char[] buffer, int maxlen) {
+public void GetClientTeamName(const int team, char[] buffer, const int maxlen) {
     switch(team) {
         case CS_TEAM_T:
             strcopy(buffer, maxlen, "T");
@@ -77,7 +77,7 @@ public void GetClientTeamName(const int team, char[] buffer, int maxlen) {
  * PrintToAdmins
  * Prints a message to admins that match the function arguments.
  */
-public void PrintToAdmins(const char[] message, const AdminFlag flag, int team, bool dead) {
+public void PrintToAdmins(const char[] message, const AdminFlag flag, const int team, const bool dead) {
     for(int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
         if(!IsClientValid(client)) {
