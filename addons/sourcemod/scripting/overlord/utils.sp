@@ -46,6 +46,16 @@ public void LogCommand(const int client, const int target, const char[] command,
 	}
 }
 
+/**
+ * LogActivity
+ */
+public void LogActivity(const int client, const char[] message, any...) {
+    char formattedMessage[512];
+    // TODO: Add space before message to fix spacing issue?
+    VFormat(formattedMessage, sizeof(formattedMessage), message, 3);
+    ShowActivity2(client, ACTION_PREFIX, formattedMessage);
+}
+
 /*
  * Colorize
  * Colorizes a message.

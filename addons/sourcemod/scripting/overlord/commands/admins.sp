@@ -51,6 +51,11 @@ public Action Command_Admins(const int client, const int args) {
             continue;
         }
 
+        // Check if the client is a VIP.
+        if(!Overlord_IsStealthed(i)) {
+            continue;
+        }
+
         // Get the admin's steamid.
         char steamId[64];
         admin.GetSteamID(steamId, sizeof(steamId));

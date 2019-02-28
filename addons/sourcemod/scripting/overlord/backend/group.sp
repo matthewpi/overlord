@@ -9,7 +9,7 @@
  */
 public void Backend_LoadGroups() {
     // Execute GET_GROUPS query.
-    g_hDatabase.Query(Callback_LoadGroups, GET_GROUPS);
+    g_dbOverlord.Query(Callback_LoadGroups, GET_GROUPS);
 }
 
 /**

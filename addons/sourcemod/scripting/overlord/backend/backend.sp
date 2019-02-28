@@ -15,7 +15,7 @@ public void Backend_Connnection(Database database, const char[] error, any data)
     }
 
     // Set the global database object.
-    g_hDatabase = database;
+    g_dbOverlord = database;
 
     // Log our successful connection.
     LogMessage("%s Connected to database.", CONSOLE_PREFIX);
@@ -30,7 +30,7 @@ public void Backend_Connnection(Database database, const char[] error, any data)
     transaction.AddQuery(TABLE_ADMIN_GROUPS);
 
     // Execute the transaction.
-    SQL_ExecuteTransaction(g_hDatabase, transaction, Callback_SuccessTableTransaction, Callback_ErrorTableTransaction);
+    SQL_ExecuteTransaction(g_dbOverlord, transaction, Callback_SuccessTableTransaction, Callback_ErrorTableTransaction);
 
     // Load or create a server entry for this server.
     Backend_GetServerId();
@@ -53,9 +53,6 @@ public void Backend_Connnection(Database database, const char[] error, any data)
         // TODO: Use a transaction per 5-10 Backend_GetAdmin queries.
         Backend_GetAdmin(i, steamId);
     }
-
-    // Create tag timer. (set all admin's clan tag)
-    CreateTimer(15.0, Timer_TagAll, _, TIMER_REPEAT);
 }
 
 /**

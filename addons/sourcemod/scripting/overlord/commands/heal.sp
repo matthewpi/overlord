@@ -75,7 +75,8 @@ public Action Command_Heal(const int client, const int args) {
     SetEntityHealth(target, 100);
 
     // Show the activity to the players.
-    ShowActivity2(client, ACTION_PREFIX, " Healed \x10%N\x01.", target);
+    LogActivity(client, "Healed \x10%N\x01.", target);
+    //ShowActivity2(client, ACTION_PREFIX, " Healed \x10%N\x01.", target);
 
     // Log the command execution.
     LogCommand(client, target, command, "(Healed target)");

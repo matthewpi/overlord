@@ -74,33 +74,24 @@ public void Admin_SetTag(int client) {
 }
 
 /**
- * SetTagDelayed
- * Runs a delayed timer that updates
+ * Admin_TagTimer
+ * Creates a timer that sets all the admin's clan tags.
  */
-public void Admin_SetTagDelayed(int client) {
-    // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+public void Admin_TagTimer() {
+    // Check if the timer already exists.
+    if(g_hAdminTagTimer != null) {
         return;
     }
 
-    // Create a delayed timer to set the client's tag.
-    CreateTimer(7.5, Timer_Tag, client);
-}
-
-/**
- * Timer_Tag
- * Handles SetTagDelayed()
- */
-static Action Timer_Tag(Handle timer, int client) {
-    // Set the client's tag.
-    Admin_SetTag(client);
+    // Create tag timer. (set all admin's clan tag)
+    g_hAdminTagTimer = CreateTimer(3.0, Timer_TagAll, _, TIMER_REPEAT);
 }
 
 /**
  * Timer_TagAll
  * Sets all player's clantag to the one specified in their group.
  */
-public Action Timer_TagAll(Handle timer) {
+static Action Timer_TagAll(Handle timer) {
     // Loop through all online clients.
     for(int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.

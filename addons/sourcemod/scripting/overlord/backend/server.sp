@@ -21,7 +21,7 @@ public void Backend_GetServerId() {
     Format(query, sizeof(query), GET_SERVER, ipAddress, port);
 
     // Execute the query.
-    g_hDatabase.Query(Callback_GetServerId, query);
+    g_dbOverlord.Query(Callback_GetServerId, query);
 }
 
 /**
@@ -79,7 +79,7 @@ static void Backend_InsertServer() {
     Format(query, sizeof(query), INSERT_SERVER, name, ipAddress, port, rconPassword);
 
     // Execute the query.
-    g_hDatabase.Query(Callback_InsertServer, query);
+    g_dbOverlord.Query(Callback_InsertServer, query);
 }
 
 /**

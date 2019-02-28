@@ -5,6 +5,7 @@
 
 #include <cstrike>
 #include <geoip>
+#include <overlord>
 #include <sourcemod>
 
 #pragma semicolon 1
@@ -44,11 +45,14 @@ ConVar g_cvServerHostname;
 // rcon_password
 ConVar g_cvServerRconPassword;
 
-// g_hDatabase Stores the active database connection.
-Database g_hDatabase;
+// g_dbOverlord Stores the active database connection.
+Database g_dbOverlord;
 
-// g_iServerId .
-int g_iServerId = 1;
+// g_hAdminTagTimer stores the handle for the active admin tag timer.
+Handle g_hAdminTagTimer;
+
+// g_iServerId stores the server's database id.
+int g_iServerId = 0;
 
 // g_hGroups stores an array of loaded Groups.
 Group g_hGroups[GROUP_MAX];
@@ -58,10 +62,18 @@ Admin g_hAdmins[MAXPLAYERS + 1];
 
 // g_iSwapOnRoundEnd stores an array of client to swap to another team.
 int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
+
+// g_bStealthed stores an array of clients and a boolean value representing if they are stealthed or not.
+bool g_bStealthed[MAXPLAYERS + 1];
+
+// g_bStealthDisconnect stores an array of clients and a boolean value representing if they are "disconnected" or not.
+bool g_bStealthDisconnect[MAXPLAYERS + 1];
 // END Globals
 
 // Project Files
 #include "overlord/admin.sp"
+#include "overlord/natives.sp"
+#include "overlord/stealth.sp"
 #include "overlord/utils.sp"
 
 // Backend
@@ -82,6 +94,7 @@ int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 
 // Events
 #include "overlord/events/player_chat.sp"
+#include "overlord/events/player_team.sp"
 #include "overlord/events/round_end.sp"
 // END Project Files
 
@@ -134,7 +147,7 @@ public void OnPluginStart() {
     // overlord/commands/groups.sp
     RegConsoleCmd("sm_groups", Command_Groups, "Prints a list of groups.");
     // overlord/commands/hide.sp
-    RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_GENERIC, "Toggles an admin's hidden state.");
+    RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_KICK, "Toggles an admin's hidden state.");
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "Respawns a dead player.");
     // overlord/commands/team.sp
@@ -148,6 +161,11 @@ public void OnPluginStart() {
     // Events
     // overlord/events/round_end.sp
     HookEvent("round_end", Event_RoundEnd);
+    // overlord/stealth.sp
+    if(!HookEventEx("player_team", Event_PlayerTeamPre, EventHookMode_Pre)) {
+        SetFailState("%s Failed to hook \"player_team\" event, disabling plugin..", CONSOLE_PREFIX);
+        return;
+    }
     // END Events
 }
 
@@ -157,6 +175,8 @@ public void OnPluginStart() {
  */
 public void OnClientAuthorized(int client, const char[] auth) {
     g_iSwapOnRoundEnd[client] = -1;
+    g_bStealthed[client] = false;
+    g_bStealthDisconnect[client] = false;
 
     // Ignore bot users.
     if(StrEqual(auth, "BOT", true)) {

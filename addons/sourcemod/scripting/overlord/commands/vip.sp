@@ -17,31 +17,14 @@ public Action Command_VIP(const int client, const int args) {
     // Loop through all admins.
     int matched = 0;
     for(int i = 1; i < sizeof(g_hAdmins); i++) {
-        // Get the admin object from the admins array.
-        Admin admin = g_hAdmins[i];
-        if(admin == null) {
+        // Check if the client is a VIP.
+        if(!Overlord_IsVIP(i)) {
             continue;
         }
 
-        // Check if the admin has no group.
-        if(admin.GetGroup() == 0) {
-            continue;
-        }
-
-        // Get the admin's group.
-        Group group = g_hGroups[admin.GetGroup()];
-        if(group == null) {
-            continue;
-        }
-
-        // Check if the group isn't VIP.
-        if(group.GetImmunity() != 0) {
-            continue;
-        }
-
-        // Get the vip's steamid.
+        // Get the client's steamid.
         char steamId[64];
-        admin.GetSteamID(steamId, sizeof(steamId));
+        GetClientAuthId(client, AuthId_Steam2, steamId, sizeof(steamId));
 
         // Print the vip information to the client's chat.
         ReplyToCommand(client, " \x02%N\x01 \x0F%s\x01", i, steamId);

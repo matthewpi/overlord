@@ -13,7 +13,7 @@ public void Backend_GetAdmin(int client, const char[] steamId) {
     Format(query, sizeof(query), GET_ADMIN, g_iServerId, steamId);
 
     // Execute the query.
-    g_hDatabase.Query(Callback_GetAdmin, query, client);
+    g_dbOverlord.Query(Callback_GetAdmin, query, client);
 }
 
 /**
@@ -115,9 +115,6 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         }
         // END Add admin group if one isn't already present.
 
-        // Set the admin's clan tag.
-        Admin_SetTagDelayed(client);
-
         // Add admin to the admins array.
         g_hAdmins[client] = admin;
     }
@@ -143,7 +140,7 @@ public void Backend_UpdateAdmin(int client) {
     Format(query, sizeof(query), UPDATE_ADMIN, admin.IsHidden() ? 1 : 0, steamId);
 
     // Execute the query.
-    g_hDatabase.Query(Callback_UpdateAdmin, query, client);
+    g_dbOverlord.Query(Callback_UpdateAdmin, query, client);
 }
 
 /**
