@@ -45,6 +45,8 @@ public void Backend_Connnection(Database database, const char[] error, any data)
             continue;
         }
 
+        OnClientPutInServer(i);
+
         // Get the client's steam id.
         char steamId[64];
         GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));

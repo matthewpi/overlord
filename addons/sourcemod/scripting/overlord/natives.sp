@@ -63,5 +63,5 @@ public int Native_IsStealthed(Handle plugin, int params) {
  */
 public int Native_CanStealth(Handle plugin, int params) {
     int client = GetNativeCell(1);
-    return g_bStealthed[client];
+    return Overlord_IsAdmin(client);
 }

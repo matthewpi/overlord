@@ -17,12 +17,6 @@ public Action Command_Hide(const int client, const int args) {
         return Plugin_Handled;
     }
 
-    // Check if the client isn't an admin
-    if(GetUserAdmin(client) == INVALID_ADMIN_ID) {
-        ReplyToCommand(client, "%s No permission.", PREFIX);
-        return Plugin_Handled;
-    }
-
     // Get the client's admin.
     Admin admin = g_hAdmins[client];
     if(admin == null) {

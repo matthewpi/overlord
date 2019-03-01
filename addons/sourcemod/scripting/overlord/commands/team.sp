@@ -71,7 +71,7 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
     if(targetCount > 2) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were found.", PREFIX);
+        ReplyToCommand(client, "%s \x07Too many clients were matched.", PREFIX);
         // Log the command execution.
         LogCommand(client, -1, command, "");
         return Plugin_Handled;
@@ -100,31 +100,22 @@ static Action TeamCommand(const int client, const int args, const char[] command
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = commandTeam;
 
-                // Send a message to the client.
-                //ReplyToCommand(client, "%s \x10%s \x01will be swapped to the \x07%s\x01 team on round end.", PREFIX, targetName, commandTeamName);
-
                 // Show the activity to the players.
-                ShowActivity2(client, ACTION_PREFIX, " \x10%s\x01 will be swapped to the \x07%s\x01 team on round end.", targetName, commandTeamName);
+                LogActivity(client, "\x10%s\x01 will be swapped to the \x07%s\x01 team on round end.", targetName, commandTeamName);
             // Else, make sure the client is not changing teams at round end.
             } else {
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = -1;
 
-                // Send a message to the client.
-                //ReplyToCommand(client, "%s \x10%s \x01will \x02NOT\x01 be swapped to the \x07%s\x01 team on round end.", PREFIX, targetName, commandTeamName);
-
                 // Show the activity to the players.
-                ShowActivity2(client, ACTION_PREFIX, " \x10%s\x01 will \x02NOT\x01 be swapped on round end.", targetName);
+                LogActivity(client, "\x10%s\x01 will \x02NOT\x01 be swapped on round end.", targetName);
             }
         } else {
             // Swap the target's team.
             ChangeClientTeam(target, commandTeam);
 
-            // Send a message to the client.
-            //ReplyToCommand(client, "%s \x10%s \x01has been swapped to the \x07%s\x01 team", PREFIX, targetName, commandTeamName);
-
             // Show the activity to the players.
-            ShowActivity2(client, ACTION_PREFIX, " Swapped \x10%s\x01 to the \x07%s\x01 team.", targetName, commandTeamName);
+            LogActivity(client, "Swapped \x10%s\x01 to the \x07%s\x01 team.", targetName, commandTeamName);
         }
     } else {
         // Send a message to the client.

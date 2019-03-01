@@ -77,18 +77,24 @@ public Action Command_Respawn(const int client, const int args) {
 
         // Respawn the target.
         CS_RespawnPlayer(target);
+
+        // Teleport the target.
+        float position[3];
+        g_alDeathPosition.GetArray(target, position, sizeof(position));
+        TeleportEntity(client, position, NULL_VECTOR, NULL_VECTOR);
+
         respawned++;
     }
 
     if(respawned > 1) {
         // Show the activity to the players.
-        ShowActivity2(client, ACTION_PREFIX, " Respawned \x10%i\x01 players.");
+        LogActivity(client, "Respawned all \x10%s\x01.", targetName);
 
         // Log the command execution.
         LogCommand(client, -1, command, "(Respawned: %i)", respawned);
     } else if(respawned == 1) {
         // Show the activity to the players.
-        ShowActivity2(client, ACTION_PREFIX, " Respawned \x10%N\x01.", targets[0]);
+        LogActivity(client, "Respawned \x10%N\x01.", targets[0]);
 
         // Log the command execution.
         LogCommand(client, targets[0], command, "");

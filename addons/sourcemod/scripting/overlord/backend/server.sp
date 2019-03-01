@@ -58,9 +58,9 @@ static void Callback_GetServerId(Database database, DBResultSet results, const c
  * Inserts this server's information into the database.
  */
 static void Backend_InsertServer() {
-    // Get the server's hostname. (server list name)
-    char name[64];
-    g_cvServerHostname.GetString(name, sizeof(name));
+    // Get the server's hostname.
+    char hostname[64];
+    g_cvServerHostname.GetString(hostname, sizeof(hostname));
 
     // Get the server's ip address.
     char ipAddress[16];
@@ -76,7 +76,7 @@ static void Backend_InsertServer() {
 
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), INSERT_SERVER, name, ipAddress, port, rconPassword);
+    Format(query, sizeof(query), INSERT_SERVER, hostname, ipAddress, port, rconPassword);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_InsertServer, query);

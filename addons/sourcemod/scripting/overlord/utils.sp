@@ -19,8 +19,12 @@ static char _colorCodes[][] = {
  * IsClientValid
  * Returns true if the client is valid. (in game, connected, isn't fake)
  */
-public bool IsClientValid(const int client) {
-    if(client <= 0 || client > MaxClients || !IsClientConnected(client) || !IsClientInGame(client) || IsFakeClient(client)) {
+bool IsClientValid(const int client, bool fake = false) {
+    if(client <= 0 || client > MaxClients || !IsClientConnected(client) || !IsClientInGame(client)) {
+        return false;
+    }
+
+    if(!fake && IsFakeClient(client)) {
         return false;
     }
 
@@ -33,17 +37,17 @@ public bool IsClientValid(const int client) {
  */
 public void LogCommand(const int client, const int target, const char[] command, const char[] extra, any...) {
     // Check if there were extra parameters passed to the function.
-	if(strlen(extra) > 0) {
+    if(strlen(extra) > 0) {
         // Format the extra parameters.
-		char buffer[512];
-		VFormat(buffer, sizeof(buffer), extra, 5);
+        char buffer[512];
+        VFormat(buffer, sizeof(buffer), extra, 5);
 
         // Log the command execution.
-		LogAction(client, target, "%s '%N' executed command '%s' %s", CONSOLE_PREFIX, client, command, buffer);
-	} else {
+        LogAction(client, target, "%s '%N' executed command '%s' %s", CONSOLE_PREFIX, client, command, buffer);
+    } else {
         // Log the command execution.
-		LogAction(client, target, "%s '%N' executed command '%s'", CONSOLE_PREFIX, client, command);
-	}
+        LogAction(client, target, "%s '%N' executed command '%s'", CONSOLE_PREFIX, client, command);
+    }
 }
 
 /**
@@ -121,5 +125,54 @@ public void PrintToAdmins(const char[] message, const AdminFlag flag, const int 
         }
 
         PrintToChat(client, "%s %s", PREFIX, message);
+    }
+}
+
+/**
+ * TeleportClientToTarget
+ * Teleports a client to a target.
+ */
+public void TeleportClientToTarget(const int client, const int target) {
+    // Get the target's origin.
+    float origin[3];
+    GetClientAbsOrigin(target, origin);
+
+    // Teleport the client.
+    TeleportEntity(client, origin, NULL_VECTOR, NULL_VECTOR);
+}
+
+/**
+ * DisarmClient
+ * Removes a player's weapons.
+ */
+public void DisarmClient(const int client) {
+    for(int i = 0; i < 5; i++) {
+        int weapon = GetPlayerWeaponSlot(client, i);
+
+        while(weapon > 0) {
+            RemovePlayerItem(client, weapon);
+            AcceptEntityInput(weapon, "Kill");
+            weapon = GetPlayerWeaponSlot(client, i);
+        }
+    }
+}
+
+/**
+ * FormatShortTime
+ * ?
+ */
+//
+stock void FormatShortTime(int time, char[] buffer, int size) {
+    int temp = time % 60;
+
+    Format(buffer, size, "%02d", temp);
+    temp = (time % 3600) / 60;
+
+    Format(buffer, size, "%02d:%s", temp, buffer);
+
+    temp = (time % 86400) / 3600;
+
+    if(temp > 0) {
+        Format(buffer, size, "%d%:s", temp, buffer);
     }
 }

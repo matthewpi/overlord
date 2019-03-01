@@ -4,24 +4,35 @@
  */
 
 /**
- * Command_Heal (sm_heal)
- * Heals the specified target.
+ * Command_Follow (sm_follow)
+ * Prints a list of all online VIPs.
  */
-public Action Command_Heal(const int client, const int args) {
-    char command[64] = "sm_heal";
+public Action Command_Follow(const int client, const int args) {
+    // Variable to hold the command name.
+    char command[64] = "sm_follow";
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        // Send a message to the client.
         ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
-    // Check if the client did not pass an argument.
-    if(args != 1 && args != 2) {
+    if(args == 0 && g_iFollowing[client] != -1) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> [round end]", PREFIX, command);
+        ReplyToCommand(client, "%s No longer following \x10%N", PREFIX, g_iFollowing[client]);
 
+        // Log the command execution.
+        LogCommand(client, -1, command, "");
+
+        // Unset who the client was following.
+        g_iFollowing[client] = -1;
+        return Plugin_Handled;
+    }
+
+    // Check if the client did not pass an argument.
+    if(args != 1) {
+        // Send a message to the client.
+        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
         // Log the command execution.
         LogCommand(client, -1, command, "");
         return Plugin_Handled;
@@ -43,42 +54,27 @@ public Action Command_Heal(const int client, const int args) {
     if(targetCount < 1) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
-
         // Log the command execution.
-        LogCommand(client, -1, command, "(Targetting error)");
+        LogCommand(client, -1, command, "");
         return Plugin_Handled;
     }
 
     if(targetCount > 2) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were found.", PREFIX);
-
+        ReplyToCommand(client, "%s \x07Too many clients were matched.", PREFIX);
         // Log the command execution.
-        LogCommand(client, -1, command, "(Too many clients found)");
+        LogCommand(client, -1, command, "");
         return Plugin_Handled;
     }
 
     // Get the target's id.
     int target = targets[0];
 
-    // Check if the target is not alive.
-    if(!IsPlayerAlive(target)) {
-        // Send a message to the client.
-        ReplyToCommand(client, "%s \x10%N\x01 is not alive.", PREFIX, target);
+    // Update the "g_iFollowing" array.
+    g_iFollowing[client] = target;
 
-        // Log the command execution.
-        LogCommand(client, target, command, "(Target is not alive)");
-        return Plugin_Handled;
-    }
-
-    // Update the target's health.
-    SetEntityHealth(target, 100);
-
-    // Show the activity to the players.
-    LogActivity(client, "Healed \x10%N\x01.", target);
-
-    // Log the command execution.
-    LogCommand(client, target, command, "(Healed target)");
+    // Set who the client is spectating.
+    FakeClientCommand(client, "spec_player \"%N\"", g_iFollowing[client]);
 
     return Plugin_Handled;
 }
