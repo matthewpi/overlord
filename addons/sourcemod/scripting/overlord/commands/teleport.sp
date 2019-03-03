@@ -50,8 +50,12 @@ public Action Command_Teleport(const int client, const int args) {
     }
 
     if(targetCount > 2) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Too many clients were matched", client);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were matched.", PREFIX);
+        ReplyToCommand(client, buffer);
 
         // Log the command execution.
         LogCommand(client, -1, command, "");
@@ -64,8 +68,13 @@ public Action Command_Teleport(const int client, const int args) {
     // Teleport the client to the target.
     TeleportClientToTarget(client, target);
 
-    // Log the action to all players on the server.
-    LogActivity(client, "Teleported to \x10%s\x01.", targetName);
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_tp Player", client, targetName);
+
+    // Show the activity to the players.
+    LogActivity(client, buffer);
+    //LogActivity(client, "\x01Teleported to \x10%s\x01.", targetName);
 
     return Plugin_Handled;
 }

@@ -70,7 +70,12 @@ public Action Command_Respawn(const int client, const int args) {
         // Check if the target is alive.
         if(IsPlayerAlive(target)) {
             if(targetCount == 1) {
-                ReplyToCommand(client, "%s \x10%N\x01 is already alive.", PREFIX, target);
+                // Get and format the translation.
+                char buffer[512];
+                GetTranslation(buffer, sizeof(buffer), "%T", "Is already alive", client, targetName);
+
+                // Send a message to the client.
+                ReplyToCommand(client, buffer);
             }
             continue;
         }
@@ -87,14 +92,24 @@ public Action Command_Respawn(const int client, const int args) {
     }
 
     if(respawned > 1) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn All", client, targetName);
+
         // Show the activity to the players.
-        LogActivity(client, "Respawned all \x10%s\x01.", targetName);
+        LogActivity(client, buffer);
+        //LogActivity(client, "\x01Respawned all \x10%s\x01.", targetName);
 
         // Log the command execution.
         LogCommand(client, -1, command, "(Respawned: %i)", respawned);
     } else if(respawned == 1) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
+
         // Show the activity to the players.
-        LogActivity(client, "Respawned \x10%N\x01.", targets[0]);
+        LogActivity(client, buffer);
+        //LogActivity(client, "\x01Respawned \x10%N\x01.", targets[0]);
 
         // Log the command execution.
         LogCommand(client, targets[0], command, "");

@@ -15,7 +15,7 @@ static char _colorCodes[][] = {
     "\x0B",         "\x0C",        "\x0E",     "\x0F"
 };
 
-/*
+/**
  * IsClientValid
  * Returns true if the client is valid. (in game, connected, isn't fake)
  */
@@ -31,7 +31,7 @@ bool IsClientValid(const int client, bool fake = false) {
     return true;
 }
 
-/*
+/**
  * LogCommand
  * Logs a command execution.
  */
@@ -52,6 +52,7 @@ public void LogCommand(const int client, const int target, const char[] command,
 
 /**
  * LogActivity
+ * ?
  */
 public void LogActivity(const int client, const char[] message, any...) {
     char formattedMessage[512];
@@ -60,16 +61,51 @@ public void LogActivity(const int client, const char[] message, any...) {
     ShowActivity2(client, ACTION_PREFIX, formattedMessage);
 }
 
-/*
+/**
  * Colorize
  * Colorizes a message.
  */
-public void Colorize(char[] message, int size) {
+public void Colorize(char[] buffer, const int maxlen) {
     // Loop through the _colorNames array.
     for(int i = 0; i < sizeof(_colorNames); i++) {
         // Replace all color codes in the message.
-        ReplaceString(message, size, _colorNames[i], _colorCodes[i]);
+        ReplaceString(buffer, maxlen, _colorNames[i], _colorCodes[i]);
     }
+}
+
+/**
+ * GetTranslation
+ * Gets and formats a translation message and adds the plugin prefix.
+ */
+public void GetTranslation(char[] buffer, const int maxlen, const char[] msg, any...) {
+    // Get and format the translation portion of the message.
+    char message[512];
+    VFormat(message, sizeof(message), msg, 4);
+
+    // Add colours to the translation.
+    Colorize(message, sizeof(message));
+
+    // Add the prefix to the translation.
+    Format(message, sizeof(message), "%s %s", PREFIX, message);
+
+    // Copy the formatted translation to the buffer.
+    strcopy(buffer, maxlen, message);
+}
+
+/**
+ * GetTranslationNP
+ * Gets and formats a translation message and doesn't add the plugin prefix.
+ */
+public void GetTranslationNP(char[] buffer, const int maxlen, const char[] msg, any...) {
+    // Get and format the translation portion of the message.
+    char message[512];
+    VFormat(message, sizeof(message), msg, 4);
+
+    // Add colours to the translation.
+    Colorize(message, sizeof(message));
+
+    // Copy the formatted translation to the buffer.
+    strcopy(buffer, maxlen, message);
 }
 
 /**
@@ -91,7 +127,7 @@ public void GetClientTeamName(const int team, char[] buffer, const int maxlen) {
  * PrintToAdmins
  * Prints a message to admins that match the function arguments.
  */
-public void PrintToAdmins(const char[] message, const AdminFlag flag, const int team, const bool dead) {
+void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, const int team = -1, const bool dead = false) {
     for(int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
         if(!IsClientValid(client)) {

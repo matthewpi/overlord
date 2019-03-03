@@ -20,7 +20,7 @@ public Action Command_Heal(const int client, const int args) {
     // Check if the client did not pass an argument.
     if(args != 1 && args != 2) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> [round end]", PREFIX, command);
+        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
         // Log the command execution.
         LogCommand(client, -1, command, "");
@@ -50,8 +50,12 @@ public Action Command_Heal(const int client, const int args) {
     }
 
     if(targetCount > 2) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Too many clients were matched", client);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were found.", PREFIX);
+        ReplyToCommand(client, buffer);
 
         // Log the command execution.
         LogCommand(client, -1, command, "(Too many clients found)");
@@ -63,22 +67,31 @@ public Action Command_Heal(const int client, const int args) {
 
     // Check if the target is not alive.
     if(!IsPlayerAlive(target)) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x10%N\x01 is not alive.", PREFIX, target);
+        ReplyToCommand(client, buffer);
 
         // Log the command execution.
         LogCommand(client, target, command, "(Target is not alive)");
         return Plugin_Handled;
     }
 
-    // Update the target's health.
-    SetEntityHealth(target, 100);
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Healed", client, targetName);
 
     // Show the activity to the players.
-    LogActivity(client, "Healed \x10%N\x01.", target);
+    LogActivity(client, buffer);
+
+    // Update the target's health.
+    int health = 100;
+    SetEntityHealth(target, health);
 
     // Log the command execution.
-    LogCommand(client, target, command, "(Healed target)");
+    LogCommand(client, target, command, "(Target: '%s', health: %i)", targetName, health);
 
     return Plugin_Handled;
 }

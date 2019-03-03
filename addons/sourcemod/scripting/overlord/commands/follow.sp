@@ -18,8 +18,16 @@ public Action Command_Follow(const int client, const int args) {
     }
 
     if(args == 0 && g_iFollowing[client] != -1) {
+        // Get the client's target's name.
+        char targetName[128];
+        GetClientName(g_iFollowing[client], targetName, sizeof(targetName));
+
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_follow Stopped", client, targetName);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s No longer following \x10%N", PREFIX, g_iFollowing[client]);
+        ReplyToCommand(client, buffer);
 
         // Log the command execution.
         LogCommand(client, -1, command, "");
@@ -33,8 +41,23 @@ public Action Command_Follow(const int client, const int args) {
     if(args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
+
         // Log the command execution.
         LogCommand(client, -1, command, "");
+        return Plugin_Handled;
+    }
+
+    if(GetClientTeam(client) != CS_TEAM_SPECTATOR) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_follow Spectator", client);
+
+        // Send a message to the client.
+        ReplyToCommand(client, buffer);
+
+        // Log the command execution.
+        LogCommand(client, -1, command, "");
+
         return Plugin_Handled;
     }
 
@@ -60,8 +83,13 @@ public Action Command_Follow(const int client, const int args) {
     }
 
     if(targetCount > 2) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Too many clients were matched", client);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were matched.", PREFIX);
+        ReplyToCommand(client, buffer);
+
         // Log the command execution.
         LogCommand(client, -1, command, "");
         return Plugin_Handled;
@@ -74,7 +102,17 @@ public Action Command_Follow(const int client, const int args) {
     g_iFollowing[client] = target;
 
     // Set who the client is spectating.
-    FakeClientCommand(client, "spec_player \"%N\"", g_iFollowing[client]);
+    FakeClientCommand(client, "spec_player \"%N\"", target);
+
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslation(buffer, sizeof(buffer), "%T", "sm_follow Following", client, targetName);
+
+    // Send a message to the client.
+    ReplyToCommand(client, buffer);
+
+    // Log the command execution.
+    LogCommand(client, target, command, "(Target: '%s')", targetName);
 
     return Plugin_Handled;
 }

@@ -1,7 +1,141 @@
 "Phrases"
 {
-    "Prefix"
+    "Too many clients were matched"
     {
-        "en" ""
+        "en" "Too many clients were matched."
+    }
+
+    "Is not alive"
+    {
+        "#format" "{1:s}"
+        "en"      "{ORANGE}{1}{NORMAL} is not alive."
+    }
+
+    "Is already alive"
+    {
+        "#format" "{1:s}"
+        "en"      "{ORANGE}{1}{NORMAL} is already alive."
+    }
+
+    "sm_admins Admin"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      " {DARK_RED}{1}{NORMAL} {LIGHT_RED}{2}{NORMAL} {ORANGE}{3}{NORMAL}"
+    }
+
+    "sm_admins Admin (Hidden)"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      " {DARK_RED}{1}{NORMAL} {LIGHT_RED}{2}{NORMAL} {ORANGE}{3}{NORMAL} ({YELLOW}Hidden{NORMAL})"
+    }
+
+    "sm_admins None"
+    {
+        "en" "There are currently no {ORANGE}Admins{NORMAL} online."
+    }
+
+    "sm_follow Spectator"
+    {
+        "en" "You must be on the {RED}Spectator{NORMAL} team to do this."
+    }
+
+    "sm_follow Stopped"
+    {
+        "#format" "{1:s}"
+        "en"      "No longer following {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_follow Following"
+    {
+        "#format" "{1:s}"
+        "en"      "Now following {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_groups Group"
+    {
+        "#format" "{1:i},{2:s},{3:s},{4:i},{5:s}"
+        "en"      " {1} {ORANGE}{2}{NORMAL} \"{RED}{3}{NORMAL}\" {PURPLE}{4}{NORMAL} | {YELLOW}{5}{NORMAL}"
+    }
+
+    "sm_groups None"
+    {
+        "en" "There are no {ORANGE}Groups{NORMAL} loaded."
+    }
+
+    "sm_heal Healed"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Healed {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_hide Visible"
+    {
+        "#format" "{1:s}"
+        "en"      "{ORANGE}{1}{NORMAL} is now {RED}Visible{NORMAL} to all players."
+    }
+
+    "sm_hide Hidden"
+    {
+        "#format" "{1:s}"
+        "en"      "{ORANGE}{1}{NORMAL} is now {LIME_GREEN}Hidden{NORMAL} to all players."
+    }
+
+    "sm_hog Hogged"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Struck {ORANGE}{1}{NORMAL} with the hand of {RED}balon{NORMAL}."
+    }
+
+    "sm_respawn All"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Respawned all {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_respawn Player"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Respawned {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_team Round End"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      "{NORMAL}{ORANGE}{1}{NORMAL} will be swapped to the {RED}{2}{NORMAL} team on round end."
+    }
+
+    "sm_team NOT Round End"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}{ORANGE}{1}{NORMAL} will {RED}NOT{NORMAL} be swapped on round end."
+    }
+
+    "sm_team Swapped"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      "{NORMAL}Swapped {ORANGE}{1}{NORMAL} to the {RED}{2}{NORMAL} team."
+    }
+
+    "sm_team Already"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      "{NORMAL}{ORANGE}{1}{NORMAL} is already on the {RED}{2}{NORMAL} team."
+    }
+
+    "sm_tp Player"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Teleported to {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_vips VIP"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      " {DARK_RED}{1}{NORMAL} {LIGHT_RED}{2}{NORMAL}"
+    }
+
+    "sm_vips None"
+    {
+        "en" "There are currently no {ORANGE}VIPs{NORMAL} online."
     }
 }

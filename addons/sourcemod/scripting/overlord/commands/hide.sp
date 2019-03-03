@@ -26,8 +26,20 @@ public Action Command_Hide(const int client, const int args) {
     // Update the admin's hidden state.
     admin.SetHidden(!admin.IsHidden());
 
-    // Notify the admin.
-    ReplyToCommand(client, "%s \x10%N\x01 is now %s\x01 to all players.", PREFIX, client, admin.IsHidden() ? "\x04Hidden" : "\x07Visible");
+    // Get the client's name.
+    char clientName[128];
+    GetClientName(client, clientName, sizeof(clientName));
+
+    // Get and format the translation.
+    char buffer[512];
+    if(!admin.IsHidden()) {
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_hide Visible", client, clientName);
+    } else {
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_hide Hidden", client, clientName);
+    }
+
+    // Send a message to the client.
+    ReplyToCommand(client, buffer);
 
     // Log the command execution.
     LogCommand(client, -1, command, "");

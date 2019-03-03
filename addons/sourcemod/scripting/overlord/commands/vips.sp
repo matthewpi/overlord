@@ -4,10 +4,10 @@
  */
 
 /**
- * Command_VIP (sm_vip)
+ * Command_VIPs (sm_vips)
  * Prints a list of all online VIPs.
  */
-public Action Command_VIP(const int client, const int args) {
+public Action Command_VIPs(const int client, const int args) {
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
@@ -26,14 +26,28 @@ public Action Command_VIP(const int client, const int args) {
         char steamId[64];
         GetClientAuthId(client, AuthId_Steam2, steamId, sizeof(steamId));
 
+        // Get the admin's name.
+        char clientName[128];
+        GetClientName(i, clientName, sizeof(clientName));
+
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_vips VIP", client, clientName, steamId);
+
         // Print the vip information to the client's chat.
-        ReplyToCommand(client, " \x02%N\x01 \x0F%s\x01", i, steamId);
+        ReplyToCommand(client, buffer, i, steamId);
+        //ReplyToCommand(client, " \x02%N\x01 \x0F%s\x01", i, steamId);
         matched++;
     }
 
     // Print a message if no vips were listed.
     if(matched == 0) {
-        ReplyToCommand(client, "%s There are currently no \x10VIPs\x01 online.", PREFIX);
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_vips None", client);
+
+        // Send a message to the client.
+        ReplyToCommand(client, buffer);
     }
 
     return Plugin_Handled;

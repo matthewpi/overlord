@@ -9,7 +9,7 @@
  */
 public void Backend_GetAdmin(int client, const char[] steamId) {
     // Create and format the query.
-    char query[512];
+    char query[1024];
     Format(query, sizeof(query), GET_ADMIN, g_iServerId, steamId);
 
     // Execute the query.
@@ -36,17 +36,19 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
     int idIndex;
     int nameIndex;
     int steamIdIndex;
-    int groupIdIndex;
     int hiddenIndex;
     int activeIndex;
     int createdAtIndex;
+    int groupIdIndex;
+    int serverGroupIdIndex;
     if(!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     if(!results.FieldNameToNum("name", nameIndex)) { LogError("%s Failed to locate \"name\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     if(!results.FieldNameToNum("steamId", steamIdIndex)) { LogError("%s Failed to locate \"steamId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("groupId", groupIdIndex)) { LogError("%s Failed to locate \"groupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     if(!results.FieldNameToNum("hidden", hiddenIndex)) { LogError("%s Failed to locate \"hidden\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     if(!results.FieldNameToNum("active", activeIndex)) { LogError("%s Failed to locate \"active\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     if(!results.FieldNameToNum("createdAt", createdAtIndex)) { LogError("%s Failed to locate \"createdAt\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if(!results.FieldNameToNum("groupId", groupIdIndex)) { LogError("%s Failed to locate \"groupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if(!results.FieldNameToNum("serverGroupId", serverGroupIdIndex)) { LogError("%s Failed to locate \"serverGroupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     // END Get table column indexes.
 
     // Loop through query results.
@@ -61,15 +63,27 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         int id = results.FetchInt(idIndex);
         char name[32];
         char steamId[64];
-        int group = results.FetchInt(groupIdIndex);
         bool hidden = false;
         if(results.FetchInt(hiddenIndex) == 1) {
             hidden = true;
         }
         int createdAt = results.FetchInt(createdAtIndex);
+        int group = 0;
 
         results.FetchString(nameIndex, name, sizeof(name));
         results.FetchString(steamIdIndex, steamId, sizeof(steamId));
+
+        if(results.IsFieldNull(serverGroupIdIndex)) {
+            if(results.IsFieldNull(groupIdIndex)) {
+                // Log that we found an admin, but no group is set.
+                LogMessage("%s Found admin for '%N' but group is null. (Steam ID: %s)", CONSOLE_PREFIX, client, steamId);
+                LogMessage("%s %i", CONSOLE_PREFIX, results.FetchInt(serverGroupIdIndex));
+                continue;
+            }
+            group = results.FetchInt(groupIdIndex);
+        } else {
+            group = results.FetchInt(serverGroupIdIndex);
+        }
         // END Pull row information.
 
         // Log that we found an admin.

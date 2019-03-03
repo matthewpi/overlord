@@ -70,8 +70,13 @@ static Action TeamCommand(const int client, const int args, const char[] command
     }
 
     if(targetCount > 2) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Too many clients were matched", client);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Too many clients were matched.", PREFIX);
+        ReplyToCommand(client, buffer);
+
         // Log the command execution.
         LogCommand(client, -1, command, "");
         return Plugin_Handled;
@@ -100,26 +105,46 @@ static Action TeamCommand(const int client, const int args, const char[] command
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = commandTeam;
 
+                // Get and format the translation.
+                char buffer[512];
+                GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_team Round End", client, targetName, commandTeamName);
+
                 // Show the activity to the players.
-                LogActivity(client, "\x10%s\x01 will be swapped to the \x07%s\x01 team on round end.", targetName, commandTeamName);
+                LogActivity(client, buffer);
+                //LogActivity(client, "\x10%s\x01 will be swapped to the \x07%s\x01 team on round end.", targetName, commandTeamName);
             // Else, make sure the client is not changing teams at round end.
             } else {
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = -1;
 
+                // Get and format the translation.
+                char buffer[512];
+                GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_team NOT Round End", client, targetName);
+
                 // Show the activity to the players.
-                LogActivity(client, "\x10%s\x01 will \x02NOT\x01 be swapped on round end.", targetName);
+                LogActivity(client, buffer);
+                //LogActivity(client, "\x10%s\x01 will \x02NOT\x01 be swapped on round end.", targetName);
             }
         } else {
             // Swap the target's team.
             ChangeClientTeam(target, commandTeam);
 
+            // Get and format the translation.
+            char buffer[512];
+            GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_team Swapped", client, targetName, commandTeamName);
+
             // Show the activity to the players.
-            LogActivity(client, "Swapped \x10%s\x01 to the \x07%s\x01 team.", targetName, commandTeamName);
+            LogActivity(client, buffer);
+            //LogActivity(client, "\x01Swapped \x10%s\x01 to the \x07%s\x01 team.", targetName, commandTeamName);
         }
     } else {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_team Already", client, targetName, commandTeamName);
+
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x10%s \x01is already on the \x07%s\x01 team", PREFIX, targetName, commandTeamName);
+        ReplyToCommand(client, buffer);
+        //ReplyToCommand(client, "%s \x10%s \x01is already on the \x07%s\x01 team", PREFIX, targetName, commandTeamName);
     }
 
     // Log the command execution.

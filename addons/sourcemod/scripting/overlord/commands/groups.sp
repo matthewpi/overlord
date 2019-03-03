@@ -38,14 +38,23 @@ public Action Command_Groups(const int client, const int args) {
         char flags[26];
         group.GetFlags(flags, sizeof(flags));
 
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_groups Group", client, id, name, tag, group.GetImmunity(), flags);
+
         // Print the group information to the client's chat.
-        ReplyToCommand(client, "%s %i \x10%s \x01\"\x07%s\x01\" \x0E%i\x01 | \x09%s\x01", PREFIX, id, name, tag, group.GetImmunity(), flags);
+        ReplyToCommand(client, buffer);
         matched++;
     }
 
     // Print a message if no groups were listed.
     if(matched == 0) {
-        ReplyToCommand(client, "%s There are no \x10Groups\x01 loaded.", PREFIX);
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_groups None", client);
+
+        // Send a message to the client.
+        ReplyToCommand(client, buffer);
     }
 
     return Plugin_Handled;

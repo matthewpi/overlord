@@ -188,9 +188,13 @@ static Action Timer_StealthTeamTimer(Handle timer, Event event) {
                 // Cancel the "playerConnectEvent".
                 playerConnectEvent.Cancel();
             }
+
+            // Update the "g_bStealthDisconnect" array.
+            g_bStealthDisconnect[client] = false;
         }
 
-        g_bStealthDisconnect[client] = false;
+        // Update the "g_bStealthed" array.
+        g_bStealthed[client] = false;
         event.Fire();
         event = null;
     }
@@ -198,6 +202,7 @@ static Action Timer_StealthTeamTimer(Handle timer, Event event) {
     // Check if the "player_team" event is not null.
     if(event != null) {
         event.Cancel();
+        event = null;
     }
 
     return Plugin_Stop;

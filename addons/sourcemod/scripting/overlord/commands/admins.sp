@@ -52,9 +52,13 @@ public Action Command_Admins(const int client, const int args) {
         }
 
         // Check if the client is a VIP.
-        if(!Overlord_IsStealthed(i)) {
+        if(Overlord_IsStealthed(i)) {
             continue;
         }
+
+        // Get the admin's name.
+        char adminName[128];
+        GetClientName(i, adminName, sizeof(adminName));
 
         // Get the admin's steamid.
         char steamId[64];
@@ -64,14 +68,27 @@ public Action Command_Admins(const int client, const int args) {
         char groupName[32];
         group.GetName(groupName, sizeof(groupName));
 
+        // Get and format the translation.
+        char buffer[512];
+        if(!admin.IsHidden()) {
+            GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_admins Admin", client, adminName, steamId, groupName);
+        } else {
+            GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_admins Admin (Hidden)", client, adminName, steamId, groupName);
+        }
+
         // Print the admin information to the client's chat.
-        ReplyToCommand(client, " \x02%N\x01 \x0F%s\x01 \x10%s\x01%s", i, steamId, groupName, admin.IsHidden() ? " (\x09Hidden\x01)" : "");
+        ReplyToCommand(client, buffer);
         matched++;
     }
 
     // Print a message if no admins were listed.
     if(matched == 0) {
-        ReplyToCommand(client, "%s There are currently no \x10Admins\x01 online.", PREFIX);
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_admins None", client);
+
+        // Send a message to the client.
+        ReplyToCommand(client, buffer);
     }
 
     return Plugin_Handled;

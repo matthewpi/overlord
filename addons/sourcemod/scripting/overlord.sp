@@ -22,21 +22,22 @@
 
 // Prefixes
 #define PREFIX         "[\x06Overlord\x01]"
-#define ACTION_PREFIX  "[\x06Overlord\x01] "
+#define ACTION_PREFIX  "[\x06Overlord\x01]\x08 "
 #define CONSOLE_PREFIX "[Overlord]"
 
 // Limits
 #define GROUP_MAX 16
 
 // Models
-#define MODEL_LIGHTNING    "sprites/steam1.vmt"
-#define MODEL_LIGHTNING_DL "materials/overlord/laserbeam.vmt"
+#define MODEL_LIGHTNING     "overlord/laserbeam.vmt"
+#define MODEL_LIGHTNING_DL  "materials/overlord/laserbeam.vmt"
+#define MODEL_LIGHTNING_DL2  "materials/overlord/laserbeam.vtf"
 
 #define MODEL_SMOKE    "sprites/steam1.vmt"
 #define MODEL_SMOKE_DL "materials/sprites/steam1.vmt"
 
 // Sounds
-#define SOUND_HOG "*overlord/hog.mp3"
+#define SOUND_HOG    "*overlord/hog.mp3"
 #define SOUND_HOG_DL "sound/overlord/hog.mp3"
 // END Definitions
 
@@ -63,6 +64,7 @@ ConVar g_cvServerHostname;
 // rcon_password
 ConVar g_cvServerRconPassword;
 
+// g_cServerMap
 char g_cServerMap[128];
 
 // g_dbOverlord Stores the active database connection.
@@ -99,7 +101,7 @@ bool g_bStealthed[MAXPLAYERS + 1];
 bool g_bStealthDisconnect[MAXPLAYERS + 1];
 
 // g_iStealthPlayerManager
-int g_iStealthPlayerManager;
+//int g_iStealthPlayerManager;
 
 // g_iFollowing
 int g_iFollowing[MAXPLAYERS + 1];
@@ -109,7 +111,7 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/admin.sp"
 #include "overlord/natives.sp"
 #include "overlord/sourcemod.sp"
-#include "overlord/stealth.sp"
+//#include "overlord/stealth.sp"
 #include "overlord/utils.sp"
 
 // Backend
@@ -127,16 +129,16 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/commands/hide.sp"
 #include "overlord/commands/hog.sp"
 #include "overlord/commands/respawn.sp"
-#include "overlord/commands/status.sp"
+//#include "overlord/commands/status.sp"
 #include "overlord/commands/team.sp"
 #include "overlord/commands/teleport.sp"
-#include "overlord/commands/vip.sp"
+#include "overlord/commands/vips.sp"
 
 // Events
 #include "overlord/events/player_chat.sp"
 #include "overlord/events/player_death.sp"
 #include "overlord/events/player_spawn.sp"
-#include "overlord/events/player_team.sp"
+//#include "overlord/events/player_team.sp"
 #include "overlord/events/round_end.sp"
 // END Project Files
 
@@ -197,15 +199,15 @@ public void OnPluginStart() {
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "Respawns a dead player.");
     // overlord/commands/status.sp
-    AddCommandListener(Command_Status, "status");
+    //AddCommandListener(Command_Status, "status");
     // overlord/commands/team.sp
     RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "Swap a client to the terrorist team.");
     RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "Swap a client to the counter-terrorist team.");
     RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_SLAY, "Swap a client to the spectator team.");
     // overlord/commands/teleport.sp
     RegAdminCmd("sm_tp", Command_Teleport, ADMFLAG_BAN, "Teleport to a client.");
-    // overlord/commands/vip.sp
-    RegConsoleCmd("sm_vip", Command_VIP, "Prints a list of vips.");
+    // overlord/commands/vips.sp
+    RegConsoleCmd("sm_vips", Command_VIPs, "Prints a list of vips.");
     // END Commands
 
     // Events
@@ -220,10 +222,10 @@ public void OnPluginStart() {
         return;
     }
     // overlord/events/player_team.sp
-    if(!HookEventEx("player_team", Event_PlayerTeamPre, EventHookMode_Pre)) {
+    /*if(!HookEventEx("player_team", Event_PlayerTeamPre, EventHookMode_Pre)) {
         SetFailState("%s Failed to hook \"player_team\" event, disabling plugin..", CONSOLE_PREFIX);
         return;
-    }
+    }*/
     // overlord/events/round_end.sp
     if(!HookEventEx("round_end", Event_RoundEnd)) {
         SetFailState("%s Failed to hook \"round_end\" event, disabling plugin..", CONSOLE_PREFIX);
@@ -246,6 +248,7 @@ public void OnMapStart() {
     // File Downloads
     AddFileToDownloadsTable(SOUND_HOG_DL);
     AddFileToDownloadsTable(MODEL_LIGHTNING_DL);
+    AddFileToDownloadsTable(MODEL_LIGHTNING_DL2);
     AddFileToDownloadsTable(MODEL_SMOKE_DL);
 
     // Sounds
@@ -255,11 +258,11 @@ public void OnMapStart() {
     g_iLightningSprite = PrecacheModel(MODEL_LIGHTNING);
     g_iSmokeSprite = PrecacheModel(MODEL_SMOKE);
 
-    // Update the "g_iStealthPlayerManager".
+    /*// Update the "g_iStealthPlayerManager".
     g_iStealthPlayerManager = GetPlayerResourceEntity();
 
     // Hook "Stealth_PlayerManagerThinkPost",
-    SDKHook(g_iStealthPlayerManager, SDKHook_ThinkPost, Stealth_PlayerManagerThinkPost);
+    SDKHook(g_iStealthPlayerManager, SDKHook_ThinkPost, Stealth_PlayerManagerThinkPost);*/
 }
 
 /**
@@ -268,7 +271,7 @@ public void OnMapStart() {
  */
 public void OnClientPutInServer(int client) {
     // overlord/stealth.sp
-    SDKHook(client, SDKHook_SetTransmit, Stealth_SetTransmit);
+    //SDKHook(client, SDKHook_SetTransmit, Stealth_SetTransmit);
 
     // Set default array values.
     g_iSwapOnRoundEnd[client] = -1;
@@ -357,7 +360,7 @@ public void OnClientDisconnect(int client) {
  * OnEntityCreated
  * ?
  */
-public void OnEntityCreated(int entity, const char[] classname) {
+/*public void OnEntityCreated(int entity, const char[] classname) {
     // Check if the classname does not contain "player_manager"
     if(StrContains(classname, "player_manager", false) == -1) {
         return;
@@ -368,4 +371,4 @@ public void OnEntityCreated(int entity, const char[] classname) {
 
     // Hook "Stealth_PlayerManagerThinkPost",
     SDKHook(g_iStealthPlayerManager, SDKHook_ThinkPost, Stealth_PlayerManagerThinkPost);
-}
+}*/

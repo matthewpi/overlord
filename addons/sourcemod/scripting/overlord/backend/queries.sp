@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `overlord_admins` (\
     `id`        INT(11)     AUTO_INCREMENT,\
     `name`      VARCHAR(32) NOT NULL,\
     `steamId`   VARCHAR(64) NOT NULL,\
+    `groupId`   INT(11)     DEFAULT NULL,\
     `hidden`    TINYINT(1)  DEFAULT 0 NOT NULL,\
     `active`    TINYINT(1)  DEFAULT 1 NOT NULL,\
     `createdAt` TIMESTAMP   DEFAULT CURRENT_TIMESTAMP() NOT NULL,\
@@ -88,7 +89,8 @@ SELECT `overlord_groups`.`id`, `overlord_groups`.`name`, `overlord_groups`.`tag`
 // Selects an admin and their group id for this server.
 #define GET_ADMIN  "\
 SELECT `overlord_admins`.`id`, `overlord_admins`.`name`, `overlord_admins`.`steamId`, `overlord_admins`.`hidden`,\
-    `overlord_admins`.`active`, UNIX_TIMESTAMP(`overlord_admins`.`createdAt`) AS `createdAt`, `overlord_admin_groups`.`groupId`\
+    `overlord_admins`.`active`, UNIX_TIMESTAMP(`overlord_admins`.`createdAt`) AS `createdAt`, `overlord_admins`.`groupId`,\
+    `overlord_admin_groups`.`groupId` AS `serverGroupId`\
 FROM `overlord_admins`\
     LEFT OUTER JOIN `overlord_admin_groups` ON `overlord_admins`.`id` = `overlord_admin_groups`.`adminId`\
                                            AND `overlord_admin_groups`.`serverId` = %i \

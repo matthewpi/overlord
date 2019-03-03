@@ -92,8 +92,12 @@ public Action Command_Hog(const int client, const int args) {
         ForcePlayerSuicide(target);
     }
 
-    // Log the action to all players on the server.
-    LogActivity(client, "Struck \x10%s\x01 with the hand of \x07balon\x01.", targetName);
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_hog Hogged", client, targetName);
+
+    // Show the activity to the players.
+    LogActivity(client, buffer);
 
     return Plugin_Handled;
 }
