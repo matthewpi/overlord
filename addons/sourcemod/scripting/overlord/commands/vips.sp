@@ -10,7 +10,7 @@
 public Action Command_VIPs(const int client, const int args) {
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
@@ -36,7 +36,6 @@ public Action Command_VIPs(const int client, const int args) {
 
         // Print the vip information to the client's chat.
         ReplyToCommand(client, buffer, i, steamId);
-        //ReplyToCommand(client, " \x02%N\x01 \x0F%s\x01", i, steamId);
         matched++;
     }
 

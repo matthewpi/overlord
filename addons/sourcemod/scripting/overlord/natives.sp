@@ -11,8 +11,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     RegPluginLibrary("overlord");
     CreateNative("Overlord_IsAdmin", Native_IsAdmin);
     CreateNative("Overlord_IsVIP", Native_IsVIP);
-    CreateNative("Overlord_IsStealthed", Native_IsStealthed);
-    CreateNative("Overlord_CanStealth", Native_CanStealth);
     return APLRes_Success;
 }
 
@@ -46,22 +44,4 @@ public int Native_IsVIP(Handle plugin, int params) {
     group.GetName(groupName, sizeof(groupName));
 
     return StrEqual("VIP", groupName, true);
-}
-
-/**
- * Native_IsStealthed
- * Returns true if a client is stealthed, otherwise false.
- */
-public int Native_IsStealthed(Handle plugin, int params) {
-    int client = GetNativeCell(1);
-    return g_bStealthed[client];
-}
-
-/**
- * Native_CanStealth
- * Returns true if a client can stealth, otherwise false.
- */
-public int Native_CanStealth(Handle plugin, int params) {
-    int client = GetNativeCell(1);
-    return Overlord_IsAdmin(client);
 }

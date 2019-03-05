@@ -10,7 +10,7 @@
 public Action Command_Admins(const int client, const int args) {
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
@@ -48,11 +48,6 @@ public Action Command_Admins(const int client, const int args) {
 
         // Check if the admin is hidden and if the client's immunity is less than the group's.
         if(admin.IsHidden() && immunity < group.GetImmunity()) {
-            continue;
-        }
-
-        // Check if the client is a VIP.
-        if(Overlord_IsStealthed(i)) {
             continue;
         }
 

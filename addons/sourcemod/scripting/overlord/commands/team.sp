@@ -35,11 +35,11 @@ static Action TeamCommand(const int client, const int args, const char[] command
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
-    // Check if the client did not pass an argument.
+    // Check if the client did not pass the proper argument.
     if(args != 1 && args != 2) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> [round end]", PREFIX, command);
@@ -92,16 +92,8 @@ static Action TeamCommand(const int client, const int args, const char[] command
             char canSwap[512];
             GetCmdArg(2, canSwap, sizeof(canSwap));
 
-            // Define a swap variable.
-            bool swapOnRoundEnd = false;
-
-            // Check if the second command argument equals "true"
-            if(StrEqual(canSwap, "true", false)) {
-                swapOnRoundEnd = true;
-            }
-
             // Check if we should swap on round end.
-            if(swapOnRoundEnd) {
+            if(StrEqual(canSwap, "true", false)) {
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = commandTeam;
 
@@ -111,7 +103,6 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
                 // Show the activity to the players.
                 LogActivity(client, buffer);
-                //LogActivity(client, "\x10%s\x01 will be swapped to the \x07%s\x01 team on round end.", targetName, commandTeamName);
             // Else, make sure the client is not changing teams at round end.
             } else {
                 // Update the swap on round end array.
@@ -123,7 +114,6 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
                 // Show the activity to the players.
                 LogActivity(client, buffer);
-                //LogActivity(client, "\x10%s\x01 will \x02NOT\x01 be swapped on round end.", targetName);
             }
         } else {
             // Swap the target's team.
@@ -135,7 +125,6 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
             // Show the activity to the players.
             LogActivity(client, buffer);
-            //LogActivity(client, "\x01Swapped \x10%s\x01 to the \x07%s\x01 team.", targetName, commandTeamName);
         }
     } else {
         // Get and format the translation.
@@ -144,7 +133,6 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
         // Send a message to the client.
         ReplyToCommand(client, buffer);
-        //ReplyToCommand(client, "%s \x10%s \x01is already on the \x07%s\x01 team", PREFIX, targetName, commandTeamName);
     }
 
     // Log the command execution.

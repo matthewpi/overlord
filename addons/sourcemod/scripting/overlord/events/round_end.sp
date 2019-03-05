@@ -43,5 +43,6 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
         // Update the array so they are not tried to be swapped again.
         g_iSwapOnRoundEnd[client] = -1;
     }
+
     return Plugin_Continue;
 }

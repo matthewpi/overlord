@@ -5,21 +5,31 @@
 
 /**
  * Event_PlayerSpawn (player_spawn)
- * ?
+ * This event is called whenever a player is spawned.
  */
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
     int client = GetClientOfUserId(event.GetInt("userid"));
-    if(!IsClientConnected(client) || !IsClientInGame(client)) {
+
+    // Check is the client is invalid.
+    if(!IsClientValid(client)) {
         return Plugin_Continue;
     }
 
-    // Check if the admin is following someone.
-    if(g_iFollowing[client] == -1) {
-        return Plugin_Continue;
-    }
+    // Loop through all of the admin's following entires.
+    for(int i = 1; i < sizeof(g_iFollowing); i++) {
+        // Check if the follow entry does not equal the spawned client.
+        if(g_iFollowing[i] != client) {
+            continue;
+        }
 
-    // Set who the client is spectating.
-    FakeClientCommand(client, "spec_player \"%N\"", g_iFollowing[client]);
+        // Check if the admin is invalid.
+        if(!IsClientValid(i)) {
+            continue;
+        }
+
+        // Set who the admin is spectating.
+        FakeClientCommand(i, "spec_player \"%N\"", g_iFollowing[i]);
+    }
 
     return Plugin_Continue;
 }

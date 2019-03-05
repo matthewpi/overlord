@@ -6,8 +6,6 @@
 #include <cstrike>
 #include <geoip>
 #include <overlord>
-#include <regex>
-#include <sdkhooks>
 #include <sdktools>
 #include <sourcemod>
 
@@ -31,7 +29,7 @@
 // Models
 #define MODEL_LIGHTNING     "overlord/laserbeam.vmt"
 #define MODEL_LIGHTNING_DL  "materials/overlord/laserbeam.vmt"
-#define MODEL_LIGHTNING_DL2  "materials/overlord/laserbeam.vtf"
+#define MODEL_LIGHTNING_DL2 "materials/overlord/laserbeam.vtf"
 
 #define MODEL_SMOKE    "sprites/steam1.vmt"
 #define MODEL_SMOKE_DL "materials/sprites/steam1.vmt"
@@ -91,17 +89,8 @@ Admin g_hAdmins[MAXPLAYERS + 1];
 // g_iSwapOnRoundEnd stores an array of client to swap to another team.
 int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 
-// g_alDeathPosition stores a list of client death positions.
-ArrayList g_alDeathPosition;
-
-// g_bStealthed stores an array of clients and a boolean value representing if they are stealthed or not.
-bool g_bStealthed[MAXPLAYERS + 1];
-
-// g_bStealthDisconnect stores an array of clients and a boolean value representing if they are "disconnected" or not.
-bool g_bStealthDisconnect[MAXPLAYERS + 1];
-
-// g_iStealthPlayerManager
-//int g_iStealthPlayerManager;
+// g_fDeathPosition stores a list of client death positions.
+float g_fDeathPosition[MAXPLAYERS + 1][3];
 
 // g_iFollowing
 int g_iFollowing[MAXPLAYERS + 1];
@@ -111,7 +100,6 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/admin.sp"
 #include "overlord/natives.sp"
 #include "overlord/sourcemod.sp"
-//#include "overlord/stealth.sp"
 #include "overlord/utils.sp"
 
 // Backend
@@ -129,16 +117,15 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/commands/hide.sp"
 #include "overlord/commands/hog.sp"
 #include "overlord/commands/respawn.sp"
-//#include "overlord/commands/status.sp"
 #include "overlord/commands/team.sp"
 #include "overlord/commands/teleport.sp"
+#include "overlord/commands/teleport_here.sp"
 #include "overlord/commands/vips.sp"
 
 // Events
 #include "overlord/events/player_chat.sp"
 #include "overlord/events/player_death.sp"
 #include "overlord/events/player_spawn.sp"
-//#include "overlord/events/player_team.sp"
 #include "overlord/events/round_end.sp"
 // END Project Files
 
@@ -185,29 +172,29 @@ public void OnPluginStart() {
 
     // Commands
     // overlord/commands/admins.sp
-    RegConsoleCmd("sm_admins", Command_Admins, "Prints a list of admins.");
+    RegConsoleCmd("sm_admins", Command_Admins, "sm_admins - Prints a list of admins.");
     // overlord/commands/follow.sp
-    RegAdminCmd("sm_follow", Command_Follow, ADMFLAG_SLAY, "Follows a player while in spectate.");
+    RegAdminCmd("sm_follow", Command_Follow, ADMFLAG_SLAY, "sm_follow <#userid;target> - Follows a player while in spectate.");
     // overlord/commands/groups.sp
-    RegConsoleCmd("sm_groups", Command_Groups, "Prints a list of groups.");
+    RegConsoleCmd("sm_groups", Command_Groups, "sm_groups - Prints a list of groups.");
     // overlord/commands/heal.sp
-    RegAdminCmd("sm_heal", Command_Heal, ADMFLAG_SLAY, "Heals a player.");
+    RegAdminCmd("sm_heal", Command_Heal, ADMFLAG_SLAY, "sm_heal <#userid;target> - Heals a player.");
     // overlord/commands/hide.sp
-    RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_KICK, "Toggles an admin's hidden state.");
+    RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_KICK, "sm_hide - Toggles an admin's hidden state.");
     // overlord/commands/hog.sp
-    RegAdminCmd("sm_hog", Command_Hog, ADMFLAG_BAN, "Slays a client and strikes lightning on them.");
+    RegAdminCmd("sm_hog", Command_Hog, ADMFLAG_BAN, "sm_hog <#userid;target> - Slays a client and strikes lightning on them.");
     // overlord/commands/respawn.sp
-    RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "Respawns a dead player.");
-    // overlord/commands/status.sp
-    //AddCommandListener(Command_Status, "status");
+    RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "sm_respawn <#userid;target> - Respawns a dead player.");
     // overlord/commands/team.sp
-    RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "Swap a client to the terrorist team.");
-    RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "Swap a client to the counter-terrorist team.");
-    RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_SLAY, "Swap a client to the spectator team.");
+    RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "sm_team_t <#userid;target> [round end] - Swap a client to the terrorist team.");
+    RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "sm_team_ct <#userid;target> [round end] - Swap a client to the counter-terrorist team.");
+    RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_SLAY, "sm_team_spec <#userid;target> [round end] - Swap a client to the spectator team.");
     // overlord/commands/teleport.sp
-    RegAdminCmd("sm_tp", Command_Teleport, ADMFLAG_BAN, "Teleport to a client.");
+    RegAdminCmd("sm_tp", Command_Teleport, ADMFLAG_BAN, "sm_tp <#userid;target> - Teleport to a client.");
+    // overlord/commands/teleport_here.sp
+    RegAdminCmd("sm_tphere", Command_TeleportHere, ADMFLAG_BAN, "sm_tphere <#userid;target> - Teleport a client to yourself.");
     // overlord/commands/vips.sp
-    RegConsoleCmd("sm_vips", Command_VIPs, "Prints a list of vips.");
+    RegConsoleCmd("sm_vips", Command_VIPs, "sm_vips - Prints a list of vips.");
     // END Commands
 
     // Events
@@ -221,11 +208,6 @@ public void OnPluginStart() {
         SetFailState("%s Failed to hook \"player_spawn\" event, disabling plugin..", CONSOLE_PREFIX);
         return;
     }
-    // overlord/events/player_team.sp
-    /*if(!HookEventEx("player_team", Event_PlayerTeamPre, EventHookMode_Pre)) {
-        SetFailState("%s Failed to hook \"player_team\" event, disabling plugin..", CONSOLE_PREFIX);
-        return;
-    }*/
     // overlord/events/round_end.sp
     if(!HookEventEx("round_end", Event_RoundEnd)) {
         SetFailState("%s Failed to hook \"round_end\" event, disabling plugin..", CONSOLE_PREFIX);
@@ -257,12 +239,6 @@ public void OnMapStart() {
     // Models
     g_iLightningSprite = PrecacheModel(MODEL_LIGHTNING);
     g_iSmokeSprite = PrecacheModel(MODEL_SMOKE);
-
-    /*// Update the "g_iStealthPlayerManager".
-    g_iStealthPlayerManager = GetPlayerResourceEntity();
-
-    // Hook "Stealth_PlayerManagerThinkPost",
-    SDKHook(g_iStealthPlayerManager, SDKHook_ThinkPost, Stealth_PlayerManagerThinkPost);*/
 }
 
 /**
@@ -270,14 +246,13 @@ public void OnMapStart() {
  * Registers SDK Hooks, sets default array values.
  */
 public void OnClientPutInServer(int client) {
-    // overlord/stealth.sp
-    //SDKHook(client, SDKHook_SetTransmit, Stealth_SetTransmit);
-
     // Set default array values.
     g_iSwapOnRoundEnd[client] = -1;
-    g_bStealthed[client] = false;
-    g_bStealthDisconnect[client] = false;
     g_iFollowing[client] = -1;
+
+    for(int i = 0; i < 3; i++) {
+        g_fDeathPosition[client][i] = 0.0;
+    }
 }
 
 /**
@@ -318,8 +293,6 @@ public void OnClientAuthorized(int client, const char[] auth) {
 public void OnClientDisconnect(int client) {
     // Set default array values.
     g_iSwapOnRoundEnd[client] = -1;
-    g_bStealthed[client] = false;
-    g_bStealthDisconnect[client] = false;
 
     // Get the client's steam id.
     char auth[64];
@@ -355,20 +328,3 @@ public void OnClientDisconnect(int client) {
     // Unallocate memory for user admin storage.
     delete g_hAdmins[client];
 }
-
-/**
- * OnEntityCreated
- * ?
- */
-/*public void OnEntityCreated(int entity, const char[] classname) {
-    // Check if the classname does not contain "player_manager"
-    if(StrContains(classname, "player_manager", false) == -1) {
-        return;
-    }
-
-    // Update the "g_iStealthPlayerManager".
-    g_iStealthPlayerManager = entity;
-
-    // Hook "Stealth_PlayerManagerThinkPost",
-    SDKHook(g_iStealthPlayerManager, SDKHook_ThinkPost, Stealth_PlayerManagerThinkPost);
-}*/

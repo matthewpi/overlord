@@ -13,7 +13,7 @@ public Action Command_Follow(const int client, const int args) {
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 

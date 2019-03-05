@@ -128,6 +128,12 @@
         "en"      "{NORMAL}Teleported to {ORANGE}{1}{NORMAL}."
     }
 
+    "sm_tphere Themselves"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Teleported {ORANGE}{1}{NORMAL} to themselves."
+    }
+
     "sm_vips VIP"
     {
         "#format" "{1:s},{2:s}"

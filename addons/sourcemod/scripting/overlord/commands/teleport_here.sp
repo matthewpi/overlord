@@ -4,21 +4,21 @@
  */
 
 /**
- * Command_Heal (sm_heal)
- * Heals the specified target.
+ * Command_TeleportHere (sm_tphere)
+ * Teleport a client to the command sender.
  */
-public Action Command_Heal(const int client, const int args) {
-    char command[64] = "sm_heal";
+public Action Command_TeleportHere(const int client, const int args) {
+    // Variable to hold the command name.
+    char command[64] = "sm_tphere";
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1 && args != 2) {
+    if(args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -28,7 +28,7 @@ public Action Command_Heal(const int client, const int args) {
     }
 
     // Get the first command argument.
-    char potentialTarget[64];
+    char potentialTarget[512];
     GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
     // Define variables to store target information.
@@ -40,12 +40,12 @@ public Action Command_Heal(const int client, const int args) {
     int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
-    if(targetCount < 1) {
+    if(targetCount <= COMMAND_TARGET_NONE) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
 
         // Log the command execution.
-        LogCommand(client, -1, command, "(Targetting error)");
+        LogCommand(client, -1, command, "");
         return Plugin_Handled;
     }
 
@@ -58,40 +58,22 @@ public Action Command_Heal(const int client, const int args) {
         ReplyToCommand(client, buffer);
 
         // Log the command execution.
-        LogCommand(client, -1, command, "(Too many clients found)");
+        LogCommand(client, -1, command, "");
         return Plugin_Handled;
     }
 
-    // Get the target's id.
+    // Get the first target.
     int target = targets[0];
 
-    // Check if the target is not alive.
-    if(!IsPlayerAlive(target)) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
-
-        // Send a message to the client.
-        ReplyToCommand(client, buffer);
-
-        // Log the command execution.
-        LogCommand(client, target, command, "(Target is not alive)");
-        return Plugin_Handled;
-    }
+    // Teleport the target to the client.
+    TeleportClientToTarget(target, client);
 
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Healed", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_tphere Themselves", client, targetName);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
-
-    // Update the target's health.
-    int health = 100;
-    SetEntityHealth(target, health);
-
-    // Log the command execution.
-    LogCommand(client, target, command, "(Target: '%s', health: %i)", targetName, health);
 
     return Plugin_Handled;
 }

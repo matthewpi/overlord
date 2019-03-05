@@ -52,11 +52,10 @@ public void LogCommand(const int client, const int target, const char[] command,
 
 /**
  * LogActivity
- * ?
+ * Logs an activity to all players on the server.
  */
 public void LogActivity(const int client, const char[] message, any...) {
     char formattedMessage[512];
-    // TODO: Add space before message to fix spacing issue?
     VFormat(formattedMessage, sizeof(formattedMessage), message, 3);
     ShowActivity2(client, ACTION_PREFIX, formattedMessage);
 }
@@ -136,6 +135,7 @@ void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, cons
 
         // Get the client's admin id.
         AdminId adminId = GetUserAdmin(client);
+
         // Check if the client is not an admin.
         if(adminId == INVALID_ADMIN_ID) {
             continue;
@@ -154,12 +154,15 @@ void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, cons
             }
         }
 
+        // Check if the message is ignoring dead players.
         if(dead) {
+            // Check if the admin is dead.
             if(!IsPlayerAlive(client)) {
                 continue;
             }
         }
 
+        // Send the message to the admin.
         PrintToChat(client, "%s %s", PREFIX, message);
     }
 }
@@ -190,25 +193,5 @@ public void DisarmClient(const int client) {
             AcceptEntityInput(weapon, "Kill");
             weapon = GetPlayerWeaponSlot(client, i);
         }
-    }
-}
-
-/**
- * FormatShortTime
- * ?
- */
-//
-stock void FormatShortTime(int time, char[] buffer, int size) {
-    int temp = time % 60;
-
-    Format(buffer, size, "%02d", temp);
-    temp = (time % 3600) / 60;
-
-    Format(buffer, size, "%02d:%s", temp, buffer);
-
-    temp = (time % 86400) / 3600;
-
-    if(temp > 0) {
-        Format(buffer, size, "%d%:s", temp, buffer);
     }
 }

@@ -14,7 +14,7 @@ public Action Command_Respawn(const int client, const int args) {
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
@@ -83,10 +83,13 @@ public Action Command_Respawn(const int client, const int args) {
         // Respawn the target.
         CS_RespawnPlayer(target);
 
+        // Check if the target has a saved death positon.
+        if(g_fDeathPosition[target][0] == 0.0 && g_fDeathPosition[target][1] == 0.0 && g_fDeathPosition[target][2] == 0.0) {
+            continue;
+        }
+
         // Teleport the target.
-        float position[3];
-        g_alDeathPosition.GetArray(target, position, sizeof(position));
-        TeleportEntity(client, position, NULL_VECTOR, NULL_VECTOR);
+        TeleportEntity(target, g_fDeathPosition[client], NULL_VECTOR, NULL_VECTOR);
 
         respawned++;
     }
@@ -98,7 +101,6 @@ public Action Command_Respawn(const int client, const int args) {
 
         // Show the activity to the players.
         LogActivity(client, buffer);
-        //LogActivity(client, "\x01Respawned all \x10%s\x01.", targetName);
 
         // Log the command execution.
         LogCommand(client, -1, command, "(Respawned: %i)", respawned);
@@ -109,7 +111,6 @@ public Action Command_Respawn(const int client, const int args) {
 
         // Show the activity to the players.
         LogActivity(client, buffer);
-        //LogActivity(client, "\x01Respawned \x10%N\x01.", targets[0]);
 
         // Log the command execution.
         LogCommand(client, targets[0], command, "");

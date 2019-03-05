@@ -13,7 +13,7 @@ public Action Command_Teleport(const int client, const int args) {
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        ReplyToCommand(client, "%s You must be a client to execute this command.", CONSOLE_PREFIX);
+        ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
@@ -74,7 +74,6 @@ public Action Command_Teleport(const int client, const int args) {
 
     // Show the activity to the players.
     LogActivity(client, buffer);
-    //LogActivity(client, "\x01Teleported to \x10%s\x01.", targetName);
 
     return Plugin_Handled;
 }
