@@ -64,7 +64,7 @@ static Action Timer_TextMessage(Handle timer, DataPack pack) {
     pack.ReadString(buffer, sizeof(buffer));
 
     // Replace the sourcemod prefix.
-    ReplaceStringEx(buffer, sizeof(buffer), "[SM]", "[\x07Sourcemod\x01]\x08");
+    ReplaceStringEx(buffer, sizeof(buffer), "[SM]", "[\x06SM\x01]\x08");
 
     Protobuf msg = view_as<Protobuf>(StartMessage("SayText2", players, playerCount, USERMSG_RELIABLE|USERMSG_BLOCKHOOKS));
     msg.SetInt("ent_idx", -1);

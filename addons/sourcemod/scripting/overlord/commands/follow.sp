@@ -62,41 +62,20 @@ public Action Command_Follow(const int client, const int args) {
     }
 
     // Get the first command argument.
-    char potentialTarget[64];
+    char potentialTarget[512];
     GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
-    // Define variables to store target information.
-    char targetName[MAX_TARGET_LENGTH];
-    int targets[MAXPLAYERS];
-    bool tnIsMl;
-
-    // Process the target string.
-    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
-
-    // Check if no clients were found.
-    if(targetCount < 1) {
-        // Send a message to the client.
-        ReplyToTargetError(client, targetCount);
+    // Attempt to get and target a player using the first command argument.
+    int target = FindTarget(client, potentialTarget);
+    if(target == -1) {
         // Log the command execution.
-        LogCommand(client, -1, command, "");
+        LogCommand(client, -1, command, "(Targetting error)");
         return Plugin_Handled;
     }
 
-    if(targetCount > 2) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "Too many clients were matched", client);
-
-        // Send a message to the client.
-        ReplyToCommand(client, buffer);
-
-        // Log the command execution.
-        LogCommand(client, -1, command, "");
-        return Plugin_Handled;
-    }
-
-    // Get the target's id.
-    int target = targets[0];
+    // Get the target's name.
+    char targetName[128];
+    GetClientName(target, targetName, sizeof(targetName));
 
     // Update the "g_iFollowing" array.
     g_iFollowing[client] = target;

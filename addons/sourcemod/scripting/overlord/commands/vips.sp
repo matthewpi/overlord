@@ -24,7 +24,7 @@ public Action Command_VIPs(const int client, const int args) {
 
         // Get the client's steamid.
         char steamId[64];
-        GetClientAuthId(client, AuthId_Steam2, steamId, sizeof(steamId));
+        GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));
 
         // Get the admin's name.
         char clientName[128];

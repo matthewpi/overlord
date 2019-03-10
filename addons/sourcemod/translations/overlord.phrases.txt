@@ -128,6 +128,12 @@
         "en"      "{NORMAL}Teleported to {ORANGE}{1}{NORMAL}."
     }
 
+    "sm_tpaim Player"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Teleported {ORANGE}{1}{NORMAL} to their eye position."
+    }
+
     "sm_tphere Themselves"
     {
         "#format" "{1:s}"

@@ -19,8 +19,8 @@
 #define OVERLORD_RELEASE "https://api.github.com/repos/matthewpi/overlord/releases/latest"
 
 // Prefixes
-#define PREFIX         "[\x06Overlord\x01]"
-#define ACTION_PREFIX  "[\x06Overlord\x01]\x08 "
+#define PREFIX         "\x01[\x06Overlord\x01]"
+#define ACTION_PREFIX  "\x01[\x06Overlord\x01]\x08 "
 #define CONSOLE_PREFIX "[Overlord]"
 
 // Limits
@@ -61,9 +61,6 @@ ConVar g_cvServerPort;
 ConVar g_cvServerHostname;
 // rcon_password
 ConVar g_cvServerRconPassword;
-
-// g_cServerMap
-char g_cServerMap[128];
 
 // g_dbOverlord Stores the active database connection.
 Database g_dbOverlord;
@@ -119,6 +116,7 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/commands/respawn.sp"
 #include "overlord/commands/team.sp"
 #include "overlord/commands/teleport.sp"
+#include "overlord/commands/teleport_aim.sp"
 #include "overlord/commands/teleport_here.sp"
 #include "overlord/commands/vips.sp"
 
@@ -191,6 +189,8 @@ public void OnPluginStart() {
     RegAdminCmd("sm_team_spec", Command_Team_Spec, ADMFLAG_SLAY, "sm_team_spec <#userid;target> [round end] - Swap a client to the spectator team.");
     // overlord/commands/teleport.sp
     RegAdminCmd("sm_tp", Command_Teleport, ADMFLAG_BAN, "sm_tp <#userid;target> - Teleport to a client.");
+    // overlord/commands/teleport_aim.sp
+    RegAdminCmd("sm_tpaim", Command_TeleportAim, ADMFLAG_BAN, "sm_tpaim <#userid;target> - Teleport a client to where you are looking.");
     // overlord/commands/teleport_here.sp
     RegAdminCmd("sm_tphere", Command_TeleportHere, ADMFLAG_BAN, "sm_tphere <#userid;target> - Teleport a client to yourself.");
     // overlord/commands/vips.sp
@@ -224,9 +224,6 @@ public void OnPluginStart() {
  * Adds files that need to be downloaded; precaches materials, sprites, and sounds.
  */
 public void OnMapStart() {
-    // Cache the current map name.
-    GetCurrentMap(g_cServerMap, sizeof(g_cServerMap));
-
     // File Downloads
     AddFileToDownloadsTable(SOUND_HOG_DL);
     AddFileToDownloadsTable(MODEL_LIGHTNING_DL);

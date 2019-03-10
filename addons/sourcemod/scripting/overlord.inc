@@ -15,24 +15,52 @@ public SharedPlugin __pl_overlord = {
 
 /**
  * Overlord_IsAdmin
- * Returns true if a client is an admin, otherwise false.
+ *
+ * Check if a client is an admin.
+ *
+ * @param Client index.
+ * @return True if the client is an admin, false otherwise.
  */
 native bool Overlord_IsAdmin(const int client);
 
 /**
+ * Overlord_GetAdminName
+ *
+ * Get an admin's name.
+ *
+ * @param Client index.
+ * @param Buffer to store admin's name.
+ * @param Buffer max length.
+ */
+native void Overlord_GetAdminName(const int client, char[] buffer, const int maxlen);
+
+/**
+ * Overlord_GetAdminGroupName
+ *
+ * Get an admin's group name.
+ *
+ * @param Client index.
+ * @param Buffer to store the group's name.
+ * @param Buffer max length.
+ */
+native void Overlord_GetAdminGroupName(const int client, char[] buffer, const int maxlen);
+
+/**
+ * Overlord_IsAdminHidden
+ *
+ * Check if an admin is hidden.
+ *
+ * @param Client index.
+ * @return True if a client is hidden, false otherwise.
+ */
+native bool Overlord_IsAdminHidden(const int client);
+
+/**
  * Overlord_IsVIP
- * Returns true if a client is a vip, otherwise false.
+ *
+ * Check if a client is a vip.
+ *
+ * @param Client index.
+ * @return True if the client is a vip, false otherwise.
  */
 native bool Overlord_IsVIP(const int client);
-
-/**
- * Overlord_IsStealthed
- * Returns true if a client is stealthed, otherwise false.
- */
-native bool Overlord_IsStealthed(const int client);
-
-/**
- * Overlord_CanStealth
- * Returns true if a client can stealth, otherwise false.
- */
-native bool Overlord_CanStealth(const int client);

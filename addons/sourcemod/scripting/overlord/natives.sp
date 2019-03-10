@@ -10,13 +10,18 @@
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
     RegPluginLibrary("overlord");
     CreateNative("Overlord_IsAdmin", Native_IsAdmin);
+    CreateNative("Overlord_IsAdminHidden", Native_IsAdminHidden);
     CreateNative("Overlord_IsVIP", Native_IsVIP);
     return APLRes_Success;
 }
 
 /**
- * Native_IsAdmin
- * Returns true if a client is an admin, otherwise false.
+ * Overlord_IsAdmin
+ *
+ * Check if a client is an admin.
+ *
+ * @param Client index.
+ * @return True if the client is an admin, false otherwise.
  */
 public int Native_IsAdmin(Handle plugin, int params) {
     int client = GetNativeCell(1);
@@ -24,8 +29,31 @@ public int Native_IsAdmin(Handle plugin, int params) {
 }
 
 /**
- * Native_IsVIP
- * Returns true if a client is a vip, otherwise false.
+ * Overlord_IsAdminHidden
+ *
+ * Check if an admin is hidden.
+ *
+ * @param Client index.
+ * @return True if a client is hidden, false otherwise.
+ */
+public int Native_IsAdminHidden(Handle plugin, int params) {
+    int client = GetNativeCell(1);
+
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return false;
+    }
+
+    return admin.IsHidden();
+}
+
+/**
+ * Overlord_IsVIP
+ *
+ * Check if a client is a vip.
+ *
+ * @param Client index.
+ * @return True if the client is a vip, false otherwise.
  */
 public int Native_IsVIP(Handle plugin, int params) {
     int client = GetNativeCell(1);

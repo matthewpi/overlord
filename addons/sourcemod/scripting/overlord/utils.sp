@@ -181,6 +181,15 @@ public void TeleportClientToTarget(const int client, const int target) {
 }
 
 /**
+ * TeleportClientToTarget
+ * Teleports a client to a target.
+ */
+public void TeleportClientToPosition(const int client, const float position[3]) {
+    // Teleport the client.
+    TeleportEntity(client, position, NULL_VECTOR, NULL_VECTOR);
+}
+
+/**
  * DisarmClient
  * Removes a player's weapons.
  */
@@ -194,4 +203,8 @@ public void DisarmClient(const int client) {
             weapon = GetPlayerWeaponSlot(client, i);
         }
     }
+}
+
+public bool TraceEntityFilter_NoPlayers(const int entity, const int contentsMask) {
+    return (entity <= 0 || entity > MaxClients);
 }

@@ -15,11 +15,6 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
         return Plugin_Continue;
     }
 
-    // Check if the player is dead.
-    if(!IsPlayerAlive(client)) {
-        return Plugin_Continue;
-    }
-
     // Get the client's position.
     float position[3];
     GetClientAbsOrigin(client, position);

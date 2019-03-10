@@ -4,21 +4,21 @@
  */
 
 /**
- * Command_Heal (sm_heal)
- * Heals the specified target.
+ * Command_TeleportAim (sm_tpaim)
+ * Teleport a client to where you are looking.
  */
-public Action Command_Heal(const int client, const int args) {
-    char command[64] = "sm_heal";
+public Action Command_TeleportAim(const int client, const int args) {
+    // Variable to hold the command name.
+    char command[64] = "sm_tpaim";
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
-        // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1 && args != 2) {
+    if(args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -39,37 +39,37 @@ public Action Command_Heal(const int client, const int args) {
         return Plugin_Handled;
     }
 
+    // Get client's eye position.
+    float origins[3];
+    GetClientEyePosition(client, origins);
+
+    // Get client's eye angles.
+    float angles[3];
+    GetClientEyeAngles(client, angles);
+
+    // Get the client's eye position that we can actually teleport a player to.
+    TR_TraceRayFilter(origins, angles, MASK_ALL, RayType_Infinite, TraceEntityFilter_NoPlayers);
+
+    // Check if the eye position is a valid location.
+    if(TR_DidHit()) {
+        // Get the Trace Ray position.
+        float position[3];
+        TR_GetEndPosition(position);
+
+        // Teleport the target to the position.
+        TeleportClientToPosition(target, position);
+    }
+
     // Get the target's name.
     char targetName[128];
     GetClientName(target, targetName, sizeof(targetName));
 
-    // Check if the target is not alive.
-    if(!IsPlayerAlive(target)) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
-
-        // Send a message to the client.
-        ReplyToCommand(client, buffer);
-
-        // Log the command execution.
-        LogCommand(client, target, command, "(Target is not alive)");
-        return Plugin_Handled;
-    }
-
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Healed", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_tpaim Player", client, targetName);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
-
-    // Update the target's health.
-    int health = 100;
-    SetEntityHealth(target, health);
-
-    // Log the command execution.
-    LogCommand(client, target, command, "(Target: '%s', Health: %i)", targetName, health);
 
     return Plugin_Handled;
 }

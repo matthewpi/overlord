@@ -84,12 +84,10 @@ public Action Command_Respawn(const int client, const int args) {
         CS_RespawnPlayer(target);
 
         // Check if the target has a saved death positon.
-        if(g_fDeathPosition[target][0] == 0.0 && g_fDeathPosition[target][1] == 0.0 && g_fDeathPosition[target][2] == 0.0) {
-            continue;
+        if(g_fDeathPosition[target][0] != 0.0 && g_fDeathPosition[target][1] != 0.0 && g_fDeathPosition[target][2] != 0.0) {
+            // Teleport the target.
+            TeleportEntity(target, g_fDeathPosition[client], NULL_VECTOR, NULL_VECTOR);
         }
-
-        // Teleport the target.
-        TeleportEntity(target, g_fDeathPosition[client], NULL_VECTOR, NULL_VECTOR);
 
         respawned++;
     }
@@ -97,7 +95,7 @@ public Action Command_Respawn(const int client, const int args) {
     if(respawned > 1) {
         // Get and format the translation.
         char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn All", client, targetName);
+        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn All", client, targetName);
 
         // Show the activity to the players.
         LogActivity(client, buffer);
@@ -107,13 +105,13 @@ public Action Command_Respawn(const int client, const int args) {
     } else if(respawned == 1) {
         // Get and format the translation.
         char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
+        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
 
         // Show the activity to the players.
         LogActivity(client, buffer);
 
         // Log the command execution.
-        LogCommand(client, targets[0], command, "");
+        LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     }
 
     return Plugin_Handled;
