@@ -4,10 +4,45 @@
  */
 
 /**
+ * Backend_ReloadAdmins
+ * Reloads all admins from the database.
+ */
+public void Backend_ReloadAdmins() {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_ReloadAdmins() due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
+    // Loop through all online clients.
+    for(int client = 1; client <= MaxClients; client++) {
+        // Check if the client is invalid.
+        if(!IsClientValid(client)) {
+            continue;
+        }
+
+        OnClientPutInServer(client);
+
+        // Get the client's steam id.
+        char steamId[64];
+        GetClientAuthId(client, AuthId_Steam2, steamId, sizeof(steamId));
+
+        // Load the client's admin.
+        Backend_GetAdmin(client, steamId);
+    }
+}
+
+/**
  * Backend_GetAdmin
  * Loads a user's admin information.
  */
 public void Backend_GetAdmin(int client, const char[] steamId) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_GetAdmin(int, char[]) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
     // Create and format the query.
     char query[1024];
     Format(query, sizeof(query), GET_ADMIN, g_iServerId, steamId);
@@ -139,6 +174,12 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
  * Updates a user's admin information.
  */
 public void Backend_UpdateAdmin(int client) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_UpdateAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
     // Get client's admin.
     Admin admin = g_hAdmins[client];
     if(admin == null) {

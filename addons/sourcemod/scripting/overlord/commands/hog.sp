@@ -51,9 +51,15 @@ public Action Command_Hog(const int client, const int args) {
 
     // Loop through all targets
     int target = 0;
+    int hogCount = 0;
     for(int i = 0; i < targetCount; i++) {
         // Update the target int so we can target the target properly.
         target = targets[i];
+
+        // Check if the target is dead.
+        if(!IsPlayerAlive(target)) {
+            continue;
+        }
 
         float position[3];
         GetClientAbsOrigin(target, position);
@@ -88,8 +94,9 @@ public Action Command_Hog(const int client, const int args) {
         // Disarm the target.
         DisarmClient(target);
 
-        // Kill the target/
+        // Kill the target.
         ForcePlayerSuicide(target);
+        hogCount++;
     }
 
     // Get and format the translation.
@@ -98,6 +105,9 @@ public Action Command_Hog(const int client, const int args) {
 
     // Show the activity to the players.
     LogActivity(client, buffer);
+
+    // Log the command execution.
+    LogCommand(client, -1, command, "(Hogged %i players)", hogCount);
 
     return Plugin_Handled;
 }

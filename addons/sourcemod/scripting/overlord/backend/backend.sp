@@ -38,23 +38,8 @@ public void Backend_Connnection(Database database, const char[] error, any data)
     // Load all admin groups.
     Backend_LoadGroups();
 
-    // Loop through all online clients.
-    for(int i = 1; i <= MaxClients; i++) {
-        // Check if the client is invalid.
-        if(!IsClientValid(i)) {
-            continue;
-        }
-
-        OnClientPutInServer(i);
-
-        // Get the client's steam id.
-        char steamId[64];
-        GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));
-
-        // Load the client's admin.
-        // TODO: Use a transaction per 5-10 Backend_GetAdmin queries.
-        Backend_GetAdmin(i, steamId);
-    }
+    // Load all the admins if any players are online.
+    Backend_ReloadAdmins();
 }
 
 /**

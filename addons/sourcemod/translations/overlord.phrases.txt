@@ -2,7 +2,7 @@
 {
     "Too many clients were matched"
     {
-        "en" "Too many clients were matched."
+        "en" "{NORMAL}Too many clients were matched."
     }
 
     "Is not alive"
@@ -31,24 +31,24 @@
 
     "sm_admins None"
     {
-        "en" "There are currently no {ORANGE}Admins{NORMAL} online."
+        "en" "{NORMAL}There are currently no {ORANGE}Admins{NORMAL} online."
     }
 
     "sm_follow Spectator"
     {
-        "en" "You must be on the {RED}Spectator{NORMAL} team to do this."
+        "en" "{NORMAL}You must be on the {RED}Spectator{NORMAL} team to do this."
     }
 
     "sm_follow Stopped"
     {
         "#format" "{1:s}"
-        "en"      "No longer following {ORANGE}{1}{NORMAL}."
+        "en"      "{NORMAL}No longer following {ORANGE}{1}{NORMAL}."
     }
 
     "sm_follow Following"
     {
         "#format" "{1:s}"
-        "en"      "Now following {ORANGE}{1}{NORMAL}."
+        "en"      "{NORMAL}Now following {ORANGE}{1}{NORMAL}."
     }
 
     "sm_groups Group"
@@ -59,7 +59,7 @@
 
     "sm_groups None"
     {
-        "en" "There are no {ORANGE}Groups{NORMAL} loaded."
+        "en" "{NORMAL}There are no {ORANGE}Groups{NORMAL} loaded."
     }
 
     "sm_heal Healed"
@@ -148,6 +148,6 @@
 
     "sm_vips None"
     {
-        "en" "There are currently no {ORANGE}VIPs{NORMAL} online."
+        "en" "{NORMAL}There are currently no {ORANGE}VIPs{NORMAL} online."
     }
 }

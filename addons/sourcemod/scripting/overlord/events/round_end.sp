@@ -9,7 +9,7 @@
  */
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
     // Loop through all clients.
-    for(int client = 1; client < MaxClients; client++) {
+    for(int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
         if(!IsClientValid(client)) {
             continue;

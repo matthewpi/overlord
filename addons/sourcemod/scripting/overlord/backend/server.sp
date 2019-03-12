@@ -8,6 +8,12 @@
  * Loads this server's id for loading admins.
  */
 public void Backend_GetServerId() {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_GetServerId() due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
     // Get the server's ip address.
     char ipAddress[16];
     g_cvServerIp.GetString(ipAddress, sizeof(ipAddress));
@@ -58,6 +64,12 @@ static void Callback_GetServerId(Database database, DBResultSet results, const c
  * Inserts this server's information into the database.
  */
 static void Backend_InsertServer() {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_InsertServer() due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
     // Get the server's hostname.
     char hostname[64];
     g_cvServerHostname.GetString(hostname, sizeof(hostname));

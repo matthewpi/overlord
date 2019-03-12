@@ -20,21 +20,8 @@ public void OnRebuildAdminCache(AdminCachePart part) {
         // Log that we are reloading admins.
         LogMessage("%s Reloading admins.", CONSOLE_PREFIX);
 
-        // Loop through all online clients.
-        for(int i = 1; i <= MaxClients; i++) {
-            // Check if the client is invalid.
-            if(!IsClientValid(i)) {
-                continue;
-            }
-
-            // Get the client's steam id.
-            char steamId[64];
-            GetClientAuthId(i, AuthId_Steam2, steamId, sizeof(steamId));
-
-            // Load the client's admin profile from the database.
-            // TODO: Use a transaction per 5-10 Backend_GetAdmin queries.
-            Backend_GetAdmin(i, steamId);
-        }
+        // Reload all admins.
+        Backend_ReloadAdmins();
     }
 }
 
@@ -42,7 +29,7 @@ public void OnRebuildAdminCache(AdminCachePart part) {
  * Admin_SetTag
  * Sets a client's clan tag to the one specified in their group.
  */
-public void Admin_SetTag(int client) {
+public void Admin_SetTag(const int client) {
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
         return;

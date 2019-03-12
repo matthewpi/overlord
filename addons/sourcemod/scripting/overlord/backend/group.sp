@@ -8,6 +8,12 @@
  * Loads all groups from the database.
  */
 public void Backend_LoadGroups() {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_LoadGroups() due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
     // Execute GET_GROUPS query.
     g_dbOverlord.Query(Callback_LoadGroups, GET_GROUPS);
 }
