@@ -106,8 +106,14 @@ public Action Command_Hog(const int client, const int args) {
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    // Log the command execution.
-    LogCommand(client, -1, command, "(Hogged %i players)", hogCount);
+    // Check if only one player was hogged.
+    if(hogCount == 1) {
+        // Log the command execution.
+        LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
+    } else {
+        // Log the command execution.
+        LogCommand(client, -1, command, "(Hogged %i players)", hogCount);
+    }
 
     return Plugin_Handled;
 }

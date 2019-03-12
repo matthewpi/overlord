@@ -101,7 +101,7 @@ public Action Command_Respawn(const int client, const int args) {
         LogActivity(client, buffer);
 
         // Log the command execution.
-        LogCommand(client, -1, command, "(Respawned: %i)", respawned);
+        LogCommand(client, -1, command, "(Respawned %i players)", respawned);
     } else if(respawned == 1) {
         // Get and format the translation.
         char buffer[512];
