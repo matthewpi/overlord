@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-// My wonderful attempt at adding support for colored translations. :)
 static char _colorNames[][] = {
     "{NORMAL}", "{DARK_RED}", "{PINK}", "{LIME_GREEN}", "{GREEN}",
     "{LIGHT_GREEN}", "{RED}", "{GRAY}", "{YELLOW}", "{ORANGE}",

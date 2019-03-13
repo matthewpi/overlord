@@ -31,8 +31,9 @@ native bool Overlord_IsAdmin(const int client);
  * @param Client index.
  * @param Buffer to store admin's name.
  * @param Buffer max length.
+ * @return True if buffer was updated, false otherwise.
  */
-native void Overlord_GetAdminName(const int client, char[] buffer, const int maxlen);
+native bool Overlord_GetAdminName(const int client, char[] buffer, const int maxlen);
 
 /**
  * Overlord_GetAdminGroupName
@@ -40,10 +41,11 @@ native void Overlord_GetAdminName(const int client, char[] buffer, const int max
  * Get an admin's group name.
  *
  * @param Client index.
- * @param Buffer to store the group's name.
+ * @param Buffer to store the group name.
  * @param Buffer max length.
+ * @return True if buffer was updated, false otherwise.
  */
-native void Overlord_GetAdminGroupName(const int client, char[] buffer, const int maxlen);
+native bool Overlord_GetAdminGroupName(const int client, char[] buffer, const int maxlen);
 
 /**
  * Overlord_IsAdminHidden

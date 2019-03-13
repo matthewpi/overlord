@@ -10,6 +10,8 @@
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
     RegPluginLibrary("overlord");
     CreateNative("Overlord_IsAdmin", Native_IsAdmin);
+    CreateNative("Overlord_GetAdminName", Native_GetAdminName);
+    CreateNative("Overlord_GetAdminGroupName", Native_GetAdminGroupName);
     CreateNative("Overlord_IsAdminHidden", Native_IsAdminHidden);
     CreateNative("Overlord_IsVIP", Native_IsVIP);
     return APLRes_Success;
@@ -23,9 +25,66 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
  * @param Client index.
  * @return True if the client is an admin, false otherwise.
  */
-public int Native_IsAdmin(Handle plugin, int params) {
+public int Native_IsAdmin(Handle plugin, const int params) {
     int client = GetNativeCell(1);
     return g_hAdmins[client] != null;
+}
+
+/**
+ * Overlord_GetAdminName
+ *
+ * Get an admin's name.
+ *
+ * @param Client index.
+ * @param Buffer to store admin's name.
+ * @param Buffer max length.
+ * @return True if buffer was updated, false otherwise.
+ */
+public int Native_GetAdminName(Handle plugin, const int params) {
+    int client = GetNativeCell(1);
+    int maxlen = GetNativeCell(3);
+
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return false;
+    }
+
+    char buffer[32];
+    admin.GetName(buffer, sizeof(buffer));
+
+    SetNativeString(2, buffer, maxlen);
+    return true;
+}
+
+/**
+ * Overlord_GetAdminGroupName
+ *
+ * Get an admin's group name.
+ *
+ * @param Client index.
+ * @param Buffer to store the group name.
+ * @param Buffer max length.
+ * @return True if buffer was updated, false otherwise.
+ */
+public int Native_GetAdminGroupName(Handle plugin, const int params) {
+    int client = GetNativeCell(1);
+    int maxlen = GetNativeCell(3);
+
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return false;
+    }
+
+    Group group = g_hGroups[admin.GetGroup()];
+    if(group == null) {
+        return false;
+    }
+
+    char buffer[32];
+    group.GetName(buffer, sizeof(buffer));
+
+    SetNativeString(2, buffer, maxlen);
+    return true;
 }
 
 /**
@@ -36,7 +95,7 @@ public int Native_IsAdmin(Handle plugin, int params) {
  * @param Client index.
  * @return True if a client is hidden, false otherwise.
  */
-public int Native_IsAdminHidden(Handle plugin, int params) {
+public int Native_IsAdminHidden(Handle plugin, const int params) {
     int client = GetNativeCell(1);
 
     Admin admin = g_hAdmins[client];
@@ -55,7 +114,7 @@ public int Native_IsAdminHidden(Handle plugin, int params) {
  * @param Client index.
  * @return True if the client is a vip, false otherwise.
  */
-public int Native_IsVIP(Handle plugin, int params) {
+public int Native_IsVIP(Handle plugin, const int params) {
     int client = GetNativeCell(1);
 
     Admin admin = g_hAdmins[client];

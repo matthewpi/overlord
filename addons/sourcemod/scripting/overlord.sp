@@ -113,6 +113,7 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/commands/heal.sp"
 #include "overlord/commands/hide.sp"
 #include "overlord/commands/hog.sp"
+#include "overlord/commands/overlord.sp"
 #include "overlord/commands/respawn.sp"
 #include "overlord/commands/team.sp"
 #include "overlord/commands/teleport.sp"
@@ -125,6 +126,11 @@ int g_iFollowing[MAXPLAYERS + 1];
 #include "overlord/events/player_death.sp"
 #include "overlord/events/player_spawn.sp"
 #include "overlord/events/round_end.sp"
+
+// Menus
+#include "overlord/menus/overlord.sp"
+#include "overlord/menus/overlord_admin.sp"
+#include "overlord/menus/overlord_group.sp"
 // END Project Files
 
 // Plugin Information
@@ -181,6 +187,8 @@ public void OnPluginStart() {
     RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_KICK, "sm_hide - Toggles an admin's hidden state.");
     // overlord/commands/hog.sp
     RegAdminCmd("sm_hog", Command_Hog, ADMFLAG_BAN, "sm_hog <#userid;target> - Slays a client and strikes lightning on them.");
+    // overlord/commands/overlord.sp
+    RegAdminCmd("sm_overlord", Command_Overlord, ADMFLAG_ROOT, "sm_overlord - Opens a menu to manage the overlord plugin.");
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "sm_respawn <#userid;target> - Respawns a dead player.");
     // overlord/commands/team.sp

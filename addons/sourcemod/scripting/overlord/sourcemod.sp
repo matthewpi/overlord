@@ -5,7 +5,7 @@
 
  /**
   * Sourcemod_TextMessage
-  * ?
+  * Hooks into whenever a text message is sent to replace the default sourcemod prefix.
   */
 public Action Sourcemod_TextMessage(UserMsg msgId, Protobuf protobuf, const int[] players, int playerCount, bool reliable, bool init) {
     // Check if the message is not reliable.
@@ -33,7 +33,7 @@ public Action Sourcemod_TextMessage(UserMsg msgId, Protobuf protobuf, const int[
 
 /**
  * Timer_TextMessage
- * ?
+ * Handles sending the new message for Sourcemod_TextMessage().
  */
 static Action Timer_TextMessage(Handle timer, DataPack pack) {
     // Reset the pack to the beginning so we can read it.
