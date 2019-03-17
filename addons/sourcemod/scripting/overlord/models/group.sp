@@ -14,11 +14,11 @@ methodmap Group < StringMap {
         return id;
     }
 
-    public void SetID(int id) {
+    public void SetID(const int id) {
         this.SetValue("id", id);
     }
 
-    public void GetName(char[] buffer, int maxlen) {
+    public void GetName(char[] buffer, const int maxlen) {
         this.GetString("name", buffer, maxlen);
     }
 
@@ -26,7 +26,7 @@ methodmap Group < StringMap {
         this.SetString("name", name);
     }
 
-    public void GetTag(char[] buffer, int maxlen) {
+    public void GetTag(char[] buffer, const int maxlen) {
         this.GetString("tag", buffer, maxlen);
     }
 
@@ -40,11 +40,11 @@ methodmap Group < StringMap {
         return immunity;
     }
 
-    public void SetImmunity(int immunity) {
+    public void SetImmunity(const int immunity) {
         this.SetValue("immunity", immunity);
     }
 
-    public void GetFlags(char[] buffer, int maxlen) {
+    public void GetFlags(char[] buffer, const int maxlen) {
         this.GetString("flags", buffer, maxlen);
     }
 

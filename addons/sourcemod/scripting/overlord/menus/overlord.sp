@@ -29,18 +29,11 @@ static int Callback_OverlordMenu(Menu menu, MenuAction action, int client, int i
                 Overlord_AdminMenu(client);
             } else if(StrEqual(info, "groups", true)) {
                 Overlord_GroupMenu(client);
-                //PrintToChat(client, "%s \x07Group Menu\x01 has not been implemented yet.", PREFIX);
             } else if(StrEqual(info, "settings", true)) {
                 //Overlord_SettingsMenu(client);
                 PrintToChat(client, "%s \x07Settings Menu\x01 has not been implemented yet.", PREFIX);
             } else {
                 Overlord_Menu(client, GetMenuSelectionPosition());
-            }
-        }
-
-        case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
-                //Loadout_Menu(client);
             }
         }
 

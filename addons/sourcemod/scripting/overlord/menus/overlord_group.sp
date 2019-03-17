@@ -82,16 +82,34 @@ void Overlord_GroupInfoMenu(const int client, const int groupId, const int posit
         return;
     }
 
-    char index[32];
+    // Update the "g_iOverlordMenu" array with the new groupId.
+    g_iOverlordMenu[client] = groupId;
+
     char display[64];
     char temp[64];
 
     // Name: %s
-    Format(index, sizeof(index), "%i;name", groupId);
     group.GetName(temp, sizeof(temp));
     Format(display, sizeof(display), "Name: %s", temp);
-    menu.AddItem(index, display);
+    menu.AddItem("name", display);
     // END Name: %s
+
+    // Tag: %s
+    group.GetTag(temp, sizeof(temp));
+    Format(display, sizeof(display), "Tag: %s", temp);
+    menu.AddItem("tag", display);
+    // END Tag: %s
+
+    // Immunity: %i
+    Format(display, sizeof(display), "Immunity: %i", group.GetImmunity());
+    menu.AddItem("immunity", display);
+    // END Immunity: %i
+
+    // Flags: %s
+    group.GetFlags(temp, sizeof(temp));
+    Format(display, sizeof(display), "Flags: %s", temp);
+    menu.AddItem("flags", display);
+    // END Flags: %s
 
     // Enable the menu exit back button.
     menu.ExitBackButton = true;
@@ -109,6 +127,32 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
+
+            // Get the active admin id.
+            int groupId = g_iOverlordMenu[client];
+
+            // Get the admin object using the adminId.
+            Group group = g_hGroups[groupId];
+            if(group == null) {
+                Overlord_GroupMenu(client);
+                return;
+            }
+
+            if(StrEqual(info, "name", true)) {
+                // TODO: idk
+                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+            } else if(StrEqual(info, "tag", true)) {
+                // TODO: idk
+                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+            } else if(StrEqual(info, "immunity", true)) {
+                // TODO: idk
+                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+            } else if(StrEqual(info, "flags", true)) {
+                // TODO: idk
+                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+            } else {
+                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+            }
         }
 
         case MenuAction_Cancel: {

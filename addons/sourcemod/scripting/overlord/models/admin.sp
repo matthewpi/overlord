@@ -14,11 +14,11 @@ methodmap Admin < StringMap {
         return id;
     }
 
-    public void SetID(int id) {
+    public void SetID(const int id) {
         this.SetValue("id", id);
     }
 
-    public void GetName(char[] buffer, int maxlen) {
+    public void GetName(char[] buffer, const int maxlen) {
         this.GetString("name", buffer, maxlen);
     }
 
@@ -26,7 +26,7 @@ methodmap Admin < StringMap {
         this.SetString("name", name);
     }
 
-    public void GetSteamID(char[] buffer, int maxlen) {
+    public void GetSteamID(char[] buffer, const int maxlen) {
         this.GetString("steamId", buffer, maxlen);
     }
 
@@ -40,7 +40,7 @@ methodmap Admin < StringMap {
         return group;
     }
 
-    public void SetGroup(int group) {
+    public void SetGroup(const int group) {
         this.SetValue("group", group);
     }
 
@@ -54,13 +54,13 @@ methodmap Admin < StringMap {
         this.SetValue("hidden", hidden);
     }
 
-    public int GetCreatedAt(char[] buffer, int maxlen) {
+    public int GetCreatedAt() {
         int createdAt;
         this.GetValue("createdAt", createdAt);
         return createdAt;
     }
 
-    public void SetCreatedAt(int createdAt) {
+    public void SetCreatedAt(const int createdAt) {
         this.SetValue("createdAt", createdAt);
     }
 }

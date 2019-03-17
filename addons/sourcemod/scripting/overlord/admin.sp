@@ -66,7 +66,7 @@ public void Admin_SetTag(const int client) {
  */
 public void Admin_TagTimer() {
     // Check if the timer already exists.
-    if(g_hAdminTagTimer != null) {
+    if(g_hAdminTagTimer != INVALID_HANDLE) {
         return;
     }
 

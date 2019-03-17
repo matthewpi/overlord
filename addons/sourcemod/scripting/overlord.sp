@@ -66,7 +66,7 @@ ConVar g_cvServerRconPassword;
 Database g_dbOverlord;
 
 // g_hAdminTagTimer stores the handle for the active admin tag timer.
-Handle g_hAdminTagTimer;
+Handle g_hAdminTagTimer = INVALID_HANDLE;
 
 // g_iLightningSprite
 int g_iLightningSprite;
@@ -91,6 +91,9 @@ float g_fDeathPosition[MAXPLAYERS + 1][3];
 
 // g_iFollowing
 int g_iFollowing[MAXPLAYERS + 1];
+
+// g_iOverlordMenu
+int g_iOverlordMenu[MAXPLAYERS + 1];
 // END Globals
 
 // Project Files
@@ -135,7 +138,7 @@ int g_iFollowing[MAXPLAYERS + 1];
 
 // Plugin Information
 public Plugin myinfo = {
-    name = "[Krygon] Overlord",
+    name = "[Overlord] Core",
     author = OVERLORD_AUTHOR,
     description = "Admin, Group, and Punishment System",
     version = OVERLORD_VERSION,
@@ -225,6 +228,9 @@ public void OnPluginStart() {
 
     // overlord/sourcemod.sp
     HookUserMessage(GetUserMessageId("TextMsg"), Sourcemod_TextMessage, true);
+
+    // Start the SetTag timer.
+    Admin_TagTimer();
 }
 
 /**
@@ -254,6 +260,7 @@ public void OnClientPutInServer(int client) {
     // Set default array values.
     g_iSwapOnRoundEnd[client] = -1;
     g_iFollowing[client] = -1;
+    g_iOverlordMenu[client] = -1;
 
     for(int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;
@@ -298,6 +305,12 @@ public void OnClientAuthorized(int client, const char[] auth) {
 public void OnClientDisconnect(int client) {
     // Set default array values.
     g_iSwapOnRoundEnd[client] = -1;
+    g_iFollowing[client] = -1;
+    g_iOverlordMenu[client] = -1;
+
+    for(int i = 0; i < 3; i++) {
+        g_fDeathPosition[client][i] = 0.0;
+    }
 
     // Get the client's steam id.
     char auth[64];

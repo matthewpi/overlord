@@ -8,7 +8,6 @@
  * This is not exactly an event, but it is similar to the "player_chat" event.
  */
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] args) {
-    const AdminFlag flag = Admin_Chat;
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
         return;
@@ -33,6 +32,8 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     // Get the team's name.
     char teamName[8];
     GetClientTeamName(team, teamName, sizeof(teamName));
+
+    const AdminFlag flag = Admin_Chat;
 
     if(!alive) {
         if(teamChat) {
