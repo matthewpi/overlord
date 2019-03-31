@@ -15,6 +15,10 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
         return Plugin_Continue;
     }
 
+    if(!g_cvCollisions.BoolValue && g_iCollisionGroup != -1) {
+        SetEntData(client, g_iCollisionGroup, 2, 4, true);
+    }
+
     // Loop through all of the admin's following entires.
     for(int i = 1; i < sizeof(g_iFollowing); i++) {
         // Check if the follow entry does not equal the spawned client.

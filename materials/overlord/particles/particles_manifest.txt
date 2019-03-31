@@ -1,0 +1,4 @@
+particles_manifest
+{
+	file	"particles/particles_by_s.pcf"
+}

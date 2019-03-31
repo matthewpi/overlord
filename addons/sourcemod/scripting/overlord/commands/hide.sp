@@ -44,5 +44,20 @@ public Action Command_Hide(const int client, const int args) {
     // Log the command execution.
     LogCommand(client, -1, command, "");
 
+    // Check if the admin is visible.
+    if(!admin.IsHidden()) {
+        // Call the "g_hOnAdminVisible" forward.
+        Call_StartForward(g_hOnAdminVisible);
+    } else {
+        // Call the "g_hOnAdminHide" forward.
+        Call_StartForward(g_hOnAdminHide);
+    }
+
+    // Add the client as a parameter.
+    Call_PushCell(client);
+
+    // Finish the forward call.
+    Call_Finish();
+
     return Plugin_Handled;
 }

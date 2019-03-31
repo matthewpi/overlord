@@ -4,100 +4,6 @@
  */
 
 /**
- * Overlord_AdminMenu
- * ?
- */
-void Overlord_AdminMenu(const int client, const int position = -1) {
-    Menu menu = CreateMenu(Callback_OverlordAdminMenu);
-    menu.SetTitle("Overlord | Admins");
-
-    // Get the client's immunity level.
-    int immunity = 0;
-    AdminId adminId = GetUserAdmin(client);
-    if(adminId != INVALID_ADMIN_ID) {
-        immunity = adminId.ImmunityLevel;
-    }
-
-    char index[8];
-    char name[32];
-    for(int i = 1; i < sizeof(g_hAdmins); i++) {
-        // Get the admin object from the admins array.
-        Admin admin = g_hAdmins[i];
-        if(admin == null) {
-            continue;
-        }
-
-        // Check if the admin has no group.
-        if(admin.GetGroup() == 0) {
-            continue;
-        }
-
-        // Get the admin's group.
-        Group group = g_hGroups[admin.GetGroup()];
-        if(group == null) {
-            continue;
-        }
-
-        // Check if the group is an actual admin group. (not VIP or default)
-        if(group.GetImmunity() == 0) {
-            continue;
-        }
-
-        // Check if the admin is hidden and if the client's immunity is less than the group's.
-        if(admin.IsHidden() && immunity < group.GetImmunity()) {
-            continue;
-        }
-
-        // Format the client index as a char array.
-        Format(index, sizeof(index), "%i", i);
-
-        // Get the admin's name.
-        admin.GetName(name, sizeof(name));
-
-        menu.AddItem(index, name);
-    }
-
-    // Enable the menu exit back button.
-    menu.ExitBackButton = true;
-
-    // Display the menu to the client.
-    if(position == -1) {
-        menu.Display(client, 0);
-    } else {
-        menu.DisplayAt(client, position, 0);
-    }
-}
-
-static int Callback_OverlordAdminMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
-        case MenuAction_Select: {
-            char info[32];
-            menu.GetItem(itemNum, info, sizeof(info));
-
-            int adminId = StringToInt(info);
-
-            Admin admin = g_hAdmins[adminId];
-            if(admin == null) {
-                Overlord_AdminMenu(client, GetMenuSelectionPosition());
-                return;
-            }
-
-            Overlord_AdminInfoMenu(client, adminId);
-        }
-
-        case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
-                Overlord_Menu(client);
-            }
-        }
-
-        case MenuAction_End: {
-            delete menu;
-        }
-    }
-}
-
-/**
  * Overlord_AdminInfoMenu
  * ?
  */
@@ -137,14 +43,17 @@ void Overlord_AdminInfoMenu(const int client, const int adminId, const int posit
 
     // Get the admin's group.
     Group group = g_hGroups[admin.GetGroup()];
-    if(group == null) {
-        return;
+    int groupImmunity = 0;
+    if(group != null) {
+        group.GetName(temp, sizeof(temp));
+        Format(display, sizeof(display), "Group: %s", temp);
+        groupImmunity = group.GetImmunity();
+    } else {
+        display = "Group: None";
     }
 
     // Group: %s
-    group.GetName(temp, sizeof(temp));
-    Format(display, sizeof(display), "Group: %s", temp);
-    menu.AddItem("group", display, (immunity < group.GetImmunity()) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
+    menu.AddItem("group", display, (immunity < groupImmunity) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
     // End Group: %s
 
     // Created At: %s
@@ -152,6 +61,10 @@ void Overlord_AdminInfoMenu(const int client, const int adminId, const int posit
     Format(display, sizeof(display), "Created At: %s", temp);
     menu.AddItem("createdAt", display);
     // END Created At: %s
+
+    // Delete Admin
+    menu.AddItem("delete", "Delete Admin");
+    // END Delete Admin
 
     // Enable the menu exit back button.
     menu.ExitBackButton = true;
@@ -188,6 +101,8 @@ static int Callback_OverlordAdminInfoMenu(Menu menu, MenuAction action, int clie
                 Overlord_AdminInfoMenu(client, adminId, GetMenuSelectionPosition());
             } else if(StrEqual(info, "group", true)) {
                 Overlord_AdminGroupMenu(client, adminId);
+            } else if(StrEqual(info, "delete", true)) {
+                Overlord_AdminDeleteMenu(client, adminId);
             } else {
                 Overlord_AdminInfoMenu(client, adminId, GetMenuSelectionPosition());
             }
@@ -206,7 +121,7 @@ static int Callback_OverlordAdminInfoMenu(Menu menu, MenuAction action, int clie
 }
 
 /**
- * Overlord_GroupMenu
+ * Overlord_AdminGroupMenu
  * ?
  */
 void Overlord_AdminGroupMenu(const int client, const int adminId, const int position = -1) {
@@ -282,15 +197,76 @@ static int Callback_OverlordAdminGroupMenu(Menu menu, MenuAction action, int cli
             char groupName[32];
             group.GetName(groupName, sizeof(groupName));
 
+            // Reload the admin's privileges.
+            Admin_RefreshId(adminId);
+
             // Send a message to the client.
             PrintToChat(client, "%s Set \x10%s\x01's group to \x07%s\x01.", PREFIX, adminName, groupName);
 
             // Redraw the menu.
             Overlord_AdminGroupMenu(client, adminId, GetMenuSelectionPosition());
+
+            // Update the database.
+            Backend_UpdateAdmin(client);
         }
 
         case MenuAction_Cancel: {
             if(itemNum == MenuCancel_ExitBack) {
+                Overlord_AdminInfoMenu(client, g_iOverlordMenu[client]);
+            }
+        }
+
+        case MenuAction_End: {
+            delete menu;
+        }
+    }
+}
+
+/**
+ * Overlord_AdminDeleteMenu
+ * ?
+ */
+void Overlord_AdminDeleteMenu(const int client, const int adminId) {
+    Menu menu = CreateMenu(Callback_OverlordAdminDeleteMenu);
+    menu.SetTitle("Overlord | Delete Admin");
+
+    // Update the "g_iOverlordMenu" array with the new adminId.
+    g_iOverlordMenu[client] = adminId;
+
+    menu.AddItem("true", "Yes");
+    menu.AddItem("false", "No");
+
+    // Display the menu to the client.
+    menu.Display(client, 0);
+}
+
+static int Callback_OverlordAdminDeleteMenu(Menu menu, MenuAction action, int client, int itemNum) {
+    switch(action) {
+        case MenuAction_Select: {
+            char info[32];
+            menu.GetItem(itemNum, info, sizeof(info));
+
+            if(StrEqual(info, "true", true)) {
+                // Remove the admin's adminId.
+                AdminId adminId = GetUserAdmin(client);
+                if(adminId != INVALID_ADMIN_ID) {
+                    RemoveAdmin(adminId);
+                }
+
+                // Delete the admin's database entry.
+                Backend_DeleteAdmin(client);
+
+                // Delete the admin object.
+                delete g_hAdmins[g_iOverlordMenu[client]];
+
+                // Call the "g_hOnAdminRemoved" forward.
+                Call_StartForward(g_hOnAdminRemoved);
+                Call_PushCell(client);
+                Call_Finish();
+
+                PrintToChat(client, "%s Deleted \x10%N\x01's admin.", PREFIX, g_iOverlordMenu[client]);
+                Overlord_AdminMenu(client);
+            } else {
                 Overlord_AdminInfoMenu(client, g_iOverlordMenu[client]);
             }
         }

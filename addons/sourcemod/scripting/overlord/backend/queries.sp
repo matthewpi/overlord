@@ -97,7 +97,12 @@ FROM `overlord_admins`\
 WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
 "
 
-// Updates an admin's hidden state.
+// Updates an admin's information.
 #define UPDATE_ADMIN "\
-UPDATE `overlord_admins` SET `overlord_admins`.`hidden` = %i WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
+UPDATE `overlord_admins` SET `overlord_admins`.`name` = '%s', `overlord_admins`.`groupId` = %i, `overlord_admins`.`hidden` = %i WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
+"
+
+// Deletes an admin's database entry.
+#define DELETE_ADMIN "\
+DELETE FROM `overlord_admins` WHERE `overlord_admins`.`steamId` = '%s';\
 "

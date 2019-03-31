@@ -62,10 +62,16 @@
         "en" "{NORMAL}There are no {ORANGE}Groups{NORMAL} loaded."
     }
 
-    "sm_heal Healed"
+    "sm_heal Player"
     {
         "#format" "{1:s}"
         "en"      "{NORMAL}Healed {ORANGE}{1}{NORMAL}."
+    }
+
+    "sm_health Player"
+    {
+        "#format" "{1:s},{2:i}"
+        "en"      "{NORMAL}Set health of {ORANGE}{1}{NORMAL} to {RED}{2}{NORMAL}."
     }
 
     "sm_hide Visible"
@@ -84,12 +90,6 @@
     {
         "#format" "{1:s}"
         "en"      "{NORMAL}Struck {ORANGE}{1}{NORMAL} with the hand of {RED}balon{NORMAL}."
-    }
-
-    "sm_respawn All"
-    {
-        "#format" "{1:s}"
-        "en"      "{NORMAL}Respawned all {ORANGE}{1}{NORMAL}."
     }
 
     "sm_respawn Player"
@@ -134,7 +134,7 @@
         "en"      "{NORMAL}Teleported {ORANGE}{1}{NORMAL} to their eye position."
     }
 
-    "sm_tphere Themselves"
+    "sm_tphere Player"
     {
         "#format" "{1:s}"
         "en"      "{NORMAL}Teleported {ORANGE}{1}{NORMAL} to themselves."

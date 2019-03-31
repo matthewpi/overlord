@@ -32,7 +32,7 @@ public Action Command_Teleport(const int client, const int args) {
     GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
     // Attempt to get and target a player using the first command argument.
-    int target = FindTarget(client, potentialTarget);
+    int target = FindTarget(client, potentialTarget, false, false);
     if(target == -1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Targetting error)");
@@ -45,6 +45,12 @@ public Action Command_Teleport(const int client, const int args) {
 
     // Teleport the client to the target.
     TeleportClientToTarget(client, target);
+
+    // Call the "g_hOnPlayerTeleport" forward.
+    Call_StartForward(g_hOnPlayerTeleport);
+    Call_PushCell(client);
+    Call_PushCell(target);
+    Call_Finish();
 
     // Get and format the translation.
     char buffer[512];

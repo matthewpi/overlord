@@ -24,19 +24,7 @@
 #define CONSOLE_PREFIX "[Overlord]"
 
 // Limits
-#define GROUP_MAX 16
-
-// Models
-#define MODEL_LIGHTNING     "overlord/laserbeam.vmt"
-#define MODEL_LIGHTNING_DL  "materials/overlord/laserbeam.vmt"
-#define MODEL_LIGHTNING_DL2 "materials/overlord/laserbeam.vtf"
-
-#define MODEL_SMOKE    "sprites/steam1.vmt"
-#define MODEL_SMOKE_DL "materials/sprites/steam1.vmt"
-
-// Sounds
-#define SOUND_HOG    "*overlord/hog.mp3"
-#define SOUND_HOG_DL "sound/overlord/hog.mp3"
+#define GROUP_MAX 32
 // END Definitions
 
 // Project Models
@@ -44,60 +32,10 @@
 #include "overlord/models/group.sp"
 // END Project Models
 
-// Globals
-// sm_overlord_database - "Sets what database the plugin should use." (Default: "overlord")
-ConVar g_cvDatabase;
-// sm_overlord_message_join - "" (Default: "1")
-ConVar g_cvMessageJoin;
-// sm_overlord_message_quit - "" (Default: "1")
-ConVar g_cvMessageQuit;
-// sv_deadtalk
-ConVar g_cvDeadTalk;
-// ip
-ConVar g_cvServerIp;
-// hostport
-ConVar g_cvServerPort;
-// hostname
-ConVar g_cvServerHostname;
-// rcon_password
-ConVar g_cvServerRconPassword;
-
-// g_dbOverlord Stores the active database connection.
-Database g_dbOverlord;
-
-// g_hAdminTagTimer stores the handle for the active admin tag timer.
-Handle g_hAdminTagTimer = INVALID_HANDLE;
-
-// g_iLightningSprite
-int g_iLightningSprite;
-
-// g_iSmokeSprite
-int g_iSmokeSprite;
-
-// g_iServerId stores the server's database id.
-int g_iServerId = 0;
-
-// g_hGroups stores an array of loaded Groups.
-Group g_hGroups[GROUP_MAX];
-
-// g_hAdmins stores an array of loaded Admins.
-Admin g_hAdmins[MAXPLAYERS + 1];
-
-// g_iSwapOnRoundEnd stores an array of client to swap to another team.
-int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
-
-// g_fDeathPosition stores a list of client death positions.
-float g_fDeathPosition[MAXPLAYERS + 1][3];
-
-// g_iFollowing
-int g_iFollowing[MAXPLAYERS + 1];
-
-// g_iOverlordMenu
-int g_iOverlordMenu[MAXPLAYERS + 1];
-// END Globals
-
 // Project Files
+#include "overlord/globals.sp"
 #include "overlord/admin.sp"
+#include "overlord/assets.sp"
 #include "overlord/natives.sp"
 #include "overlord/sourcemod.sp"
 #include "overlord/utils.sp"
@@ -114,6 +52,7 @@ int g_iOverlordMenu[MAXPLAYERS + 1];
 #include "overlord/commands/follow.sp"
 #include "overlord/commands/groups.sp"
 #include "overlord/commands/heal.sp"
+#include "overlord/commands/health.sp"
 #include "overlord/commands/hide.sp"
 #include "overlord/commands/hog.sp"
 #include "overlord/commands/overlord.sp"
@@ -125,15 +64,19 @@ int g_iOverlordMenu[MAXPLAYERS + 1];
 #include "overlord/commands/vips.sp"
 
 // Events
+#include "overlord/events/map_change.sp"
 #include "overlord/events/player_chat.sp"
 #include "overlord/events/player_death.sp"
 #include "overlord/events/player_spawn.sp"
 #include "overlord/events/round_end.sp"
 
 // Menus
-#include "overlord/menus/overlord.sp"
-#include "overlord/menus/overlord_admin.sp"
-#include "overlord/menus/overlord_group.sp"
+#include "overlord/menus/main.sp"
+#include "overlord/menus/admin/main.sp"
+#include "overlord/menus/admin/info.sp"
+#include "overlord/menus/admin/new.sp"
+#include "overlord/menus/group/main.sp"
+#include "overlord/menus/group/info.sp"
 // END Project Files
 
 // Plugin Information
@@ -157,8 +100,10 @@ public void OnPluginStart() {
 
     // Create custom convars for the plugin.
     g_cvDatabase = CreateConVar("sm_overlord_database", "overlord", "Sets what database the plugin should use.");
-    g_cvMessageJoin = CreateConVar("sm_overlord_message_join", "1", "", _, true, 0.0, true, 1.0);
-    g_cvMessageQuit = CreateConVar("sm_overlord_message_quit", "1", "", _, true, 0.0, true, 1.0);
+    g_cvMessageJoin = CreateConVar("sm_overlord_message_join", "1", "Should we print a join message?", _, true, 0.0, true, 1.0);
+    g_cvMessageQuit = CreateConVar("sm_overlord_message_quit", "1", "Should we print a quit message?", _, true, 0.0, true, 1.0);
+    g_cvCollisions = CreateConVar("sm_overlord_collisions", "0", "Should collisions be enabled?", _, true, 0.0, true, 1.0);
+    g_cvCrashfix = CreateConVar("sm_overlord_crashfix", "1", "Should we enable the experimental crash fix?", _, true, 0.0, true, 1.0);
 
     // Generate and load our plugin convar config.
     AutoExecConfig(true, "overlord");
@@ -177,6 +122,12 @@ public void OnPluginStart() {
     // Attempt connection to the database.
     Database.Connect(Backend_Connnection, databaseName);
 
+    // Get the "m_CollisionGroup" offset.
+    g_iCollisionGroup = FindSendPropInfo("CBaseEntity", "m_CollisionGroup");
+    if(g_iCollisionGroup == -1) {
+        LogMessage("%s Failed to get offset for CBaseEntity::m_CollisionGroup, cannot disable collisions.", CONSOLE_PREFIX);
+    }
+
     // Commands
     // overlord/commands/admins.sp
     RegConsoleCmd("sm_admins", Command_Admins, "sm_admins - Prints a list of admins.");
@@ -186,6 +137,8 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_groups", Command_Groups, "sm_groups - Prints a list of groups.");
     // overlord/commands/heal.sp
     RegAdminCmd("sm_heal", Command_Heal, ADMFLAG_SLAY, "sm_heal <#userid;target> - Heals a player.");
+    // overlord/commands/health.sp
+    RegAdminCmd("sm_health", Command_Health, ADMFLAG_SLAY, "sm_health <#userid;target> <health> - Sets the specified target's health.");
     // overlord/commands/hide.sp
     RegAdminCmd("sm_hide", Command_Hide, ADMFLAG_KICK, "sm_hide - Toggles an admin's hidden state.");
     // overlord/commands/hog.sp
@@ -209,6 +162,11 @@ public void OnPluginStart() {
     // END Commands
 
     // Events
+    if(g_cvCrashfix.BoolValue) {
+        // overlord/events/map_change.sp
+        AddCommandListener(Event_MapChange, "map");
+        AddCommandListener(Event_MapChange, "changelevel");
+    }
     // overlord/events/player_death.sp
     if(!HookEventEx("player_death", Event_PlayerDeath)) {
         SetFailState("%s Failed to hook \"player_death\" event, disabling plugin..", CONSOLE_PREFIX);
@@ -226,6 +184,23 @@ public void OnPluginStart() {
     }
     // END Events
 
+    // Forwards
+    g_hOnAdminJoin = CreateGlobalForward("Overlord_OnAdminJoin", ET_Event, Param_Cell);
+    g_hOnAdminQuit = CreateGlobalForward("Overlord_OnAdminQuit", ET_Event, Param_Cell);
+    g_hOnAdminAdded = CreateGlobalForward("Overlord_OnAdminAdded", ET_Event, Param_Cell);
+    g_hOnAdminRemoved = CreateGlobalForward("Overlord_OnAdminRemoved", ET_Event, Param_Cell);
+    g_hOnAdminFollow = CreateGlobalForward("Overlord_OnAdminFollow", ET_Event, Param_Cell, Param_Cell);
+    g_hOnAdminVisible = CreateGlobalForward("Overlord_OnAdminVisible", ET_Event, Param_Cell);
+    g_hOnAdminHide = CreateGlobalForward("Overlord_OnAdminHide", ET_Event, Param_Cell);
+    g_hOnPlayerHeal = CreateGlobalForward("Overlord_OnPlayerHeal", ET_Event, Param_Cell);
+    g_hOnPlayerHealth = CreateGlobalForward("Overlord_OnPlayerHealth", ET_Event, Param_Cell);
+    g_hOnPlayerHog = CreateGlobalForward("Overlord_OnPlayerHog", ET_Event, Param_Cell);
+    g_hOnPlayerRespawn = CreateGlobalForward("Overlord_OnPlayerRespawn", ET_Event, Param_Cell);
+    g_hOnPlayerTeam = CreateGlobalForward("Overlord_OnPlayerTeam", ET_Event, Param_Cell, Param_Cell);
+    g_hOnPlayerTeleport = CreateGlobalForward("Overlord_OnPlayerTeleport", ET_Event, Param_Cell, Param_Cell);
+    g_hOnPlayerTeleportPos = CreateGlobalForward("Overlord_OnPlayerTeleportPos", ET_Event, Param_Cell, Param_Array);
+    // END Forwards
+
     // overlord/sourcemod.sp
     HookUserMessage(GetUserMessageId("TextMsg"), Sourcemod_TextMessage, true);
 
@@ -238,18 +213,8 @@ public void OnPluginStart() {
  * Adds files that need to be downloaded; precaches materials, sprites, and sounds.
  */
 public void OnMapStart() {
-    // File Downloads
-    AddFileToDownloadsTable(SOUND_HOG_DL);
-    AddFileToDownloadsTable(MODEL_LIGHTNING_DL);
-    AddFileToDownloadsTable(MODEL_LIGHTNING_DL2);
-    AddFileToDownloadsTable(MODEL_SMOKE_DL);
-
-    // Sounds
-    PrecacheSound(SOUND_HOG, true);
-
-    // Models
-    g_iLightningSprite = PrecacheModel(MODEL_LIGHTNING);
-    g_iSmokeSprite = PrecacheModel(MODEL_SMOKE);
+    AddAssetsToDownloadTable();
+    PrecacheAssets();
 }
 
 /**
@@ -261,6 +226,7 @@ public void OnClientPutInServer(int client) {
     g_iSwapOnRoundEnd[client] = -1;
     g_iFollowing[client] = -1;
     g_iOverlordMenu[client] = -1;
+    g_iOverlordAction[client] = -1;
 
     for(int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;
@@ -296,6 +262,15 @@ public void OnClientAuthorized(int client, const char[] auth) {
 
     // Attempt to load user's admin information.
     Backend_GetAdmin(client, auth);
+
+    if(g_hAdmins[client] != null) {
+        LogMessage("%s %N is an admin. :)", CONSOLE_PREFIX, client);
+
+        // Call the "g_hOnAdminJoin" forward.
+        Call_StartForward(g_hOnAdminJoin);
+        Call_PushCell(client);
+        Call_Finish();
+    }
 }
 
 /**
@@ -307,6 +282,7 @@ public void OnClientDisconnect(int client) {
     g_iSwapOnRoundEnd[client] = -1;
     g_iFollowing[client] = -1;
     g_iOverlordMenu[client] = -1;
+    g_iOverlordAction[client] = -1;
 
     for(int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;
@@ -339,6 +315,11 @@ public void OnClientDisconnect(int client) {
     if(g_hAdmins[client].GetGroup() == 0 || g_hGroups[g_hAdmins[client].GetGroup()].GetImmunity() == 0) {
         return;
     }
+
+    // Call the "g_hOnAdminQuit" forward.
+    Call_StartForward(g_hOnAdminQuit);
+    Call_PushCell(client);
+    Call_Finish();
 
     // Save the admin's information.
     Backend_UpdateAdmin(client);

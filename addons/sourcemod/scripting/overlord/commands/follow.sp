@@ -93,5 +93,11 @@ public Action Command_Follow(const int client, const int args) {
     // Log the command execution.
     LogCommand(client, target, command, "(Target: '%s')", targetName);
 
+    // Call the "g_hOnAdminFollow" forward.
+    Call_StartForward(g_hOnAdminFollow);
+    Call_PushCell(client);
+    Call_PushCell(target);
+    Call_Finish();
+
     return Plugin_Handled;
 }

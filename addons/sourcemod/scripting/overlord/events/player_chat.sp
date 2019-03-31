@@ -13,6 +13,12 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
         return;
     }
 
+    // Check if we are listening for a chat input.
+    if(g_iOverlordAction[client] != -1) {
+        g_iOverlordAction[client] = -1;
+        return;
+    }
+
     // True if the client posted the message in their team chat.
     bool teamChat = StrEqual(command, "say_team", true);
     // True if the client is alive.
@@ -34,6 +40,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     GetClientTeamName(team, teamName, sizeof(teamName));
 
     const AdminFlag flag = Admin_Chat;
+    PrintToServer(g_cvDeadTalk.BoolValue ? "true" : "false");
 
     if(!alive) {
         if(teamChat) {

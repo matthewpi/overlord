@@ -4,23 +4,23 @@
  */
 
 /**
- * Command_TeleportAim (sm_tpaim)
- * Teleport a client to where you are looking.
+ * Command_Health (sm_health)
+ * Sets the specified target's health.
  */
-public Action Command_TeleportAim(const int client, const int args) {
-    // Variable to hold the command name.
-    char command[64] = "sm_tpaim";
+public Action Command_Health(const int client, const int args) {
+    char command[64] = "sm_health";
 
     // Check if the client is invalid.
     if(!IsClientValid(client)) {
+        // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1) {
+    if(args != 2) {
         // Send a message to the client.
-        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
+        ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> <health>", PREFIX, command);
 
         // Log the command execution.
         LogCommand(client, -1, command, "");
@@ -49,30 +49,15 @@ public Action Command_TeleportAim(const int client, const int args) {
         return Plugin_Handled;
     }
 
-    // Get client's eye position.
-    float origins[3];
-    GetClientEyePosition(client, origins);
+    // Get the second command argument.
+    char healthValue[512];
+    GetCmdArg(2, healthValue, sizeof(healthValue));
 
-    // Get client's eye angles.
-    float angles[3];
-    GetClientEyeAngles(client, angles);
-
-    // Get the client's eye position that we can actually teleport a player to.
-    TR_TraceRayFilter(origins, angles, MASK_ALL, RayType_Infinite, TraceEntityFilter_NoPlayers);
-
-    // Check if the eye position is a valid location.
-    if(!TR_DidHit()) {
-        // Log the command execution.
-        LogCommand(client, -1, command, "(TraceRay did not hit)", targetName);
-        return Plugin_Handled;
-    }
-
-    // Get the Trace Ray position.
-    float position[3];
-    TR_GetEndPosition(position);
+    // Convert the second command argument to an integer.
+    int health = StringToInt(healthValue);
 
     // Loop through all targets.
-    int teleported = 0;
+    int healed = 0;
     for(int i = 0; i < targetCount; i++) {
         int target = targets[i];
         // Check if the target is invalid.
@@ -89,35 +74,37 @@ public Action Command_TeleportAim(const int client, const int args) {
 
                 // Send a message to the client.
                 ReplyToCommand(client, buffer);
+
+                // Log the command execution.
+                LogCommand(client, targets[0], command, "(Target is not alive)");
             }
             continue;
         }
 
-        // Teleport the target to the position.
-        TeleportClientToPosition(target, position);
-
-        // Call the "g_hOnPlayerTeleportPos" forward.
-        Call_StartForward(g_hOnPlayerTeleportPos);
+        // Call the "g_hOnPlayerHealth" forward.
+        Call_StartForward(g_hOnPlayerHealth);
         Call_PushCell(client);
-        Call_PushArray(position, sizeof(position));
         Call_Finish();
 
-        teleported++;
+        // Update the target's health.
+        SetEntityHealth(target, health);
+
+        healed++;
     }
 
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_tpaim Player", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_health Player", client, targetName, health);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    if(teleported > 1) {
+    if(healed > 1) {
         // Log the command execution.
-        LogCommand(client, -1, command, "(Teleported %i players)", teleported);
-    } else if(teleported == 1) {
+        LogCommand(client, -1, command, "(Set health of %i players to %i)", healed, health);
+    } else if(healed == 1) {
         // Log the command execution.
-        LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
+        LogCommand(client, targets[0], command, "(Target: '%s', Health: %i)", targetName, health);
     }
 
     return Plugin_Handled;

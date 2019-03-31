@@ -141,7 +141,7 @@ void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, cons
         }
 
         // Check if the client does not have the admin flag.
-        if(!GetAdminFlag(adminId, flag)) {
+        if(!adminId.HasFlag(flag)) {
             continue;
         }
 

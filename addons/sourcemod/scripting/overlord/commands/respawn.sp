@@ -38,10 +38,10 @@ public Action Command_Respawn(const int client, const int args) {
     bool tnIsMl;
 
     // Process the target string.
-    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
+    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_DEAD, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
-    if(targetCount <= 0) {
+    if(targetCount <= COMMAND_TARGET_NONE) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
 
@@ -89,27 +89,25 @@ public Action Command_Respawn(const int client, const int args) {
             TeleportEntity(target, g_fDeathPosition[client], NULL_VECTOR, NULL_VECTOR);
         }
 
+        // Call the "g_hOnPlayerRespawn" forward.
+        Call_StartForward(g_hOnPlayerRespawn);
+        Call_PushCell(client);
+        Call_Finish();
+
         respawned++;
     }
 
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
+
+    // Show the activity to the players.
+    LogActivity(client, buffer);
+
     if(respawned > 1) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn All", client, targetName);
-
-        // Show the activity to the players.
-        LogActivity(client, buffer);
-
         // Log the command execution.
         LogCommand(client, -1, command, "(Respawned %i players)", respawned);
     } else if(respawned == 1) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
-
-        // Show the activity to the players.
-        LogActivity(client, buffer);
-
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     }

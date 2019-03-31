@@ -186,13 +186,17 @@ public void Backend_UpdateAdmin(int client) {
         return;
     }
 
+    // Get the admin's name.
+    char name[64];
+    admin.GetName(name, sizeof(name));
+
     // Get the admin's steam id.
     char steamId[64];
     admin.GetSteamID(steamId, sizeof(steamId));
 
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), UPDATE_ADMIN, admin.IsHidden() ? 1 : 0, steamId);
+    Format(query, sizeof(query), UPDATE_ADMIN, name, admin.GetGroup(), admin.IsHidden() ? 1 : 0, steamId);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_UpdateAdmin, query, client);
@@ -211,4 +215,48 @@ static void Callback_UpdateAdmin(Database database, DBResultSet results, const c
 
     // Log that we saved the admin's information.
     LogMessage("%s Saved admin information for %i.", CONSOLE_PREFIX, client);
+}
+
+/**
+ * Backend_DeleteAdmin
+ * Updates a user's admin information.
+ */
+public void Backend_DeleteAdmin(int client) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_DeleteAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
+    // Get client's admin.
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return;
+    }
+
+    // Get the admin's steam id.
+    char steamId[64];
+    admin.GetSteamID(steamId, sizeof(steamId));
+
+    // Create and format the query.
+    char query[512];
+    Format(query, sizeof(query), DELETE_ADMIN, steamId);
+
+    // Execute the query.
+    g_dbOverlord.Query(Callback_DeleteAdmin, query, client);
+}
+
+/**
+ * Callback_DeleteAdmin
+ * Backend callback for Backend_DeleteAdmin(int)
+ */
+static void Callback_DeleteAdmin(Database database, DBResultSet results, const char[] error, int client) {
+    // Handle query error.
+    if(results == null) {
+        LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_DeleteAdmin", (strlen(error) > 0 ? error : "Unknown."));
+        return;
+    }
+
+    // Log that we saved the admin's information.
+    LogMessage("%s Deleted admin for %i.", CONSOLE_PREFIX, client);
 }

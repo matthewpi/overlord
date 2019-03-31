@@ -18,7 +18,7 @@ public Action Command_Heal(const int client, const int args) {
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1 && args != 2) {
+    if(args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -31,45 +31,75 @@ public Action Command_Heal(const int client, const int args) {
     char potentialTarget[512];
     GetCmdArg(1, potentialTarget, sizeof(potentialTarget));
 
-    // Attempt to get and target a player using the first command argument.
-    int target = FindTarget(client, potentialTarget);
-    if(target == -1) {
+    // Define variables to store target information.
+    char targetName[MAX_TARGET_LENGTH];
+    int targets[MAXPLAYERS];
+    bool tnIsMl;
+
+    // Process the target string.
+    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, targetName, sizeof(targetName), tnIsMl);
+
+    // Check if no clients were found.
+    if(targetCount <= COMMAND_TARGET_NONE) {
+        // Send a message to the client.
+        ReplyToTargetError(client, targetCount);
+
         // Log the command execution.
-        LogCommand(client, -1, command, "(Targetting error)");
+        LogCommand(client, -1, command, "");
         return Plugin_Handled;
     }
 
-    // Get the target's name.
-    char targetName[128];
-    GetClientName(target, targetName, sizeof(targetName));
+    // Loop through all targets.
+    int healed = 0;
+    for(int i = 0; i < targetCount; i++) {
+        int target = targets[i];
+        // Check if the target is invalid.
+        if(!IsClientValid(target)) {
+            continue;
+        }
 
-    // Check if the target is not alive.
-    if(!IsPlayerAlive(target)) {
-        // Get and format the translation.
-        char buffer[512];
-        GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
+        // Check if the target is alive.
+        if(!IsPlayerAlive(target)) {
+            if(targetCount == 1) {
+                // Get and format the translation.
+                char buffer[512];
+                GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
 
-        // Send a message to the client.
-        ReplyToCommand(client, buffer);
+                // Send a message to the client.
+                ReplyToCommand(client, buffer);
 
-        // Log the command execution.
-        LogCommand(client, target, command, "(Target is not alive)");
-        return Plugin_Handled;
+                // Log the command execution.
+                LogCommand(client, targets[0], command, "(Target is not alive)");
+            }
+            continue;
+        }
+
+        // Call the "g_hOnPlayerHeal" forward.
+        Call_StartForward(g_hOnPlayerHeal);
+        Call_PushCell(client);
+        Call_Finish();
+
+        // Update the target's health.
+        int health = 100;
+        SetEntityHealth(target, health);
+
+        healed++;
     }
 
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Healed", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Player", client, targetName);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    // Update the target's health.
-    int health = 100;
-    SetEntityHealth(target, health);
-
-    // Log the command execution.
-    LogCommand(client, target, command, "(Target: '%s', Health: %i)", targetName, health);
+    if(healed > 1) {
+        // Log the command execution.
+        LogCommand(client, -1, command, "(Healed %i players)", healed);
+    } else if(healed == 1) {
+        // Log the command execution.
+        LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
+    }
 
     return Plugin_Handled;
 }

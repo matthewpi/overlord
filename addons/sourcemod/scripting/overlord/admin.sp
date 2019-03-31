@@ -26,6 +26,52 @@ public void OnRebuildAdminCache(AdminCachePart part) {
 }
 
 /**
+ * Admin_RefreshId
+ * Reloads an admin's groups and privileges.
+ */
+public void Admin_RefreshId(const int client) {
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return;
+    }
+
+    // Get the admin's name.
+    char name[32];
+    admin.GetName(name, sizeof(name));
+
+    // Create admin
+    AdminId adminId = GetUserAdmin(client);
+    if(adminId != INVALID_ADMIN_ID) {
+        RemoveAdmin(adminId);
+    }
+
+    adminId = CreateAdmin(name);
+    SetUserAdmin(client, adminId, true);
+    // END Create admin
+
+    // Add admin group
+    Group userGroup = g_hGroups[admin.GetGroup()];
+    if(userGroup == null) {
+        return;
+    }
+
+    char groupName[32];
+    userGroup.GetName(groupName, sizeof(groupName));
+
+    GroupId groupId = FindAdmGroup(groupName);
+    if(groupId == INVALID_GROUP_ID) {
+        LogError("%s Failed to locate existing admin group.", CONSOLE_PREFIX);
+        return;
+    }
+
+    if(!adminId.InheritGroup(groupId)) {
+        LogError("%s Failed to inherit admin group.", CONSOLE_PREFIX);
+        return;
+    }
+    // END Add admin group
+}
+
+/**
  * Admin_SetTag
  * Sets a client's clan tag to the one specified in their group.
  */
