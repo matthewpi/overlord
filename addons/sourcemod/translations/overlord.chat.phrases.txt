@@ -1,0 +1,50 @@
+"Phrases"
+{
+    "Chat All"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "{3} {1} :  {2}"
+    }
+
+    "Chat All Dead"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "*DEAD* {3} {1} :  {2}"
+    }
+
+    "Chat All Spectator"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "{3} {1} :  {2}"
+    }
+
+    "Chat Team T"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "(Team) {3} {1} :  {2}"
+    }
+
+    "Chat Team T Dead"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "*DEAD* (Team) {3} {1} :  {2}"
+    }
+
+    "Chat Team CT"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "(Team) {3} {1} :  {2}"
+    }
+
+    "Chat Team CT Dead"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "*DEAD* (Team) {3} {1} :  {2}"
+    }
+
+    "Chat Team Spectator"
+    {
+        "#format" "{1:s},{2:s},{3:s}"
+        "en"      "(Team) {3} {1} :  {2}"
+    }
+}

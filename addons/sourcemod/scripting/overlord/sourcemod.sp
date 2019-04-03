@@ -3,10 +3,10 @@
  * All rights reserved.
  */
 
- /**
-  * Sourcemod_TextMessage
-  * Hooks into whenever a text message is sent to replace the default sourcemod prefix.
-  */
+/**
+ * Sourcemod_TextMessage
+ * Hooks into whenever a text message is sent to replace the default sourcemod prefix.
+ */
 public Action Sourcemod_TextMessage(UserMsg msgId, Protobuf protobuf, const int[] players, int playerCount, bool reliable, bool init) {
     // Check if the message is not reliable.
     if(!reliable) {

@@ -43,9 +43,13 @@ public void Backend_GetAdmin(int client, const char[] steamId) {
         return;
     }
 
+    // Get the end of the steam id.
+    char idSections[3][32];
+    ExplodeString(steamId, ":", idSections, 3, 32, true);
+
     // Create and format the query.
     char query[1024];
-    Format(query, sizeof(query), GET_ADMIN, g_iServerId, steamId);
+    Format(query, sizeof(query), GET_ADMIN, g_iServerId, idSections[2]);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_GetAdmin, query, client);

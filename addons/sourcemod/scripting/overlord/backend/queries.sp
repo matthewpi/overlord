@@ -94,7 +94,7 @@ SELECT `overlord_admins`.`id`, `overlord_admins`.`name`, `overlord_admins`.`stea
 FROM `overlord_admins`\
     LEFT OUTER JOIN `overlord_admin_groups` ON `overlord_admins`.`id` = `overlord_admin_groups`.`adminId`\
                                            AND `overlord_admin_groups`.`serverId` = %i \
-WHERE `overlord_admins`.`steamId` = '%s' LIMIT 1;\
+WHERE `overlord_admins`.`steamId` LIKE '%%:%s' LIMIT 1;\
 "
 
 // Updates an admin's information.

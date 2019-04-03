@@ -21,6 +21,12 @@ ConVar g_cvCollisions;
 // sm_overlord_crashfix - "Should we enable the experimental crash fix?" (Default: "1")
 ConVar g_cvCrashfix;
 
+// sm_overlord_armor_t - "Should we give Ts armor when they spawn?" (Default: "1")
+ConVar g_cvArmorT;
+
+// sm_overlord_armor_ct - "Should we give CTs armor when they spawn?" (Default: "1")
+ConVar g_cvArmorCT;
+
 // sv_deadtalk
 ConVar g_cvDeadTalk;
 

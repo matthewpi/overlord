@@ -36,6 +36,7 @@
 #include "overlord/globals.sp"
 #include "overlord/admin.sp"
 #include "overlord/assets.sp"
+#include "overlord/chat.sp"
 #include "overlord/natives.sp"
 #include "overlord/sourcemod.sp"
 #include "overlord/utils.sp"
@@ -94,33 +95,22 @@ public Plugin myinfo = {
  * Initiates plugin, registers convars, registers commands, connects to database.
  */
 public void OnPluginStart() {
-    // Load translations
+    // Load translations.
     LoadTranslations("common.phrases");
     LoadTranslations("overlord.phrases");
+    LoadTranslations("overlord.chat.phrases");
 
     // Create custom convars for the plugin.
-    g_cvDatabase = CreateConVar("sm_overlord_database", "overlord", "Sets what database the plugin should use.");
+    g_cvDatabase    = CreateConVar("sm_overlord_database", "overlord", "Sets what database the plugin should use.");
     g_cvMessageJoin = CreateConVar("sm_overlord_message_join", "1", "Should we print a join message?", _, true, 0.0, true, 1.0);
     g_cvMessageQuit = CreateConVar("sm_overlord_message_quit", "1", "Should we print a quit message?", _, true, 0.0, true, 1.0);
-    g_cvCollisions = CreateConVar("sm_overlord_collisions", "0", "Should collisions be enabled?", _, true, 0.0, true, 1.0);
-    g_cvCrashfix = CreateConVar("sm_overlord_crashfix", "1", "Should we enable the experimental crash fix?", _, true, 0.0, true, 1.0);
+    g_cvCollisions  = CreateConVar("sm_overlord_collisions", "0", "Should collisions be enabled?", _, true, 0.0, true, 1.0);
+    g_cvCrashfix    = CreateConVar("sm_overlord_crashfix", "1", "Should we enable the experimental crash fix?", _, true, 0.0, true, 1.0);
+    g_cvArmorT      = CreateConVar("sm_overlord_armor_t", "2", "Should we give Ts armor when they spawn?", _, true, 0.0, true, 2.0);
+    g_cvArmorCT     = CreateConVar("sm_overlord_armor_ct", "2", "Should we give CTs armor when they spawn?", _, true, 0.0, true, 2.0);
 
     // Generate and load our plugin convar config.
     AutoExecConfig(true, "overlord");
-
-    // Find server convars
-    g_cvDeadTalk = FindConVar("sv_deadtalk");
-    g_cvServerIp = FindConVar("ip");
-    g_cvServerPort = FindConVar("hostport");
-    g_cvServerHostname = FindConVar("hostname");
-    g_cvServerRconPassword = FindConVar("rcon_password");
-
-    // Get the database name from the g_cvDatabase convar.
-    char databaseName[64];
-    g_cvDatabase.GetString(databaseName, sizeof(databaseName));
-
-    // Attempt connection to the database.
-    Database.Connect(Backend_Connnection, databaseName);
 
     // Get the "m_CollisionGroup" offset.
     g_iCollisionGroup = FindSendPropInfo("CBaseEntity", "m_CollisionGroup");
@@ -204,8 +194,31 @@ public void OnPluginStart() {
     // overlord/sourcemod.sp
     HookUserMessage(GetUserMessageId("TextMsg"), Sourcemod_TextMessage, true);
 
+    // overlord/chat.sp
+    Chat_Register();
+
     // Start the SetTag timer.
     Admin_TagTimer();
+}
+
+/**
+ * OnConfigsExecuted
+ * Connects to the database using the configured convar.
+ */
+public void OnConfigsExecuted() {
+    // Find server convars
+    g_cvDeadTalk = FindConVar("sv_deadtalk");
+    g_cvServerIp = FindConVar("ip");
+    g_cvServerPort = FindConVar("hostport");
+    g_cvServerHostname = FindConVar("hostname");
+    g_cvServerRconPassword = FindConVar("rcon_password");
+
+    // Get the database name from the g_cvDatabase convar.
+    char databaseName[64];
+    g_cvDatabase.GetString(databaseName, sizeof(databaseName));
+
+    // Attempt connection to the database.
+    Database.Connect(Backend_Connnection, databaseName);
 }
 
 /**
@@ -238,6 +251,8 @@ public void OnClientPutInServer(int client) {
  * Prints a connect chat message, loads client's admin data.
  */
 public void OnClientAuthorized(int client, const char[] auth) {
+    g_hAdmins[client] = null;
+
     // Ignore bot users.
     if(StrEqual(auth, "BOT", true)) {
         return;
@@ -311,11 +326,6 @@ public void OnClientDisconnect(int client) {
         return;
     }
 
-    // Check if the admin has a valid group and if they are a vip.
-    if(g_hAdmins[client].GetGroup() == 0 || g_hGroups[g_hAdmins[client].GetGroup()].GetImmunity() == 0) {
-        return;
-    }
-
     // Call the "g_hOnAdminQuit" forward.
     Call_StartForward(g_hOnAdminQuit);
     Call_PushCell(client);
@@ -326,4 +336,12 @@ public void OnClientDisconnect(int client) {
 
     // Unallocate memory for user admin storage.
     delete g_hAdmins[client];
+}
+
+/**
+ * OnGameFrame
+ * ?
+ */
+public void OnGameFrame() {
+    Chat_ProcessQueue();
 }

@@ -40,7 +40,6 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     GetClientTeamName(team, teamName, sizeof(teamName));
 
     const AdminFlag flag = Admin_Chat;
-    PrintToServer(g_cvDeadTalk.BoolValue ? "true" : "false");
 
     if(!alive) {
         if(teamChat) {
