@@ -48,7 +48,7 @@ ConVar g_cvServerRconPassword;
 /* -------------------------------- */
 /*              Backend             */
 /* -------------------------------- */
-// g_dbOverlord Stores the active database connection.
+// g_dbOverlord stores the active database connection.
 Database g_dbOverlord;
 
 // g_hGroups stores an array of loaded Groups.
@@ -135,6 +135,9 @@ int g_iSmokeSprite;
 /* -------------------------------- */
 /*              Other               */
 /* -------------------------------- */
+// g_alDisconnected stores a list of recently disconnected clients.
+ArrayList g_alDisconnected;
+
 // g_iSwapOnRoundEnd stores an array of client to swap to another team.
 int g_iSwapOnRoundEnd[MAXPLAYERS + 1];
 

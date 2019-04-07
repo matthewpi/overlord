@@ -21,6 +21,10 @@ public void Backend_ReloadAdmins() {
             continue;
         }
 
+        if(g_iOverlordAction[client] == -1) {
+            continue;
+        }
+
         OnClientPutInServer(client);
 
         // Get the client's steam id.
@@ -36,7 +40,7 @@ public void Backend_ReloadAdmins() {
  * Backend_GetAdmin
  * Loads a user's admin information.
  */
-public void Backend_GetAdmin(int client, const char[] steamId) {
+public void Backend_GetAdmin(const int client, const char[] steamId) {
     // Check if the g_dbOverlord handle is invalid.
     if(g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_GetAdmin(int, char[]) due to an invalid database handle.", CONSOLE_PREFIX);
@@ -107,21 +111,24 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
             hidden = true;
         }
         int createdAt = results.FetchInt(createdAtIndex);
-        int group = 0;
+        int groupId = 0;
+        int serverGroupId = 0;
 
         results.FetchString(nameIndex, name, sizeof(name));
         results.FetchString(steamIdIndex, steamId, sizeof(steamId));
 
-        if(results.IsFieldNull(serverGroupIdIndex)) {
-            if(results.IsFieldNull(groupIdIndex)) {
-                // Log that we found an admin, but no group is set.
-                LogMessage("%s Found admin for '%N' but group is null. (Steam ID: %s)", CONSOLE_PREFIX, client, steamId);
-                LogMessage("%s %i", CONSOLE_PREFIX, results.FetchInt(serverGroupIdIndex));
-                continue;
-            }
-            group = results.FetchInt(groupIdIndex);
-        } else {
-            group = results.FetchInt(serverGroupIdIndex);
+        if(!results.IsFieldNull(groupIdIndex)) {
+            groupId = results.FetchInt(groupIdIndex);
+        }
+
+        if(!results.IsFieldNull(serverGroupIdIndex)) {
+            serverGroupId = results.FetchInt(serverGroupIdIndex);
+        }
+
+        if(groupId == 0 && serverGroupId == 0) {
+            // Log that we found an admin, but no group is set.
+            LogMessage("%s Found admin for '%N' but group is null. (Steam ID: %s)", CONSOLE_PREFIX, client, steamId);
+            continue;
         }
         // END Pull row information.
 
@@ -133,51 +140,71 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         admin.SetID(id);
         admin.SetName(name);
         admin.SetSteamID(steamId);
-        admin.SetGroup(group);
+        admin.SetGroupID(groupId);
+        admin.SetServerGroupID(serverGroupId);
         admin.SetHidden(hidden);
         admin.SetCreatedAt(createdAt);
 
-        // Create admin
-        AdminId adminId = GetUserAdmin(client);
-        if(adminId == INVALID_ADMIN_ID) {
-            adminId = CreateAdmin(name);
-            SetUserAdmin(client, adminId, true);
-        }
-        // END Create admin
-
-        // Add admin group if one isn't already present.
-        if(adminId.GroupCount == 0) {
-            Group userGroup = g_hGroups[group];
-            if(userGroup == null) {
-                continue;
-            }
-
-            char groupName[32];
-            userGroup.GetName(groupName, sizeof(groupName));
-
-            GroupId groupId = FindAdmGroup(groupName);
-            if(groupId == INVALID_GROUP_ID) {
-                LogError("%s Failed to locate existing admin group.", CONSOLE_PREFIX);
-                continue;
-            }
-
-            if(!adminId.InheritGroup(groupId)) {
-                LogError("%s Failed to inherit admin group.", CONSOLE_PREFIX);
-                continue;
-            }
-        }
-        // END Add admin group if one isn't already present.
-
         // Add admin to the admins array.
         g_hAdmins[client] = admin;
+        Admin_RefreshId(client);
     }
 }
+
+/**
+ * Backend_InsertAdmin
+ * Inserts a user's admin information.
+ */
+public void Backend_InsertAdmin(const int client) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_InsertAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
+    // Get client's admin.
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return;
+    }
+
+    // Get the admin's name.
+    char name[64];
+    admin.GetName(name, sizeof(name));
+
+    // Get the admin's steam id.
+    char steamId[64];
+    admin.GetSteamID(steamId, sizeof(steamId));
+
+    // Create and format the query.
+    char query[512];
+    Format(query, sizeof(query), INSERT_ADMIN, name, steamId);
+
+    // Execute the query.
+    g_dbOverlord.Query(Callback_InsertAdmin, query, client);
+}
+
+/**
+ * Callback_InsertAdmin
+ * Backend callback for Backend_InsertAdmin(int)
+ */
+static void Callback_InsertAdmin(Database database, DBResultSet results, const char[] error, int client) {
+    // Handle query error.
+    if(results == null) {
+        LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_InsertAdmin", (strlen(error) > 0 ? error : "Unknown."));
+        return;
+    }
+
+    // Log that we inserted the admin's information.
+    LogMessage("%s Inserted %i's admin information.", CONSOLE_PREFIX, client);
+}
+
 
 /**
  * Backend_UpdateAdmin
  * Updates a user's admin information.
  */
-public void Backend_UpdateAdmin(int client) {
+public void Backend_UpdateAdmin(const int client) {
     // Check if the g_dbOverlord handle is invalid.
     if(g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_UpdateAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
@@ -207,8 +234,33 @@ public void Backend_UpdateAdmin(int client) {
 }
 
 /**
+ * Backend_UpdateAdminServerGroup
+ * Updates a user's admin information.
+ */
+public void Backend_UpdateAdminServerGroup(const int client) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_UpdateAdminServerGroup(int) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
+    // Get client's admin.
+    Admin admin = g_hAdmins[client];
+    if(admin == null) {
+        return;
+    }
+
+    // Create and format the query.
+    char query[512];
+    Format(query, sizeof(query), UPDATE_ADMIN_SERVER_GROUP, admin.GetID(), admin.GetServerGroupID(), g_iServerId, admin.GetServerGroupID());
+
+    // Execute the query.
+    g_dbOverlord.Query(Callback_UpdateAdmin, query, client);
+}
+
+/**
  * Callback_UpdateAdmin
- * Backend callback for Backend_UpdateAdmin(int)
+ * Backend callback for Backend_UpdateAdmin(int) and Backend_UpdateAdminServerGroup(int)
  */
 static void Callback_UpdateAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
@@ -218,14 +270,14 @@ static void Callback_UpdateAdmin(Database database, DBResultSet results, const c
     }
 
     // Log that we saved the admin's information.
-    LogMessage("%s Saved admin information for %i.", CONSOLE_PREFIX, client);
+    LogMessage("%s Updated %i's admin information.", CONSOLE_PREFIX, client);
 }
 
 /**
  * Backend_DeleteAdmin
  * Updates a user's admin information.
  */
-public void Backend_DeleteAdmin(int client) {
+public void Backend_DeleteAdmin(const int client) {
     // Check if the g_dbOverlord handle is invalid.
     if(g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_DeleteAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);

@@ -4,7 +4,7 @@
 #define _overlord_included
 
 public SharedPlugin __pl_overlord = {
-    name = "Overlord",
+    name = "overlord",
     file = "overlord.smx",
     #if defined REQUIRE_PLUGIN
     required = 1,
@@ -12,6 +12,24 @@ public SharedPlugin __pl_overlord = {
     required = 0,
     #endif
 };
+
+/*methodmap Admin {
+    public native int GetID();
+    public native void SetID(const int id);
+    public native void GetName(char[] buffer, const int maxlen);
+    public native void SetName(const char[] name);
+    public native void GetSteamID(char[] buffer, const int maxlen);
+    public native void SetSteamID(const char[] steamId);
+    public native int GetGroupID();
+    public native void SetGroupID(const int group);
+    public native int GetServerGroupID();
+    public native void SetServerGroupID(const int serverGroupId);
+    public native int GetGroup();
+    public native bool IsHidden();
+    public native void SetHidden(bool hidden);
+    public native int GetCreatedAt();
+    public native void SetCreatedAt(const int createdAt);
+}*/
 
 /**
  * Overlord_IsAdmin

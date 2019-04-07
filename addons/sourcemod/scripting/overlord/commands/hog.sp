@@ -37,7 +37,7 @@ public Action Command_Hog(const int client, const int args) {
     bool tnIsMl;
 
     // Process the target string.
-    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_CONNECTED, targetName, sizeof(targetName), tnIsMl);
+    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
     if(targetCount <= COMMAND_TARGET_NONE) {
@@ -61,9 +61,11 @@ public Action Command_Hog(const int client, const int args) {
             continue;
         }
 
+        // Get the target's position.
         float position[3];
         GetClientAbsOrigin(target, position);
 
+        // Get a random position?
         float startPosition[3];
         startPosition[0] = position[0] + GetRandomInt(-500, 500);
         startPosition[1] = position[1] + GetRandomInt(-500, 500);

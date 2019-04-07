@@ -23,6 +23,11 @@
 #define ACTION_PREFIX  "\x01[\x06Overlord\x01]\x08 "
 #define CONSOLE_PREFIX "[Overlord]"
 
+// Actions
+#define OVERLORD_ACTION_ADMIN_NAME 1
+#define OVERLORD_ACTION_GROUP_NAME 2
+#define OVERLORD_ACTION_GROUP_TAG  3
+
 // Limits
 #define GROUP_MAX 32
 // END Definitions
@@ -30,6 +35,7 @@
 // Project Models
 #include "overlord/models/admin.sp"
 #include "overlord/models/group.sp"
+#include "overlord/models/player.sp"
 // END Project Models
 
 // Project Files
@@ -50,6 +56,7 @@
 
 // Commands
 #include "overlord/commands/admins.sp"
+#include "overlord/commands/disconnected.sp"
 #include "overlord/commands/follow.sp"
 #include "overlord/commands/groups.sp"
 #include "overlord/commands/heal.sp"
@@ -72,7 +79,8 @@
 #include "overlord/events/round_end.sp"
 
 // Menus
-#include "overlord/menus/main.sp"
+#include "overlord/menus/disconnected.sp"
+#include "overlord/menus/overlord.sp"
 #include "overlord/menus/admin/main.sp"
 #include "overlord/menus/admin/info.sp"
 #include "overlord/menus/admin/new.sp"
@@ -100,7 +108,7 @@ public void OnPluginStart() {
     LoadTranslations("overlord.phrases");
     LoadTranslations("overlord.chat.phrases");
 
-    // Create custom convars for the plugin.
+    // ConVars
     g_cvDatabase    = CreateConVar("sm_overlord_database", "overlord", "Sets what database the plugin should use.");
     g_cvMessageJoin = CreateConVar("sm_overlord_message_join", "1", "Should we print a join message?", _, true, 0.0, true, 1.0);
     g_cvMessageQuit = CreateConVar("sm_overlord_message_quit", "1", "Should we print a quit message?", _, true, 0.0, true, 1.0);
@@ -108,6 +116,7 @@ public void OnPluginStart() {
     g_cvCrashfix    = CreateConVar("sm_overlord_crashfix", "1", "Should we enable the experimental crash fix?", _, true, 0.0, true, 1.0);
     g_cvArmorT      = CreateConVar("sm_overlord_armor_t", "2", "Should we give Ts armor when they spawn?", _, true, 0.0, true, 2.0);
     g_cvArmorCT     = CreateConVar("sm_overlord_armor_ct", "2", "Should we give CTs armor when they spawn?", _, true, 0.0, true, 2.0);
+    // END ConVars
 
     // Generate and load our plugin convar config.
     AutoExecConfig(true, "overlord");
@@ -121,6 +130,8 @@ public void OnPluginStart() {
     // Commands
     // overlord/commands/admins.sp
     RegConsoleCmd("sm_admins", Command_Admins, "sm_admins - Prints a list of admins.");
+    // overlord/commands/disconnected.sp
+    RegAdminCmd("sm_disconnected", Command_Disconnected, ADMFLAG_KICK, "sm_disconnected - Opens a menu with a list of recently disconnected players.");
     // overlord/commands/follow.sp
     RegAdminCmd("sm_follow", Command_Follow, ADMFLAG_SLAY, "sm_follow <#userid;target> - Follows a player while in spectate.");
     // overlord/commands/groups.sp
@@ -191,14 +202,15 @@ public void OnPluginStart() {
     g_hOnPlayerTeleportPos = CreateGlobalForward("Overlord_OnPlayerTeleportPos", ET_Event, Param_Cell, Param_Array);
     // END Forwards
 
+    // Other
+    g_alDisconnected = CreateArray();
     // overlord/sourcemod.sp
     HookUserMessage(GetUserMessageId("TextMsg"), Sourcemod_TextMessage, true);
-
     // overlord/chat.sp
     Chat_Register();
-
-    // Start the SetTag timer.
+    // overlord/admin.sp
     Admin_TagTimer();
+    // END Other
 }
 
 /**
@@ -320,6 +332,34 @@ public void OnClientDisconnect(int client) {
         // Print the disconnect message to the server.
         LogMessage("%s %N has disconnected. (%s)", CONSOLE_PREFIX, client, auth);
     }
+
+    char buffer[64];
+    for(int i = 0; i < g_alDisconnected.Length-1; i++) {
+        Player player = g_alDisconnected.Get(i);
+        if(player == null) {
+            continue;
+        }
+
+        player.GetSteamID(buffer, sizeof(buffer));
+
+        if(StrEqual(buffer, auth, true)) {
+            g_alDisconnected.Erase(i);
+            break;
+        }
+    }
+
+    Player player = new Player();
+    player.SetSteamID(auth);
+
+    char name[128];
+    GetClientName(client, name, sizeof(name));
+    player.SetName(name);
+
+    char ipAddress[32];
+    GetClientIP(client, ipAddress, sizeof(ipAddress));
+    player.SetIpAddress(ipAddress);
+
+    g_alDisconnected.Push(player);
 
     // Check if user is an admin.
     if(g_hAdmins[client] == null) {

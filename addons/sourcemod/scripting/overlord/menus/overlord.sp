@@ -3,12 +3,17 @@
  * All rights reserved.
  */
 
+/**
+ * Overlord_Menu
+ * ?
+ */
 void Overlord_Menu(const int client, const int position = -1) {
     Menu menu = CreateMenu(Callback_OverlordMenu);
     menu.SetTitle("Overlord v%s", OVERLORD_VERSION);
 
     menu.AddItem("admins", "Admins");
     menu.AddItem("groups", "Groups");
+    menu.AddItem("disconnected", "Disconnected");
     menu.AddItem("settings", "Settings", ITEMDRAW_DISABLED);
 
     // Display the menu to the client.

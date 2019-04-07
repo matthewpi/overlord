@@ -30,6 +30,8 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
                 SetEntProp(client, Prop_Send, "m_bHasHelmet", 1);
             }
         }
+
+        DisarmClient(client);
     } else if(g_cvArmorCT.IntValue > 0 && team == CS_TEAM_CT) {
         if(g_cvArmorCT.IntValue > 0) {
             SetEntProp(client, Prop_Send, "m_ArmorValue", 100);
@@ -39,8 +41,15 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
             }
         }
 
-        GivePlayerItem(client, "weapon_deagle");
+        DisarmClient(client);
         GivePlayerItem(client, "weapon_m4a1");
+        GivePlayerItem(client, "weapon_deagle");
+        GivePlayerItem(client, "weapon_hegrenade");
+        GivePlayerItem(client, "weapon_smokegrenade");
+        GivePlayerItem(client, "weapon_flashbang");
+        GivePlayerItem(client, "weapon_incgrenade");
+        GivePlayerItem(client, "weapon_tagrenade");
+        GivePlayerItem(client, "weapon_healthshot");
     }
 
     // Loop through all of the admin's following entires.

@@ -38,6 +38,11 @@ public void Backend_Connnection(Database database, const char[] error, any data)
     // Load all admin groups.
     Backend_LoadGroups();
 
+    // In 2 seconds reload the admins.
+    CreateTimer(2.0, Timer_ReloadAdmins);
+}
+
+static Action Timer_ReloadAdmins(Handle timer) {
     // Load all the admins if any players are online.
     Backend_ReloadAdmins();
 }

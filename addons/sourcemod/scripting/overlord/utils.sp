@@ -192,8 +192,12 @@ public void TeleportClientToPosition(const int client, const float position[3]) 
  * DisarmClient
  * Removes a player's weapons.
  */
-public void DisarmClient(const int client) {
+void DisarmClient(const int client, bool knife = false) {
     for(int i = 0; i < 5; i++) {
+        if(i == CS_SLOT_KNIFE && !knife) {
+            continue;
+        }
+
         int weapon = GetPlayerWeaponSlot(client, i);
 
         while(weapon > 0) {

@@ -73,16 +73,18 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
             }
 
             if(StrEqual(info, "name", true)) {
-                // TODO: idk
-                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+                //Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+                g_iOverlordAction[client] = OVERLORD_ACTION_GROUP_NAME;
+                PrintToChat(client, "%s Please enter an \x10Group Name\x01.", PREFIX);
             } else if(StrEqual(info, "tag", true)) {
-                // TODO: idk
-                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+                //Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+                g_iOverlordAction[client] = OVERLORD_ACTION_GROUP_TAG;
+                PrintToChat(client, "%s Please enter an \x10Group Tag\x01.", PREFIX);
             } else if(StrEqual(info, "immunity", true)) {
-                // TODO: idk
+                // TODO: Create a menu with immunity levels?
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
             } else if(StrEqual(info, "flags", true)) {
-                // TODO: idk
+                // TODO: Create a menu with all sourcemod admin flags, have a checkmark or star to symbol if the group already has that flag.
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
             } else {
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());

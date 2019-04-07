@@ -43,6 +43,16 @@ public Action Command_Teleport(const int client, const int args) {
     char targetName[128];
     GetClientName(target, targetName, sizeof(targetName));
 
+    if(!IsPlayerAlive(target)) {
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
+
+        // Send a message to the client.
+        ReplyToCommand(client, buffer);
+        return Plugin_Handled;
+    }
+
     // Teleport the client to the target.
     TeleportClientToTarget(client, target);
 

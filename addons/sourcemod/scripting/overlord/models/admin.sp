@@ -8,6 +8,7 @@ methodmap Admin < StringMap {
         return view_as<Admin>(new StringMap());
     }
 
+    // id
     public int GetID() {
         int id;
         this.GetValue("id", id);
@@ -17,7 +18,9 @@ methodmap Admin < StringMap {
     public void SetID(const int id) {
         this.SetValue("id", id);
     }
+    // END id
 
+    // name
     public void GetName(char[] buffer, const int maxlen) {
         this.GetString("name", buffer, maxlen);
     }
@@ -25,7 +28,9 @@ methodmap Admin < StringMap {
     public void SetName(const char[] name) {
         this.SetString("name", name);
     }
+    // END name
 
+    // steamId
     public void GetSteamID(char[] buffer, const int maxlen) {
         this.GetString("steamId", buffer, maxlen);
     }
@@ -33,17 +38,43 @@ methodmap Admin < StringMap {
     public void SetSteamID(const char[] steamId) {
         this.SetString("steamId", steamId);
     }
+    // END steamId
 
-    public int GetGroup() {
+    // groupId
+    public int GetGroupID() {
         int group;
-        this.GetValue("group", group);
+        this.GetValue("groupId", group);
         return group;
     }
 
-    public void SetGroup(const int group) {
-        this.SetValue("group", group);
+    public void SetGroupID(const int group) {
+        this.SetValue("groupId", group);
+    }
+    // END groupId
+
+    // admin_groups.groupId
+    public int GetServerGroupID() {
+        int serverGroupId;
+        this.GetValue("serverGroupId", serverGroupId);
+        return serverGroupId;
     }
 
+    public void SetServerGroupID(const int serverGroupId) {
+        this.SetValue("serverGroupId", serverGroupId);
+    }
+    // END admin_groups.groupId
+
+    public int GetGroup() {
+        int serverGroupId = this.GetServerGroupID();
+
+        if(serverGroupId == 0) {
+            return this.GetGroupID();
+        }
+
+        return serverGroupId;
+    }
+
+    // hidden
     public bool IsHidden() {
         bool hidden;
         this.GetValue("hidden", hidden);
@@ -53,7 +84,9 @@ methodmap Admin < StringMap {
     public void SetHidden(bool hidden) {
         this.SetValue("hidden", hidden);
     }
+    // END hidden
 
+    // createdAt
     public int GetCreatedAt() {
         int createdAt;
         this.GetValue("createdAt", createdAt);
@@ -63,4 +96,5 @@ methodmap Admin < StringMap {
     public void SetCreatedAt(const int createdAt) {
         this.SetValue("createdAt", createdAt);
     }
+    // END createdAt
 }

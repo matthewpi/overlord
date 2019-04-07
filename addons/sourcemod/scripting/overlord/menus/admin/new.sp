@@ -61,7 +61,8 @@ static int Callback_OverlordNewAdminMenu(Menu menu, MenuAction action, int clien
             admin.SetID(-1);
             admin.SetName("unknown");
             admin.SetSteamID(steamId);
-            admin.SetGroup(0);
+            admin.SetGroupID(0);
+            admin.SetServerGroupID(0);
             admin.SetHidden(false);
             admin.SetCreatedAt(GetTime());
 
@@ -71,11 +72,14 @@ static int Callback_OverlordNewAdminMenu(Menu menu, MenuAction action, int clien
 
             // Call the "g_hOnAdminAdded" forward.
             Call_StartForward(g_hOnAdminAdded);
-            Call_PushCell(client);
+            Call_PushCell(adminId);
             Call_Finish();
 
             // Display the admin info menu.
             Overlord_AdminInfoMenu(client, adminId);
+
+            // Insert the new admin.
+            Backend_InsertAdmin(adminId);
         }
 
         case MenuAction_Cancel: {
