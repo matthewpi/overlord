@@ -14,7 +14,17 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Overlord_GetAdminGroupName", Native_GetAdminGroupName);
     CreateNative("Overlord_IsAdminHidden", Native_IsAdminHidden);
     CreateNative("Overlord_IsVIP", Native_IsVIP);
+
+    if(late) {
+        // In 5 seconds reload the admins.
+        CreateTimer(5.0, Timer_ReloadAdmins);
+    }
     return APLRes_Success;
+}
+
+static Action Timer_ReloadAdmins(Handle timer) {
+    // Reload all admins.
+    Backend_ReloadAdmins();
 }
 
 /**

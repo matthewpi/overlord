@@ -112,3 +112,55 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
     // Update global group array.
     g_hGroups = groups;
 }
+
+/**
+ * Backend_UpdateGroup
+ * Updates a group's information.
+ */
+public void Backend_UpdateGroup(const int groupId) {
+    // Check if the g_dbOverlord handle is invalid.
+    if(g_dbOverlord == INVALID_HANDLE) {
+        LogError("%s Failed to run Backend_UpdateAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
+        return;
+    }
+
+    // Get group object.
+    Group group = g_hGroups[groupId];
+    if(group == null) {
+        return;
+    }
+
+    // Get the group's name.
+    char name[32];
+    group.GetName(name, sizeof(name));
+
+    // Get the group's tag.
+    char tag[16];
+    group.GetTag(tag, sizeof(tag));
+
+    // Get the group's flags.
+    char flags[26];
+    group.GetFlags(flags, sizeof(flags));
+
+    // Create and format the query.
+    char query[512];
+    Format(query, sizeof(query), UPDATE_GROUP, name, tag, group.GetImmunity(), flags, group.GetID());
+
+    // Execute the query.
+    g_dbOverlord.Query(Callback_UpdateGroup, query, groupId);
+}
+
+/**
+ * Callback_UpdateGroup
+ * Backend callback for Backend_UpdateGroup(int)
+ */
+static void Callback_UpdateGroup(Database database, DBResultSet results, const char[] error, int groupId) {
+    // Handle query error.
+    if(results == null) {
+        LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_UpdateGroup", (strlen(error) > 0 ? error : "Unknown."));
+        return;
+    }
+
+    // Log that we saved the group's information.
+    LogMessage("%s Update group information for %i.", CONSOLE_PREFIX, groupId);
+}

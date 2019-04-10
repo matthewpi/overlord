@@ -83,6 +83,15 @@ INSERT INTO `overlord_servers` (`name`, `ipAddress`, `port`, `rconPass`) VALUES 
 SELECT `overlord_groups`.`id`, `overlord_groups`.`name`, `overlord_groups`.`tag`, `overlord_groups`.`immunity`, `overlord_groups`.`flags` FROM `overlord_groups`;\
 "
 
+// Updates a group's information.
+#define UPDATE_GROUP "\
+UPDATE `overlord_groups` SET \
+    `overlord_groups`.`name` = '%s', `overlord_groups`.`tag` = '%s', `overlord_groups`.`immunity` = %i, `overlord_groups`.`flags` = '%s' \
+WHERE \
+    `overlord_groups`.`id` = %i \
+LIMIT 1;\
+"
+
 // Selects an admin and their group id for this server.
 #define GET_ADMIN  "\
 SELECT `overlord_admins`.`id`, `overlord_admins`.`name`, `overlord_admins`.`steamId`, `overlord_admins`.`hidden`, \

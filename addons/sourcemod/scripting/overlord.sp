@@ -24,6 +24,7 @@
 #define CONSOLE_PREFIX "[Overlord]"
 
 // Actions
+#define OVERLORD_ACTION_NONE    -1
 #define OVERLORD_ACTION_ADMIN_NAME 1
 #define OVERLORD_ACTION_GROUP_NAME 2
 #define OVERLORD_ACTION_GROUP_TAG  3
@@ -65,6 +66,8 @@
 #include "overlord/commands/hog.sp"
 #include "overlord/commands/overlord.sp"
 #include "overlord/commands/respawn.sp"
+#include "overlord/commands/respawn_aim.sp"
+#include "overlord/commands/respawn_here.sp"
 #include "overlord/commands/team.sp"
 #include "overlord/commands/teleport.sp"
 #include "overlord/commands/teleport_aim.sp"
@@ -148,6 +151,10 @@ public void OnPluginStart() {
     RegAdminCmd("sm_overlord", Command_Overlord, ADMFLAG_ROOT, "sm_overlord - Opens a menu to manage the overlord plugin.");
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "sm_respawn <#userid;target> - Respawns a dead player.");
+    // overlord/commands/respawn_aim.sp
+    RegAdminCmd("respawn_aim", Command_RespawnAim, ADMFLAG_SLAY, "sm_respawn_aim <#userid;target> - Respawns a client to where you are looking.");
+    // overlord/commands/respawn_here.sp
+    RegAdminCmd("respawn_here", Command_RespawnHere, ADMFLAG_SLAY, "sm_respawn_here <#userid;target> - Respawns a client to your position.");
     // overlord/commands/team.sp
     RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "sm_team_t <#userid;target> [round end] - Swap a client to the terrorist team.");
     RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "sm_team_ct <#userid;target> [round end] - Swap a client to the counter-terrorist team.");
@@ -251,7 +258,7 @@ public void OnClientPutInServer(int client) {
     g_iSwapOnRoundEnd[client] = -1;
     g_iFollowing[client] = -1;
     g_iOverlordMenu[client] = -1;
-    g_iOverlordAction[client] = -1;
+    g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
 
     for(int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;

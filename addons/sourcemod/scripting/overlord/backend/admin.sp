@@ -21,10 +21,6 @@ public void Backend_ReloadAdmins() {
             continue;
         }
 
-        if(g_iOverlordAction[client] == -1) {
-            continue;
-        }
-
         OnClientPutInServer(client);
 
         // Get the client's steam id.
@@ -169,7 +165,7 @@ public void Backend_InsertAdmin(const int client) {
     }
 
     // Get the admin's name.
-    char name[64];
+    char name[32];
     admin.GetName(name, sizeof(name));
 
     // Get the admin's steam id.
@@ -218,7 +214,7 @@ public void Backend_UpdateAdmin(const int client) {
     }
 
     // Get the admin's name.
-    char name[64];
+    char name[32];
     admin.GetName(name, sizeof(name));
 
     // Get the admin's steam id.

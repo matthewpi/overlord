@@ -17,6 +17,12 @@
         "en"      "{ORANGE}{1}{NORMAL} is already alive."
     }
 
+    "Is a spectator"
+    {
+        "#format" "{1:s}"
+        "en"      "{ORANGE}{1}{NORMAL} is a \x07Spectator\x01."
+    }
+
     "sm_admins Admin"
     {
         "#format" "{1:s},{2:s},{3:s}"

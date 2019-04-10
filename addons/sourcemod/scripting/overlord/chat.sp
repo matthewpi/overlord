@@ -15,6 +15,7 @@
 
 StringMap g_mChatTranslations = null;
 ArrayList g_alMessages = null;
+bool g_bNewMessage[MAXPLAYERS + 1];
 
 /**
  * Chat_Register
@@ -40,7 +41,23 @@ public void Chat_Register() {
 
     g_alMessages = new ArrayList();
 
+    AddCommandListener(Command_Say, "say");
+    AddCommandListener(Command_Say, "say_team");
+
     HookUserMessage(sayText2, Chat_OnSayText2, true);
+}
+
+/**
+ * Command_Say
+ * ?
+ */
+public Action Command_Say(const int client, const char[] command, const int args) {
+    if(!IsClientValid(client)) {
+        return Plugin_Handled;
+    }
+
+    g_bNewMessage[client] = true;
+    return Plugin_Handled;
 }
 
 /**
@@ -86,7 +103,7 @@ public void Chat_ProcessQueue() {
         char teamName[32];
         GetClientTeamName(team, teamName, sizeof(teamName));
 
-        char userTag[32] = "\x03[\x01Beginner\x03] ";
+        //char userTag[32] = "\x03[\x01Beginner\x03] ";
         char extra[32];
 
         // Check if the user is an admin.
@@ -97,7 +114,7 @@ public void Chat_ProcessQueue() {
 
             if(StrEqual(adminSteamId, "STEAM_1:1:530997", true)) {
                 // Add a sexy user tag. :)
-                userTag = "\x03[\x01Autist\x03] ";
+                //userTag = "\x03[\x01Autist\x03] ";
 
                 // Add a dark red name color.
                 Format(senderName, sizeof(senderName), "\x02%s", senderName);
@@ -116,13 +133,13 @@ public void Chat_ProcessQueue() {
         }
 
         // Check if the sender is on the spectator team.
-        if(team == CS_TEAM_SPECTATOR) {
+        /*if(team == CS_TEAM_SPECTATOR) {
             // Remove the user tag.
             userTag = "";
-        }
+        }*/
 
         char prefix[64];
-        Format(prefix, sizeof(prefix), "%s%s[%s]", userTag, extra, teamName);
+        Format(prefix, sizeof(prefix), "%s[%s]", extra, teamName);
 
         char translatedMessage[CHAT_LENGTH_MESSAGE];
         Format(translatedMessage, sizeof(translatedMessage), "%t", translationName, senderName, messageContent, prefix);
@@ -171,9 +188,14 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
         sender = msg.ReadByte();
     }
 
-    if(sender == 0) {
+    if(sender < 1) {
         return Plugin_Continue;
     }
+
+    if(!g_bNewMessage[sender]) {
+        return Plugin_Stop;
+    }
+    g_bNewMessage[sender] = false;
 
     // Get a boolean based off of if the message was sent by the console.
     bool console;
