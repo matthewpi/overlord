@@ -60,7 +60,6 @@ CREATE TABLE IF NOT EXISTS `overlord_admin_groups` (\
     `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL, \
     `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL ON UPDATE CURRENT_TIMESTAMP(), \
     PRIMARY KEY (`adminId`, `groupId`, `serverId`), \
-    CONSTRAINT `overlord_admin_groups_id_uindex` UNIQUE (`id`), \
     CONSTRAINT `overlord_admin_groups_adminId_serverId_uindex` UNIQUE (`adminId`, `serverId`), \
     FOREIGN KEY `overlord_admin_groups_overlord_admins_id_fk` (`adminId`) REFERENCES `overlord_admins` (`id`) ON UPDATE CASCADE, \
     FOREIGN KEY `overlord_admin_groups_overlord_groups_id_fk` (`groupId`) REFERENCES `overlord_groups` (`id`) ON UPDATE CASCADE, \

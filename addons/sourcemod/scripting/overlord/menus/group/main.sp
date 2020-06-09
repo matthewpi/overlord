@@ -12,16 +12,16 @@ void Overlord_GroupMenu(const int client, const int position = -1) {
     menu.SetTitle("Overlord | Groups");
 
     AdminId adminId = GetUserAdmin(client);
-    if(adminId != INVALID_ADMIN_ID && adminId.HasFlag(Admin_Custom6)) {
+    if (adminId != INVALID_ADMIN_ID && adminId.HasFlag(Admin_Custom6)) {
         menu.AddItem("new", "New..");
     }
 
     char index[8];
     char name[32];
-    for(int i = 1; i < sizeof(g_hGroups); i++) {
+    for (int i = 1; i < sizeof(g_hGroups); i++) {
         // Get the admin object from the admins array.
         Group group = g_hGroups[i];
-        if(group == null) {
+        if (group == null) {
             continue;
         }
 
@@ -38,7 +38,7 @@ void Overlord_GroupMenu(const int client, const int position = -1) {
     menu.ExitBackButton = true;
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -46,18 +46,18 @@ void Overlord_GroupMenu(const int client, const int position = -1) {
 }
 
 static int Callback_OverlordGroupMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
 
-            if(StrEqual(info, "new", true)) {
+            if (StrEqual(info, "new", true)) {
 
             } else {
                 int groupId = StringToInt(info);
 
                 Group group = g_hGroups[groupId];
-                if(group == null) {
+                if (group == null) {
                     Overlord_GroupMenu(client, GetMenuSelectionPosition());
                     return;
                 }
@@ -67,7 +67,7 @@ static int Callback_OverlordGroupMenu(Menu menu, MenuAction action, int client, 
         }
 
         case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
+            if (itemNum == MenuCancel_ExitBack) {
                 Overlord_Menu(client);
             }
         }

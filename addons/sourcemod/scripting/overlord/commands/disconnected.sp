@@ -9,12 +9,12 @@
  */
 public Action Command_Disconnected(const int client, const int args) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
-    if(g_alDisconnected.Length) {
+    if (g_alDisconnected.Length) {
         ReplyToCommand(client, "%s There have been no recently disconnected players.", PREFIX);
         return Plugin_Handled;
     }

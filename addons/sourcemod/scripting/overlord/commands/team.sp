@@ -33,14 +33,14 @@ public Action Command_Team_Spec(const int client, const int args) {
  */
 static Action TeamCommand(const int client, const int args, const char[] command, const int commandTeam, const char[] commandTeamName) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass the proper argument.
-    if(args != 1 && args != 2) {
+    if (args != 1 && args != 2) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> [round end]", PREFIX, command);
         // Log the command execution.
@@ -54,7 +54,7 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
     // Attempt to get and target a player using the first command argument.
     int target = FindTarget(client, potentialTarget);
-    if(target == -1) {
+    if (target == -1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Targetting error)");
         return Plugin_Handled;
@@ -65,14 +65,14 @@ static Action TeamCommand(const int client, const int args, const char[] command
     GetClientName(target, targetName, sizeof(targetName));
 
     // Check if the target is already on the selected team.
-    if(GetClientTeam(target) != commandTeam) {
-        if(args == 2) {
+    if (GetClientTeam(target) != commandTeam) {
+        if (args == 2) {
             // Get the second command argument.
             char canSwap[512];
             GetCmdArg(2, canSwap, sizeof(canSwap));
 
             // Check if we should swap on round end.
-            if(StrEqual(canSwap, "true", false)) {
+            if (StrEqual(canSwap, "true", false)) {
                 // Update the swap on round end array.
                 g_iSwapOnRoundEnd[target] = commandTeam;
 

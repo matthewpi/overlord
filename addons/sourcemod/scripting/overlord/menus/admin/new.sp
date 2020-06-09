@@ -13,14 +13,14 @@ void Overlord_NewAdminMenu(const int client, const int position = -1) {
 
     char info[32];
     char display[128];
-    for(int i = 1; i <= MaxClients; i++) {
+    for (int i = 1; i <= MaxClients; i++) {
         // Check if the client is invalid.
-        if(!IsClientValid(i)) {
+        if (!IsClientValid(i)) {
             continue;
         }
 
         // Check if the client is an admin
-        if(g_hAdmins[i] != null) {
+        if (g_hAdmins[i] != null) {
             continue;
         }
 
@@ -34,7 +34,7 @@ void Overlord_NewAdminMenu(const int client, const int position = -1) {
     menu.ExitBackButton = true;
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -42,14 +42,14 @@ void Overlord_NewAdminMenu(const int client, const int position = -1) {
 }
 
 static int Callback_OverlordNewAdminMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
             int adminId = StringToInt(info);
 
             // Check if the client is invalid.
-            if(!IsClientValid(adminId)) {
+            if (!IsClientValid(adminId)) {
                 return;
             }
 
@@ -83,7 +83,7 @@ static int Callback_OverlordNewAdminMenu(Menu menu, MenuAction action, int clien
         }
 
         case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
+            if (itemNum == MenuCancel_ExitBack) {
                 Overlord_AdminMenu(client);
             }
         }

@@ -77,24 +77,24 @@ public void Admin_RefreshId(const int client) {
  */
 public void Admin_SetTag(const int client) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         return;
     }
 
     // Check if the user is a loaded admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 
     // Check if the user is hidden.
-    if(admin.IsHidden()) {
+    if (admin.IsHidden()) {
         return;
     }
 
     // Get the user's group.
     Group group = g_hGroups[admin.GetGroup()];
-    if(group == null) {
+    if (group == null) {
         return;
     }
 
@@ -112,7 +112,7 @@ public void Admin_SetTag(const int client) {
  */
 public void Admin_TagTimer() {
     // Check if the timer already exists.
-    if(g_hAdminTagTimer != INVALID_HANDLE) {
+    if (g_hAdminTagTimer != INVALID_HANDLE) {
         return;
     }
 
@@ -126,9 +126,9 @@ public void Admin_TagTimer() {
  */
 static Action Timer_TagAll(Handle timer) {
     // Loop through all online clients.
-    for(int client = 1; client <= MaxClients; client++) {
+    for (int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
-        if(!IsClientValid(client)) {
+        if (!IsClientValid(client)) {
             continue;
         }
 

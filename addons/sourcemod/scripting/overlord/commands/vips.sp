@@ -9,16 +9,16 @@
  */
 public Action Command_VIPs(const int client, const int args) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Loop through all admins.
     int matched = 0;
-    for(int i = 1; i < sizeof(g_hAdmins); i++) {
+    for (int i = 1; i < sizeof(g_hAdmins); i++) {
         // Check if the client is a VIP.
-        if(!Overlord_IsVIP(i)) {
+        if (!Overlord_IsVIP(i)) {
             continue;
         }
 
@@ -40,7 +40,7 @@ public Action Command_VIPs(const int client, const int args) {
     }
 
     // Print a message if no vips were listed.
-    if(matched == 0) {
+    if (matched == 0) {
         // Get and format the translation.
         char buffer[512];
         GetTranslation(buffer, sizeof(buffer), "%T", "sm_vips None", client);

@@ -126,7 +126,7 @@ public void OnPluginStart() {
 
     // Get the "m_CollisionGroup" offset.
     g_iCollisionGroup = FindSendPropInfo("CBaseEntity", "m_CollisionGroup");
-    if(g_iCollisionGroup == -1) {
+    if (g_iCollisionGroup == -1) {
         LogMessage("%s Failed to get offset for CBaseEntity::m_CollisionGroup, cannot disable collisions.", CONSOLE_PREFIX);
     }
 
@@ -170,23 +170,23 @@ public void OnPluginStart() {
     // END Commands
 
     // Events
-    if(g_cvCrashfix.BoolValue) {
+    if (g_cvCrashfix.BoolValue) {
         // overlord/events/map_change.sp
         AddCommandListener(Event_MapChange, "map");
         AddCommandListener(Event_MapChange, "changelevel");
     }
     // overlord/events/player_death.sp
-    if(!HookEventEx("player_death", Event_PlayerDeath)) {
+    if (!HookEventEx("player_death", Event_PlayerDeath)) {
         SetFailState("%s Failed to hook \"player_death\" event, disabling plugin..", CONSOLE_PREFIX);
         return;
     }
     // overlord/events/player_spawn.sp
-    if(!HookEventEx("player_spawn", Event_PlayerSpawn)) {
+    if (!HookEventEx("player_spawn", Event_PlayerSpawn)) {
         SetFailState("%s Failed to hook \"player_spawn\" event, disabling plugin..", CONSOLE_PREFIX);
         return;
     }
     // overlord/events/round_end.sp
-    if(!HookEventEx("round_end", Event_RoundEnd)) {
+    if (!HookEventEx("round_end", Event_RoundEnd)) {
         SetFailState("%s Failed to hook \"round_end\" event, disabling plugin..", CONSOLE_PREFIX);
         return;
     }
@@ -260,7 +260,7 @@ public void OnClientPutInServer(int client) {
     g_iOverlordMenu[client] = -1;
     g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;
     }
 }
@@ -273,12 +273,12 @@ public void OnClientAuthorized(int client, const char[] auth) {
     g_hAdmins[client] = null;
 
     // Ignore bot users.
-    if(StrEqual(auth, "BOT", true)) {
+    if (StrEqual(auth, "BOT", true)) {
         return;
     }
 
     // Check if the join message is enabled.
-    if(g_cvMessageJoin.BoolValue) {
+    if (g_cvMessageJoin.BoolValue) {
         // Get the client's ip address.
         char ipAddress[16];
         GetClientIP(client, ipAddress, sizeof(ipAddress));
@@ -297,7 +297,7 @@ public void OnClientAuthorized(int client, const char[] auth) {
     // Attempt to load user's admin information.
     Backend_GetAdmin(client, auth);
 
-    if(g_hAdmins[client] != null) {
+    if (g_hAdmins[client] != null) {
         LogMessage("%s %N is an admin. :)", CONSOLE_PREFIX, client);
 
         // Call the "g_hOnAdminJoin" forward.
@@ -318,7 +318,7 @@ public void OnClientDisconnect(int client) {
     g_iOverlordMenu[client] = -1;
     g_iOverlordAction[client] = -1;
 
-    for(int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
         g_fDeathPosition[client][i] = 0.0;
     }
 
@@ -327,12 +327,12 @@ public void OnClientDisconnect(int client) {
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
 
     // Ignore bot users.
-    if(StrEqual(auth, "BOT", true)) {
+    if (StrEqual(auth, "BOT", true)) {
         return;
     }
 
     // Check if the quit message is enabled.
-    if(g_cvMessageQuit.BoolValue) {
+    if (g_cvMessageQuit.BoolValue) {
         // Print the disconnect message to everyone.
         PrintToChatAll("%s \x05%N \x01has disconnected. (\x10%s\x01)", PREFIX, client, auth);
 
@@ -341,15 +341,15 @@ public void OnClientDisconnect(int client) {
     }
 
     char buffer[64];
-    for(int i = 0; i < g_alDisconnected.Length-1; i++) {
+    for (int i = 0; i < g_alDisconnected.Length-1; i++) {
         Player player = g_alDisconnected.Get(i);
-        if(player == null) {
+        if (player == null) {
             continue;
         }
 
         player.GetSteamID(buffer, sizeof(buffer));
 
-        if(StrEqual(buffer, auth, true)) {
+        if (StrEqual(buffer, auth, true)) {
             g_alDisconnected.Erase(i);
             break;
         }
@@ -369,7 +369,7 @@ public void OnClientDisconnect(int client) {
     g_alDisconnected.Push(player);
 
     // Check if user is an admin.
-    if(g_hAdmins[client] == null) {
+    if (g_hAdmins[client] == null) {
         return;
     }
 

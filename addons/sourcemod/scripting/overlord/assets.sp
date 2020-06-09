@@ -4,7 +4,8 @@
  */
 
 // Materials
-#define OVERLORD_MAT_LIGHTNING "materials/lightning/laserbeam.vmt"
+//#define OVERLORD_MAT_LIGHTNING "materials/lightning/laserbeam.vmt"
+#define OVERLORD_MAT_LIGHTNING "materials/overlord/laserbeam.vmt"
 
 #define OVERLORD_MAT_SMOKE "materials/sprites/steam1.vmt"
 // END Materials

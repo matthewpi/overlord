@@ -19,11 +19,11 @@ static char _colorCodes[][] = {
  * Returns true if the client is valid. (in game, connected, isn't fake)
  */
 bool IsClientValid(const int client, bool fake = false) {
-    if(client <= 0 || client > MaxClients || !IsClientConnected(client) || !IsClientInGame(client)) {
+    if (client <= 0 || client > MaxClients || !IsClientConnected(client) || !IsClientInGame(client)) {
         return false;
     }
 
-    if(!fake && IsFakeClient(client)) {
+    if (!fake && IsFakeClient(client)) {
         return false;
     }
 
@@ -36,7 +36,7 @@ bool IsClientValid(const int client, bool fake = false) {
  */
 public void LogCommand(const int client, const int target, const char[] command, const char[] extra, any...) {
     // Check if there were extra parameters passed to the function.
-    if(strlen(extra) > 0) {
+    if (strlen(extra) > 0) {
         // Format the extra parameters.
         char buffer[512];
         VFormat(buffer, sizeof(buffer), extra, 5);
@@ -65,7 +65,7 @@ public void LogActivity(const int client, const char[] message, any...) {
  */
 public void Colorize(char[] buffer, const int maxlen) {
     // Loop through the _colorNames array.
-    for(int i = 0; i < sizeof(_colorNames); i++) {
+    for (int i = 0; i < sizeof(_colorNames); i++) {
         // Replace all color codes in the message.
         ReplaceString(buffer, maxlen, _colorNames[i], _colorCodes[i]);
     }
@@ -111,7 +111,7 @@ public void GetTranslationNP(char[] buffer, const int maxlen, const char[] msg, 
  * Gets the string format of a client's team.
  */
 public void GetClientTeamName(const int team, char[] buffer, const int maxlen) {
-    switch(team) {
+    switch (team) {
         case CS_TEAM_T:
             strcopy(buffer, maxlen, "T");
         case CS_TEAM_CT:
@@ -126,9 +126,9 @@ public void GetClientTeamName(const int team, char[] buffer, const int maxlen) {
  * Prints a message to admins that match the function arguments.
  */
 void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, const int team = -1, const bool dead = false) {
-    for(int client = 1; client <= MaxClients; client++) {
+    for (int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
-        if(!IsClientValid(client)) {
+        if (!IsClientValid(client)) {
             continue;
         }
 
@@ -136,27 +136,27 @@ void PrintToAdmins(const char[] message, const AdminFlag flag = Admin_Chat, cons
         AdminId adminId = GetUserAdmin(client);
 
         // Check if the client is not an admin.
-        if(adminId == INVALID_ADMIN_ID) {
+        if (adminId == INVALID_ADMIN_ID) {
             continue;
         }
 
         // Check if the client does not have the admin flag.
-        if(!adminId.HasFlag(flag)) {
+        if (!adminId.HasFlag(flag)) {
             continue;
         }
 
         // Check if the function arguments set a team.
-        if(team != -1) {
+        if (team != -1) {
             // Check if the client's team is same as the argument.
-            if(GetClientTeam(client) == team) {
+            if (GetClientTeam(client) == team) {
                 continue;
             }
         }
 
         // Check if the message is ignoring dead players.
-        if(dead) {
+        if (dead) {
             // Check if the admin is dead.
-            if(!IsPlayerAlive(client)) {
+            if (!IsPlayerAlive(client)) {
                 continue;
             }
         }
@@ -193,14 +193,14 @@ public void TeleportClientToPosition(const int client, const float position[3]) 
  * Removes a player's weapons.
  */
 void DisarmClient(const int client, bool knife = false) {
-    for(int i = 0; i < 5; i++) {
-        if(i == CS_SLOT_KNIFE && !knife) {
+    for (int i = 0; i < 5; i++) {
+        if (i == CS_SLOT_KNIFE && !knife) {
             continue;
         }
 
         int weapon = GetPlayerWeaponSlot(client, i);
 
-        while(weapon > 0) {
+        while (weapon > 0) {
             RemovePlayerItem(client, weapon);
             AcceptEntityInput(weapon, "Kill");
             weapon = GetPlayerWeaponSlot(client, i);

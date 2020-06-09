@@ -13,9 +13,9 @@ void Disconnected_Menu(const int client, const int position = -1) {
 
     char info[32];
     char display[128];
-    for(int i = 0; i < g_alDisconnected.Length; i++) {
+    for (int i = 0; i < g_alDisconnected.Length; i++) {
         Player player = g_alDisconnected.Get(i);
-        if(player == null) {
+        if (player == null) {
             continue;
         }
 
@@ -28,7 +28,7 @@ void Disconnected_Menu(const int client, const int position = -1) {
     menu.ExitBackButton = true;
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -36,7 +36,7 @@ void Disconnected_Menu(const int client, const int position = -1) {
 }
 
 static int Callback_DisconnectedMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
@@ -44,7 +44,7 @@ static int Callback_DisconnectedMenu(Menu menu, MenuAction action, int client, i
             int playerId = StringToInt(info);
 
             Player player = g_alDisconnected.Get(playerId);
-            if(player == null) {
+            if (player == null) {
                 Disconnected_Menu(client, GetMenuSelectionPosition());
                 return;
             }
@@ -53,7 +53,7 @@ static int Callback_DisconnectedMenu(Menu menu, MenuAction action, int client, i
         }
 
         case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
+            if (itemNum == MenuCancel_ExitBack) {
                 Overlord_Menu(client);
             }
         }
@@ -73,7 +73,7 @@ void Disconnected_PlayerMenu(const int client, const int playerId, const int pos
     menu.SetTitle("Overlord | Disconnects");
 
     Player player = g_alDisconnected.Get(playerId);
-    if(player == null) {
+    if (player == null) {
         Disconnected_Menu(client);
         return;
     }
@@ -93,7 +93,7 @@ void Disconnected_PlayerMenu(const int client, const int playerId, const int pos
 
     // Check if the client is an admin with the RCON flag.
     AdminId adminId = GetUserAdmin(client);
-    if(adminId != INVALID_ADMIN_ID && GetAdminFlag(adminId, Admin_RCON)) {
+    if (adminId != INVALID_ADMIN_ID && GetAdminFlag(adminId, Admin_RCON)) {
         player.GetIpAddress(display, sizeof(display));
         Format(display, sizeof(display), "IP Address: %s", display);
         menu.AddItem(info, display);
@@ -103,7 +103,7 @@ void Disconnected_PlayerMenu(const int client, const int playerId, const int pos
     menu.ExitBackButton = true;
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -111,7 +111,7 @@ void Disconnected_PlayerMenu(const int client, const int playerId, const int pos
 }
 
 static int Callback_DisconnectedPlayerMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));

@@ -9,7 +9,7 @@
  */
 public void Backend_LoadGroups() {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_LoadGroups() due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
@@ -24,7 +24,7 @@ public void Backend_LoadGroups() {
  */
 static void Callback_LoadGroups(Database database, DBResultSet results, const char[] error, any data) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_LoadGroups", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }
@@ -35,18 +35,18 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
     int tagIndex;
     int immunityIndex;
     int flagsIndex;
-    if(!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("name", nameIndex)) { LogError("%s Failed to locate \"name\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("tag", tagIndex)) { LogError("%s Failed to locate \"tag\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("immunity", immunityIndex)) { LogError("%s Failed to locate \"immunity\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("flags", flagsIndex)) { LogError("%s Failed to locate \"flags\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("name", nameIndex)) { LogError("%s Failed to locate \"name\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("tag", tagIndex)) { LogError("%s Failed to locate \"tag\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("immunity", immunityIndex)) { LogError("%s Failed to locate \"immunity\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("flags", flagsIndex)) { LogError("%s Failed to locate \"flags\" field in table \"overlord_groups\".", CONSOLE_PREFIX); return; }
     // END Get table column indexes.
 
     Group groups[GROUP_MAX];
     int groupCount = 0;
 
     // Loop through query results.
-    while(results.FetchRow()) {
+    while (results.FetchRow()) {
         // Pull row information.
         int id = results.FetchInt(idIndex);
         char name[32];
@@ -69,10 +69,10 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
 
         // Admin group
         GroupId groupId = CreateAdmGroup(name);
-        if(groupId == INVALID_GROUP_ID) {
+        if (groupId == INVALID_GROUP_ID) {
             // Find existing admin group.
             groupId = FindAdmGroup(name);
-            if(groupId == INVALID_GROUP_ID) {
+            if (groupId == INVALID_GROUP_ID) {
                 // Log that we failed to find an existing admin group.
                 LogError("%s Failed to locate existing admin group.", CONSOLE_PREFIX);
                 continue;
@@ -86,9 +86,9 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
         // Set admin group flags.
         AdminFlag flag;
         int i = 0;
-        while(flags[i] != '\0') {
+        while (flags[i] != '\0') {
             // Get an AdminFlag by using the char.
-            if(!FindFlagByChar(flags[i], flag)) {
+            if (!FindFlagByChar(flags[i], flag)) {
                 continue;
             }
 
@@ -119,14 +119,14 @@ static void Callback_LoadGroups(Database database, DBResultSet results, const ch
  */
 public void Backend_UpdateGroup(const int groupId) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_UpdateAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
 
     // Get group object.
     Group group = g_hGroups[groupId];
-    if(group == null) {
+    if (group == null) {
         return;
     }
 
@@ -134,17 +134,29 @@ public void Backend_UpdateGroup(const int groupId) {
     char name[32];
     group.GetName(name, sizeof(name));
 
+    int bufferLength = strlen(name) * 2 + 1;
+    char[] escapedName = new char[bufferLength];
+    g_dbOverlord.Escape(name, escapedName, bufferLength);
+
     // Get the group's tag.
     char tag[16];
     group.GetTag(tag, sizeof(tag));
+
+    bufferLength = strlen(tag) * 2 + 1;
+    char[] escapedTag = new char[bufferLength];
+    g_dbOverlord.Escape(tag, escapedTag, bufferLength);
 
     // Get the group's flags.
     char flags[26];
     group.GetFlags(flags, sizeof(flags));
 
+    bufferLength = strlen(flags) * 2 + 1;
+    char[] escapedFlags = new char[bufferLength];
+    g_dbOverlord.Escape(flags, escapedFlags, bufferLength);
+
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), UPDATE_GROUP, name, tag, group.GetImmunity(), flags, group.GetID());
+    Format(query, sizeof(query), UPDATE_GROUP, escapedName, escapedTag, group.GetImmunity(), escapedFlags, group.GetID());
 
     // Execute the query.
     g_dbOverlord.Query(Callback_UpdateGroup, query, groupId);
@@ -156,7 +168,7 @@ public void Backend_UpdateGroup(const int groupId) {
  */
 static void Callback_UpdateGroup(Database database, DBResultSet results, const char[] error, int groupId) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_UpdateGroup", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }

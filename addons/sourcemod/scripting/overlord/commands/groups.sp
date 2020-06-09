@@ -9,17 +9,17 @@
  */
 public Action Command_Groups(const int client, const int args) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Loop through all groups.
     int matched = 0;
-    for(int i = 1; i < sizeof(g_hGroups); i++) {
+    for (int i = 1; i < sizeof(g_hGroups); i++) {
         // Get the group object from the groups array.
         Group group = g_hGroups[i];
-        if(group == null) {
+        if (group == null) {
             continue;
         }
 
@@ -48,7 +48,7 @@ public Action Command_Groups(const int client, const int args) {
     }
 
     // Print a message if no groups were listed.
-    if(matched == 0) {
+    if (matched == 0) {
         // Get and format the translation.
         char buffer[512];
         GetTranslation(buffer, sizeof(buffer), "%T", "sm_groups None", client);

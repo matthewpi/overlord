@@ -9,30 +9,30 @@
   */
 public Action OnClientSayCommand(int client, const char[] command, const char[] args) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         return Plugin_Continue;
     }
 
     // Check if we need to handle a chat input.
-    if(g_iOverlordAction[client] == OVERLORD_ACTION_NONE) {
+    if (g_iOverlordAction[client] == OVERLORD_ACTION_NONE) {
         return Plugin_Continue;
     }
 
-    if(StrEqual(args, "!abort")) {
+    if (StrEqual(args, "!abort")) {
         PrintToChat(client, "%s Aborted.", PREFIX);
         g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
         return Plugin_Stop;
     }
 
-    if(g_iOverlordAction[client] == OVERLORD_ACTION_ADMIN_NAME) {
+    if (g_iOverlordAction[client] == OVERLORD_ACTION_ADMIN_NAME) {
         // Check if the message's arguments have less than 3 characters.
-        if(strlen(args) < 3) {
+        if (strlen(args) < 3) {
             PrintToChat(client, "%s \x10Admin Name\x01 must be at least \x073\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
 
         // Check if the message's arguments have more than 32 characters.
-        if(strlen(args) > 32) {
+        if (strlen(args) > 32) {
             PrintToChat(client, "%s \x10Admin Name\x01 has a limit of \x0732\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
@@ -42,7 +42,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
         // Get the admin object using the admin id.
         Admin admin = g_hAdmins[adminId];
-        if(admin == null) {
+        if (admin == null) {
             PrintToChat(client, "%s Failed to find the admin object.", PREFIX);
             g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
             return Plugin_Stop;
@@ -62,15 +62,15 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
         // Update the database.
         Backend_UpdateAdmin(client);
-    } else if(g_iOverlordAction[client] == OVERLORD_ACTION_GROUP_NAME) {
+    } else if (g_iOverlordAction[client] == OVERLORD_ACTION_GROUP_NAME) {
         // Check if the message's arguments have less than 3 characters.
-        if(strlen(args) < 3) {
+        if (strlen(args) < 3) {
             PrintToChat(client, "%s \x10Group Name\x01 must be at least \x073\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
 
         // Check if the message's arguments have more than 32 characters.
-        if(strlen(args) > 32) {
+        if (strlen(args) > 32) {
             PrintToChat(client, "%s \x10Group Name\x01 has a limit of \x0732\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
@@ -80,7 +80,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
         // Get the group object using the group id.
         Group group = g_hGroups[groupId];
-        if(group == null) {
+        if (group == null) {
             PrintToChat(client, "%s Failed to find the group object.", PREFIX);
             g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
             return Plugin_Stop;
@@ -90,14 +90,14 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
         group.SetName(args);
 
         // Loop through all admins.
-        for(int i = 1; i < sizeof(g_hAdmins); i++) {
+        for (int i = 1; i < sizeof(g_hAdmins); i++) {
             Admin admin = g_hAdmins[i];
-            if(admin == null) {
+            if (admin == null) {
                 continue;
             }
 
             // Check if the admin's group matches the other group.
-            if(admin.GetGroup() != group.GetID()) {
+            if (admin.GetGroup() != group.GetID()) {
                 continue;
             }
 
@@ -113,15 +113,15 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
         // Update the database.
         Backend_UpdateGroup(groupId);
-    } else if(g_iOverlordAction[client] == OVERLORD_ACTION_GROUP_TAG) {
+    } else if (g_iOverlordAction[client] == OVERLORD_ACTION_GROUP_TAG) {
         // Check if the message's arguments have less than 3 characters.
-        if(strlen(args) < 3) {
+        if (strlen(args) < 3) {
             PrintToChat(client, "%s \x10Group Tag\x01 must be at least \x073\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
 
         // Check if the message's arguments have more than 16 characters.
-        if(strlen(args) > 16) {
+        if (strlen(args) > 16) {
             PrintToChat(client, "%s \x10Group Tag\x01 has a limit of \x0716\x01 characters.", PREFIX);
             return Plugin_Stop;
         }
@@ -160,7 +160,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
  */
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] args) {
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         return;
     }
 
@@ -170,7 +170,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     bool alive = IsPlayerAlive(client);
 
     // Check if the message isn't in the client's team chat and if the client is alive.
-    if(!teamChat && alive) {
+    if (!teamChat && alive) {
         return;
     }
 
@@ -186,14 +186,14 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
     const AdminFlag flag = Admin_Chat;
 
-    if(!alive) {
-        if(teamChat) {
+    if (!alive) {
+        if (teamChat) {
             // Format the message
             Format(message, sizeof(message), "(\x10Dead %s Chat\x01) \x07%N\x01: \x03%s", teamName, client, args);
 
             // Print the message to admins.
             PrintToAdmins(message, flag, team, true);
-        } else if(!g_cvDeadTalk.BoolValue) {
+        } else if (!g_cvDeadTalk.BoolValue) {
             // Format the message
             Format(message, sizeof(message), "(\x10Dead Chat\x01) \x07%N\x01: \x03%s", client, args);
 

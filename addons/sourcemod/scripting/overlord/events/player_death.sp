@@ -11,7 +11,7 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
     int client = GetClientOfUserId(event.GetInt("userid"));
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         return Plugin_Continue;
     }
 

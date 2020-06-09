@@ -12,14 +12,14 @@ public Action Command_RespawnHere(const int client, const int args) {
     char command[64] = "sm_respawn_here";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1) {
+    if (args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -41,7 +41,7 @@ public Action Command_RespawnHere(const int client, const int args) {
     int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_DEAD, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
-    if(targetCount <= COMMAND_TARGET_NONE) {
+    if (targetCount <= COMMAND_TARGET_NONE) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
 
@@ -52,24 +52,25 @@ public Action Command_RespawnHere(const int client, const int args) {
 
     // Loop through all targets.
     int respawned = 0;
-    for(int i = 0; i < targetCount; i++) {
+    for (int i = 0; i < targetCount; i++) {
         int target = targets[i];
+
         // Check if the target is invalid.
-        if(!IsClientValid(target)) {
+        if (!IsClientValid(target)) {
             continue;
         }
 
         // Check if the target is on spectator.
-        if(GetClientTeam(target) == CS_TEAM_SPECTATOR) {
-            if(targetCount == 1) {
+        if (GetClientTeam(target) == CS_TEAM_SPECTATOR) {
+            if (targetCount == 1) {
                 ReplyToCommand(client, "%s \x10%N\x01 is a \x07Spectator\x01 and cannot be respawned.", PREFIX, target);
             }
             continue;
         }
 
         // Check if the target is alive.
-        if(IsPlayerAlive(target)) {
-            if(targetCount == 1) {
+        if (IsPlayerAlive(target)) {
+            if (targetCount == 1) {
                 // Get and format the translation.
                 char buffer[512];
                 GetTranslation(buffer, sizeof(buffer), "%T", "Is already alive", client, targetName);
@@ -77,6 +78,7 @@ public Action Command_RespawnHere(const int client, const int args) {
                 // Send a message to the client.
                 ReplyToCommand(client, buffer);
             }
+
             continue;
         }
 
@@ -101,10 +103,10 @@ public Action Command_RespawnHere(const int client, const int args) {
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    if(respawned > 1) {
+    if (respawned > 1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Respawned %i players)", respawned);
-    } else if(respawned == 1) {
+    } else if (respawned == 1) {
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     }

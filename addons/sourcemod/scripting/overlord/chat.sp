@@ -24,7 +24,7 @@ bool g_bNewMessage[MAXPLAYERS + 1];
 public void Chat_Register() {
     UserMsg sayText2 = GetUserMessageId("SayText2");
 
-    if(sayText2 == INVALID_MESSAGE_ID) {
+    if (sayText2 == INVALID_MESSAGE_ID) {
         LogMessage("%s This server does not support \"SayText2\", disabling chat formatting.", CONSOLE_PREFIX);
         return;
     }
@@ -52,12 +52,12 @@ public void Chat_Register() {
  * ?
  */
 public Action Command_Say(const int client, const char[] command, const int args) {
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         return Plugin_Handled;
     }
 
     g_bNewMessage[client] = true;
-    return Plugin_Handled;
+    return Plugin_Continue;
 }
 
 /**
@@ -65,7 +65,7 @@ public Action Command_Say(const int client, const char[] command, const int args
  * ?
  */
 public void Chat_ProcessQueue() {
-    for(int i = 0; i < g_alMessages.Length; i++) {
+    for (int i = 0; i < g_alMessages.Length; i++) {
         DataPack pack = g_alMessages.Get(i);
         pack.Reset();
 
@@ -75,10 +75,10 @@ public void Chat_ProcessQueue() {
         int[] clients = new int[recipientCountStart];
         ArrayList recipients = new ArrayList();
 
-        for(int j = 0; j < recipientCountStart; j++) {
+        for (int j = 0; j < recipientCountStart; j++) {
             int buffer = pack.ReadCell();
 
-            if(IsClientValid(buffer)) {
+            if (IsClientValid(buffer)) {
                 clients[recipientCount++] = buffer;
                 recipients.Push(buffer);
             }
@@ -108,11 +108,11 @@ public void Chat_ProcessQueue() {
 
         // Check if the user is an admin.
         Admin admin = g_hAdmins[client];
-        if(admin != null) {
+        if (admin != null) {
             char adminSteamId[32];
             admin.GetSteamID(adminSteamId, sizeof(adminSteamId));
 
-            if(StrEqual(adminSteamId, "STEAM_1:1:530997", true)) {
+            if (StrEqual(adminSteamId, "STEAM_1:1:530997", true)) {
                 // Add a sexy user tag. :)
                 //userTag = "\x03[\x01Autist\x03] ";
 
@@ -125,7 +125,7 @@ public void Chat_ProcessQueue() {
 
             // Get and format the group tag.
             Group group = g_hGroups[admin.GetGroup()];
-            if(group != null) {
+            if (group != null) {
                 char groupTag[16];
                 group.GetTag(groupTag, sizeof(groupTag));
                 Format(extra, sizeof(extra), "\x03(%s) ", groupTag);
@@ -146,7 +146,7 @@ public void Chat_ProcessQueue() {
 
         Handle msg = StartMessage("SayText2", clients, recipientCount, USERMSG_RELIABLE | USERMSG_BLOCKHOOKS);
 
-        if(pack.ReadCell()) {
+        if (pack.ReadCell()) {
             Protobuf protobuf = UserMessageToProtobuf(msg);
 
             protobuf.SetInt("ent_idx", client);
@@ -182,58 +182,59 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     // Get the sender of the message.
     int sender;
-    if(isProtobuf) {
+    if (isProtobuf) {
         sender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
     } else {
         sender = msg.ReadByte();
     }
 
-    if(sender < 1) {
+    if (sender < 1) {
         return Plugin_Continue;
     }
 
-    if(!g_bNewMessage[sender]) {
+    if (!g_bNewMessage[sender]) {
         return Plugin_Stop;
     }
     g_bNewMessage[sender] = false;
 
     // Get a boolean based off of if the message was sent by the console.
     bool console;
-    if(isProtobuf) {
+    if (isProtobuf) {
         console = UserMessageToProtobuf(msg).ReadBool("chat");
     } else {
         console = (msg.ReadByte() ? true : false);
     }
 
     char translationNameTemp[128];
-    if(isProtobuf) {
+    if (isProtobuf) {
         UserMessageToProtobuf(msg).ReadString("msg_name", translationNameTemp, sizeof(translationNameTemp));
     } else {
         msg.ReadString(translationNameTemp, sizeof(translationNameTemp));
     }
 
     char translationName[128];
-    if(!g_mChatTranslations.GetString(translationNameTemp, translationName, sizeof(translationName))) {
+    if (!g_mChatTranslations.GetString(translationNameTemp, translationName, sizeof(translationName))) {
+        LogMessage("%s Failed to find chat translation. (%s)", CONSOLE_PREFIX, translationNameTemp);
         return Plugin_Continue;
     }
 
     int messageFlags;
-    if(StrContains(translationNameTemp, "All", false) != -1) {
+    if (StrContains(translationNameTemp, "All", false) != -1) {
         messageFlags = messageFlags | CHAT_FLAGS_ALL;
     }
-    if(StrContains(translationNameTemp, "Cstrike_Chat_CT", false) != -1 || StrContains(translationNameTemp, "Cstrike_Chat_T", false) != -1) {
+    if (StrContains(translationNameTemp, "Cstrike_Chat_CT", false) != -1 || StrContains(translationNameTemp, "Cstrike_Chat_T", false) != -1) {
         messageFlags = messageFlags | CHAT_FLAGS_TEAM;
     }
-    if(StrContains(translationNameTemp, "Spec", false) != -1) {
+    if (StrContains(translationNameTemp, "Spec", false) != -1) {
         messageFlags = messageFlags | CHAT_FLAGS_SPECTATOR;
     }
-    if(StrContains(translationNameTemp, "Dead", false) != -1) {
+    if (StrContains(translationNameTemp, "Dead", false) != -1) {
         messageFlags = messageFlags | CHAT_FLAGS_DEAD;
     }
 
     // Get the sender's name.
     char senderName[CHAT_LENGTH_NAME];
-    if(isProtobuf) {
+    if (isProtobuf) {
         UserMessageToProtobuf(msg).ReadString("params", senderName, sizeof(senderName), 0);
     } else {
         msg.ReadString(senderName, sizeof(senderName));
@@ -241,7 +242,7 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     // Get the message content.
     char messageContent[CHAT_LENGTH_INPUT];
-    if(isProtobuf) {
+    if (isProtobuf) {
         UserMessageToProtobuf(msg).ReadString("params", messageContent, sizeof(messageContent), 1);
     } else {
         msg.ReadString(messageContent, sizeof(messageContent));
@@ -249,7 +250,7 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     // Get the message's recipients.
     ArrayList recipients = new ArrayList();
-    for(int i = 0; i < playerCount; i++) {
+    for (int i = 0; i < playerCount; i++) {
         recipients.Push(players[i]);
     }
 
@@ -259,10 +260,10 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     pack.WriteCell(sender);
 
-    for(int i = 0; i < recipientCount; i++) {
+    for (int i = 0; i < recipientCount; i++) {
         int recipient = recipients.Get(i);
 
-        if(!IsClientValid(recipient)) {
+        if (!IsClientValid(recipient)) {
             recipientCount--;
             recipients.Erase(i);
         }
@@ -270,7 +271,7 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     pack.WriteCell(recipientCount);
 
-    for(int i = 0; i < recipientCount; i++) {
+    for (int i = 0; i < recipientCount; i++) {
         pack.WriteCell(recipients.Get(i));
     }
 

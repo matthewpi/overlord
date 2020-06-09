@@ -67,7 +67,7 @@ methodmap Admin < StringMap {
     public int GetGroup() {
         int serverGroupId = this.GetServerGroupID();
 
-        if(serverGroupId == 0) {
+        if (serverGroupId == 0) {
             return this.GetGroupID();
         }
 

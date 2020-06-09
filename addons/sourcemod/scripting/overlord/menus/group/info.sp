@@ -12,7 +12,7 @@ void Overlord_GroupInfoMenu(const int client, const int groupId, const int posit
     menu.SetTitle("Overlord | Groups");
 
     Group group = g_hGroups[groupId];
-    if(group == null) {
+    if (group == null) {
         return;
     }
 
@@ -49,7 +49,7 @@ void Overlord_GroupInfoMenu(const int client, const int groupId, const int posit
     menu.ExitBackButton = true;
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -57,7 +57,7 @@ void Overlord_GroupInfoMenu(const int client, const int groupId, const int posit
 }
 
 static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
@@ -67,23 +67,23 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
 
             // Get the admin object using the adminId.
             Group group = g_hGroups[groupId];
-            if(group == null) {
+            if (group == null) {
                 Overlord_GroupMenu(client);
                 return;
             }
 
-            if(StrEqual(info, "name", true)) {
+            if (StrEqual(info, "name", true)) {
                 //Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
                 g_iOverlordAction[client] = OVERLORD_ACTION_GROUP_NAME;
                 PrintToChat(client, "%s Please enter an \x10Group Name\x01.", PREFIX);
-            } else if(StrEqual(info, "tag", true)) {
+            } else if (StrEqual(info, "tag", true)) {
                 //Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
                 g_iOverlordAction[client] = OVERLORD_ACTION_GROUP_TAG;
                 PrintToChat(client, "%s Please enter an \x10Group Tag\x01.", PREFIX);
-            } else if(StrEqual(info, "immunity", true)) {
+            } else if (StrEqual(info, "immunity", true)) {
                 // TODO: Create a menu with immunity levels?
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
-            } else if(StrEqual(info, "flags", true)) {
+            } else if (StrEqual(info, "flags", true)) {
                 // TODO: Create a menu with all sourcemod admin flags, have a checkmark or star to symbol if the group already has that flag.
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
             } else {
@@ -92,7 +92,7 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
         }
 
         case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
+            if (itemNum == MenuCancel_ExitBack) {
                 Overlord_GroupMenu(client);
             }
         }

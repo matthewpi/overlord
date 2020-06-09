@@ -11,14 +11,14 @@ public Action Command_Health(const int client, const int args) {
     char command[64] = "sm_health";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         // Send a message to the client.
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 2) {
+    if (args != 2) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target> <health>", PREFIX, command);
 
@@ -40,7 +40,7 @@ public Action Command_Health(const int client, const int args) {
     int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
-    if(targetCount <= COMMAND_TARGET_NONE) {
+    if (targetCount <= COMMAND_TARGET_NONE) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
 
@@ -58,16 +58,17 @@ public Action Command_Health(const int client, const int args) {
 
     // Loop through all targets.
     int healed = 0;
-    for(int i = 0; i < targetCount; i++) {
+    for (int i = 0; i < targetCount; i++) {
         int target = targets[i];
+
         // Check if the target is invalid.
-        if(!IsClientValid(target)) {
+        if (!IsClientValid(target)) {
             continue;
         }
 
         // Check if the target is alive.
-        if(!IsPlayerAlive(target)) {
-            if(targetCount == 1) {
+        if (!IsPlayerAlive(target)) {
+            if (targetCount == 1) {
                 // Get and format the translation.
                 char buffer[512];
                 GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
@@ -99,7 +100,7 @@ public Action Command_Health(const int client, const int args) {
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    if(healed > 1) {
+    if (healed > 1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Set health of %i players to %i)", healed, health);
     } else if(healed == 1) {

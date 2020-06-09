@@ -15,7 +15,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("Overlord_IsAdminHidden", Native_IsAdminHidden);
     CreateNative("Overlord_IsVIP", Native_IsVIP);
 
-    if(late) {
+    if (late) {
         // In 5 seconds reload the admins.
         CreateTimer(5.0, Timer_ReloadAdmins);
     }
@@ -81,12 +81,12 @@ public int Native_GetAdminGroupName(Handle plugin, const int params) {
     int maxlen = GetNativeCell(3);
 
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return false;
     }
 
     Group group = g_hGroups[admin.GetGroup()];
-    if(group == null) {
+    if (group == null) {
         return false;
     }
 
@@ -109,7 +109,7 @@ public int Native_IsAdminHidden(Handle plugin, const int params) {
     int client = GetNativeCell(1);
 
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return false;
     }
 
@@ -128,12 +128,12 @@ public int Native_IsVIP(Handle plugin, const int params) {
     int client = GetNativeCell(1);
 
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return false;
     }
 
     Group group = g_hGroups[admin.GetGroup()];
-    if(group == null) {
+    if (group == null) {
         return false;
     }
 

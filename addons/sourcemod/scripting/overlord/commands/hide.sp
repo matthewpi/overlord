@@ -12,14 +12,14 @@ public Action Command_Hide(const int client, const int args) {
     char command[64] = "sm_hide";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Get the client's admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return Plugin_Handled;
     }
 
@@ -32,7 +32,7 @@ public Action Command_Hide(const int client, const int args) {
 
     // Get and format the translation.
     char buffer[512];
-    if(!admin.IsHidden()) {
+    if (!admin.IsHidden()) {
         GetTranslation(buffer, sizeof(buffer), "%T", "sm_hide Visible", client, clientName);
     } else {
         GetTranslation(buffer, sizeof(buffer), "%T", "sm_hide Hidden", client, clientName);
@@ -45,7 +45,7 @@ public Action Command_Hide(const int client, const int args) {
     LogCommand(client, -1, command, "");
 
     // Check if the admin is visible.
-    if(!admin.IsHidden()) {
+    if (!admin.IsHidden()) {
         // Call the "g_hOnAdminVisible" forward.
         Call_StartForward(g_hOnAdminVisible);
     } else {

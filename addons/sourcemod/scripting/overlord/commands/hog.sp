@@ -12,13 +12,13 @@ public Action Command_Hog(const int client, const int args) {
     char command[64] = "sm_hog";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1) {
+    if (args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -40,7 +40,7 @@ public Action Command_Hog(const int client, const int args) {
     int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
-    if(targetCount <= COMMAND_TARGET_NONE) {
+    if (targetCount <= COMMAND_TARGET_NONE) {
         // Send a message to the client.
         ReplyToTargetError(client, targetCount);
 
@@ -52,12 +52,12 @@ public Action Command_Hog(const int client, const int args) {
     // Loop through all targets
     int target = 0;
     int hogCount = 0;
-    for(int i = 0; i < targetCount; i++) {
+    for (int i = 0; i < targetCount; i++) {
         // Update the target int so we can target the target properly.
         target = targets[i];
 
         // Check if the target is dead.
-        if(!IsPlayerAlive(target)) {
+        if (!IsPlayerAlive(target)) {
             continue;
         }
 
@@ -115,7 +115,7 @@ public Action Command_Hog(const int client, const int args) {
     LogActivity(client, buffer);
 
     // Check if only one player was hogged.
-    if(hogCount == 1) {
+    if (hogCount == 1) {
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     } else {

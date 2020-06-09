@@ -12,13 +12,13 @@ public Action Command_Teleport(const int client, const int args) {
     char command[64] = "sm_tp";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1) {
+    if (args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -33,7 +33,7 @@ public Action Command_Teleport(const int client, const int args) {
 
     // Attempt to get and target a player using the first command argument.
     int target = FindTarget(client, potentialTarget, false, false);
-    if(target == -1) {
+    if (target == -1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Targetting error)");
         return Plugin_Handled;
@@ -43,7 +43,7 @@ public Action Command_Teleport(const int client, const int args) {
     char targetName[128];
     GetClientName(target, targetName, sizeof(targetName));
 
-    if(!IsPlayerAlive(target)) {
+    if (!IsPlayerAlive(target)) {
         // Get and format the translation.
         char buffer[512];
         GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);

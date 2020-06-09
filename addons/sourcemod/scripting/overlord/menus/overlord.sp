@@ -17,7 +17,7 @@ void Overlord_Menu(const int client, const int position = -1) {
     menu.AddItem("settings", "Settings", ITEMDRAW_DISABLED);
 
     // Display the menu to the client.
-    if(position == -1) {
+    if (position == -1) {
         menu.Display(client, 0);
     } else {
         menu.DisplayAt(client, position, 0);
@@ -25,16 +25,16 @@ void Overlord_Menu(const int client, const int position = -1) {
 }
 
 static int Callback_OverlordMenu(Menu menu, MenuAction action, int client, int itemNum) {
-    switch(action) {
+    switch (action) {
         case MenuAction_Select: {
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
 
-            if(StrEqual(info, "admins", true)) {
+            if (StrEqual(info, "admins", true)) {
                 Overlord_AdminMenu(client);
-            } else if(StrEqual(info, "groups", true)) {
+            } else if (StrEqual(info, "groups", true)) {
                 Overlord_GroupMenu(client);
-            } else if(StrEqual(info, "settings", true)) {
+            } else if (StrEqual(info, "settings", true)) {
                 //Overlord_SettingsMenu(client);
                 PrintToChat(client, "%s \x07Settings Menu\x01 has not been implemented yet.", PREFIX);
             } else {

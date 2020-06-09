@@ -8,6 +8,7 @@ methodmap Group < StringMap {
         return view_as<Group>(new StringMap());
     }
 
+    // id
     public int GetID() {
         int id;
         this.GetValue("id", id);
@@ -17,7 +18,9 @@ methodmap Group < StringMap {
     public void SetID(const int id) {
         this.SetValue("id", id);
     }
+    // END id
 
+    // name
     public void GetName(char[] buffer, const int maxlen) {
         this.GetString("name", buffer, maxlen);
     }
@@ -25,7 +28,9 @@ methodmap Group < StringMap {
     public void SetName(const char[] name) {
         this.SetString("name", name);
     }
+    // END name
 
+    // tag
     public void GetTag(char[] buffer, const int maxlen) {
         this.GetString("tag", buffer, maxlen);
     }
@@ -33,7 +38,9 @@ methodmap Group < StringMap {
     public void SetTag(const char[] tag) {
         this.SetString("tag", tag);
     }
+    // END tag
 
+    // immunity
     public int GetImmunity() {
         int immunity;
         this.GetValue("immunity", immunity);
@@ -43,7 +50,9 @@ methodmap Group < StringMap {
     public void SetImmunity(const int immunity) {
         this.SetValue("immunity", immunity);
     }
+    // END immunity
 
+    // flags
     public void GetFlags(char[] buffer, const int maxlen) {
         this.GetString("flags", buffer, maxlen);
     }
@@ -51,4 +60,5 @@ methodmap Group < StringMap {
     public void SetFlags(const char[] flags) {
         this.SetString("flags", flags);
     }
+    // END flags
 }

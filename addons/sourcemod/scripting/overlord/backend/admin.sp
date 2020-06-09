@@ -38,7 +38,7 @@ public void Backend_ReloadAdmins() {
  */
 public void Backend_GetAdmin(const int client, const char[] steamId) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_GetAdmin(int, char[]) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
@@ -61,13 +61,13 @@ public void Backend_GetAdmin(const int client, const char[] steamId) {
  */
 static void Callback_GetAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_GetAdmin", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }
 
     // Ignore empty result set.
-    if(results.RowCount == 0) {
+    if (results.RowCount == 0) {
         return;
     }
 
@@ -80,20 +80,20 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
     int createdAtIndex;
     int groupIdIndex;
     int serverGroupIdIndex;
-    if(!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("name", nameIndex)) { LogError("%s Failed to locate \"name\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("steamId", steamIdIndex)) { LogError("%s Failed to locate \"steamId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("hidden", hiddenIndex)) { LogError("%s Failed to locate \"hidden\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("active", activeIndex)) { LogError("%s Failed to locate \"active\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("createdAt", createdAtIndex)) { LogError("%s Failed to locate \"createdAt\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("groupId", groupIdIndex)) { LogError("%s Failed to locate \"groupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
-    if(!results.FieldNameToNum("serverGroupId", serverGroupIdIndex)) { LogError("%s Failed to locate \"serverGroupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("id", idIndex)) { LogError("%s Failed to locate \"id\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("name", nameIndex)) { LogError("%s Failed to locate \"name\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("steamId", steamIdIndex)) { LogError("%s Failed to locate \"steamId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("hidden", hiddenIndex)) { LogError("%s Failed to locate \"hidden\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("active", activeIndex)) { LogError("%s Failed to locate \"active\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("createdAt", createdAtIndex)) { LogError("%s Failed to locate \"createdAt\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("groupId", groupIdIndex)) { LogError("%s Failed to locate \"groupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
+    if (!results.FieldNameToNum("serverGroupId", serverGroupIdIndex)) { LogError("%s Failed to locate \"serverGroupId\" field in table \"overlord_admins\".", CONSOLE_PREFIX); return; }
     // END Get table column indexes.
 
     // Loop through query results.
-    while(results.FetchRow()) {
+    while (results.FetchRow()) {
         // Check if admin is deactivated.
-        if(results.FetchInt(activeIndex) == 0) {
+        if (results.FetchInt(activeIndex) == 0) {
             LogMessage("%s Found admin for '%N', but it is deactivated.", CONSOLE_PREFIX, client);
             continue;
         }
@@ -103,7 +103,7 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         char name[32];
         char steamId[64];
         bool hidden = false;
-        if(results.FetchInt(hiddenIndex) == 1) {
+        if (results.FetchInt(hiddenIndex) == 1) {
             hidden = true;
         }
         int createdAt = results.FetchInt(createdAtIndex);
@@ -113,15 +113,15 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
         results.FetchString(nameIndex, name, sizeof(name));
         results.FetchString(steamIdIndex, steamId, sizeof(steamId));
 
-        if(!results.IsFieldNull(groupIdIndex)) {
+        if (!results.IsFieldNull(groupIdIndex)) {
             groupId = results.FetchInt(groupIdIndex);
         }
 
-        if(!results.IsFieldNull(serverGroupIdIndex)) {
+        if (!results.IsFieldNull(serverGroupIdIndex)) {
             serverGroupId = results.FetchInt(serverGroupIdIndex);
         }
 
-        if(groupId == 0 && serverGroupId == 0) {
+        if (groupId == 0 && serverGroupId == 0) {
             // Log that we found an admin, but no group is set.
             LogMessage("%s Found admin for '%N' but group is null. (Steam ID: %s)", CONSOLE_PREFIX, client, steamId);
             continue;
@@ -153,14 +153,14 @@ static void Callback_GetAdmin(Database database, DBResultSet results, const char
  */
 public void Backend_InsertAdmin(const int client) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_InsertAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
 
     // Get client's admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 
@@ -168,13 +168,21 @@ public void Backend_InsertAdmin(const int client) {
     char name[32];
     admin.GetName(name, sizeof(name));
 
+    int bufferLength = strlen(name) * 2 + 1;
+    char[] escapedName = new char[bufferLength];
+    g_dbOverlord.Escape(name, escapedName, bufferLength);
+
     // Get the admin's steam id.
     char steamId[64];
     admin.GetSteamID(steamId, sizeof(steamId));
 
+    bufferLength = strlen(steamId) * 2 + 1;
+    char[] escapedSteamId = new char[bufferLength];
+    g_dbOverlord.Escape(steamId, escapedSteamId, bufferLength);
+
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), INSERT_ADMIN, name, steamId);
+    Format(query, sizeof(query), INSERT_ADMIN, escapedName, escapedSteamId);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_InsertAdmin, query, client);
@@ -186,7 +194,7 @@ public void Backend_InsertAdmin(const int client) {
  */
 static void Callback_InsertAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_InsertAdmin", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }
@@ -202,7 +210,7 @@ static void Callback_InsertAdmin(Database database, DBResultSet results, const c
  */
 public void Backend_UpdateAdmin(const int client) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_UpdateAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
@@ -217,13 +225,21 @@ public void Backend_UpdateAdmin(const int client) {
     char name[32];
     admin.GetName(name, sizeof(name));
 
+    int bufferLength = strlen(name) * 2 + 1;
+    char[] escapedName = new char[bufferLength];
+    g_dbOverlord.Escape(name, escapedName, bufferLength);
+
     // Get the admin's steam id.
     char steamId[64];
     admin.GetSteamID(steamId, sizeof(steamId));
 
+    bufferLength = strlen(steamId) * 2 + 1;
+    char[] escapedSteamId = new char[bufferLength];
+    g_dbOverlord.Escape(steamId, escapedSteamId, bufferLength);
+
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), UPDATE_ADMIN, name, admin.GetGroup(), admin.IsHidden() ? 1 : 0, steamId);
+    Format(query, sizeof(query), UPDATE_ADMIN, escapedName, admin.GetGroup(), admin.IsHidden() ? 1 : 0, escapedSteamId);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_UpdateAdmin, query, client);
@@ -235,14 +251,14 @@ public void Backend_UpdateAdmin(const int client) {
  */
 public void Backend_UpdateAdminServerGroup(const int client) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_UpdateAdminServerGroup(int) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
 
     // Get client's admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 
@@ -260,7 +276,7 @@ public void Backend_UpdateAdminServerGroup(const int client) {
  */
 static void Callback_UpdateAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_UpdateAdmin", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }
@@ -275,14 +291,14 @@ static void Callback_UpdateAdmin(Database database, DBResultSet results, const c
  */
 public void Backend_DeleteAdmin(const int client) {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_DeleteAdmin(int) due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
 
     // Get client's admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 
@@ -290,9 +306,13 @@ public void Backend_DeleteAdmin(const int client) {
     char steamId[64];
     admin.GetSteamID(steamId, sizeof(steamId));
 
+    int bufferLength = strlen(steamId) * 2 + 1;
+    char[] escapedSteamId = new char[bufferLength];
+    g_dbOverlord.Escape(steamId, escapedSteamId, bufferLength);
+
     // Create and format the query.
     char query[512];
-    Format(query, sizeof(query), DELETE_ADMIN, steamId);
+    Format(query, sizeof(query), DELETE_ADMIN, escapedSteamId);
 
     // Execute the query.
     g_dbOverlord.Query(Callback_DeleteAdmin, query, client);
@@ -304,7 +324,7 @@ public void Backend_DeleteAdmin(const int client) {
  */
 static void Callback_DeleteAdmin(Database database, DBResultSet results, const char[] error, int client) {
     // Handle query error.
-    if(results == null) {
+    if (results == null) {
         LogError("%s Query failure. %s >> %s", CONSOLE_PREFIX, "Callback_DeleteAdmin", (strlen(error) > 0 ? error : "Unknown."));
         return;
     }

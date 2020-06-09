@@ -9,19 +9,19 @@
  */
 public Action Sourcemod_TextMessage(UserMsg msgId, Protobuf protobuf, const int[] players, int playerCount, bool reliable, bool init) {
     // Check if the message is not reliable.
-    if(!reliable) {
+    if (!reliable) {
         return Plugin_Continue;
     }
 
     char buffer[256];
     protobuf.ReadString("params", buffer, sizeof(buffer), 0);
 
-    if(StrContains(buffer, "[SM]") == 0) {
+    if (StrContains(buffer, "[SM]") == 0) {
         DataPack pack;
         CreateDataTimer(0.0, Timer_TextMessage, pack);
 
         pack.WriteCell(playerCount);
-        for(int i = 0; i < playerCount; i++) {
+        for (int i = 0; i < playerCount; i++) {
             pack.WriteCell(players[i]);
         }
         pack.WriteString(buffer);
@@ -45,16 +45,16 @@ static Action Timer_TextMessage(Handle timer, DataPack pack) {
     int count = 0;
 
     // Loop through all players in the datapack.
-    for(int i = 0; i < playerCount; i++) {
+    for (int i = 0; i < playerCount; i++) {
         client = pack.ReadCell();
 
         // Check if client is ingame.
-        if(IsClientInGame(client)) {
+        if (IsClientInGame(client)) {
             players[count++] = client;
         }
     }
 
-    if(count < 1) {
+    if (count < 1) {
         return;
     }
 

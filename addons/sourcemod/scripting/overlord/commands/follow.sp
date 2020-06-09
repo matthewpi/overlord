@@ -12,12 +12,12 @@ public Action Command_Follow(const int client, const int args) {
     char command[64] = "sm_follow";
 
     // Check if the client is invalid.
-    if(!IsClientValid(client)) {
+    if (!IsClientValid(client)) {
         ReplyToCommand(client, "%s You must be a player to execute this command.", CONSOLE_PREFIX);
         return Plugin_Handled;
     }
 
-    if(args == 0 && g_iFollowing[client] != -1) {
+    if (args == 0 && g_iFollowing[client] != -1) {
         // Get the client's target's name.
         char targetName[128];
         GetClientName(g_iFollowing[client], targetName, sizeof(targetName));
@@ -38,7 +38,7 @@ public Action Command_Follow(const int client, const int args) {
     }
 
     // Check if the client did not pass an argument.
-    if(args != 1) {
+    if (args != 1) {
         // Send a message to the client.
         ReplyToCommand(client, "%s \x07Usage: \x01%s <#userid;target>", PREFIX, command);
 
@@ -47,7 +47,7 @@ public Action Command_Follow(const int client, const int args) {
         return Plugin_Handled;
     }
 
-    if(GetClientTeam(client) != CS_TEAM_SPECTATOR) {
+    if (GetClientTeam(client) != CS_TEAM_SPECTATOR) {
         // Get and format the translation.
         char buffer[512];
         GetTranslation(buffer, sizeof(buffer), "%T", "sm_follow Spectator", client);
@@ -67,7 +67,7 @@ public Action Command_Follow(const int client, const int args) {
 
     // Attempt to get and target a player using the first command argument.
     int target = FindTarget(client, potentialTarget);
-    if(target == -1) {
+    if (target == -1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Targetting error)");
         return Plugin_Handled;
