@@ -9,6 +9,7 @@
  */
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
     RegPluginLibrary("overlord");
+
     CreateNative("Overlord_IsAdmin", Native_IsAdmin);
     CreateNative("Overlord_GetAdminName", Native_GetAdminName);
     CreateNative("Overlord_GetAdminGroupName", Native_GetAdminGroupName);
@@ -19,6 +20,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
         // In 5 seconds reload the admins.
         CreateTimer(5.0, Timer_ReloadAdmins);
     }
+
     return APLRes_Success;
 }
 

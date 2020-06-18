@@ -31,7 +31,13 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
             }
         }
 
-        DisarmClient(client);
+        DisarmClient(client, true);
+
+        // Fix player not having a weapon/item selected or the wrong team's knife.
+        int entity = GivePlayerItem(client, "weapon_knife_t");
+        if (IsValidEntity(entity)) {
+            EquipPlayerWeapon(client, entity);
+        }
     } else if (g_cvArmorCT.IntValue > 0 && team == CS_TEAM_CT) {
         if (g_cvArmorCT.IntValue > 0) {
             SetEntProp(client, Prop_Send, "m_ArmorValue", 100);
@@ -41,7 +47,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
             }
         }
 
-        DisarmClient(client);
+        DisarmClient(client, true);
         GivePlayerItem(client, "weapon_m4a1");
         GivePlayerItem(client, "weapon_deagle");
         GivePlayerItem(client, "weapon_hegrenade");
@@ -50,6 +56,12 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
         GivePlayerItem(client, "weapon_incgrenade");
         GivePlayerItem(client, "weapon_tagrenade");
         GivePlayerItem(client, "weapon_healthshot");
+
+        // Fix player not having a weapon/item selected or the wrong team's knife.
+        int entity = GivePlayerItem(client, "weapon_knife");
+        if (IsValidEntity(entity)) {
+            EquipPlayerWeapon(client, entity);
+        }
     }
 
     // Loop through all of the admin's following entires.

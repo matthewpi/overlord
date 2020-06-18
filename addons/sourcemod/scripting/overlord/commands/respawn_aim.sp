@@ -94,7 +94,7 @@ public Action Command_RespawnAim(const int client, const int args) {
             if (targetCount == 1) {
                 // Get and format the translation.
                 char buffer[512];
-                GetTranslation(buffer, sizeof(buffer), "%T", "Is already alive", client, targetName);
+                GetTranslation(buffer, sizeof(buffer), "%T", "Is still alive", client, targetName);
 
                 // Send a message to the client.
                 ReplyToCommand(client, buffer);

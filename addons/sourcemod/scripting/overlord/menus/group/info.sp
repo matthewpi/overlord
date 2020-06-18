@@ -8,13 +8,13 @@
  * ?
  */
 void Overlord_GroupInfoMenu(const int client, const int groupId, const int position = -1) {
-    Menu menu = CreateMenu(Callback_OverlordGroupInfoMenu);
-    menu.SetTitle("Overlord | Groups");
-
     Group group = g_hGroups[groupId];
     if (group == null) {
         return;
     }
+
+    Menu menu = CreateMenu(Callback_OverlordGroupInfoMenu);
+    menu.SetTitle("Overlord | Groups");
 
     // Update the "g_iOverlordMenu" array with the new groupId.
     g_iOverlordMenu[client] = groupId;
@@ -62,10 +62,10 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
             char info[32];
             menu.GetItem(itemNum, info, sizeof(info));
 
-            // Get the active admin id.
+            // Get the active group id.
             int groupId = g_iOverlordMenu[client];
 
-            // Get the admin object using the adminId.
+            // Get the group object using the groupId.
             Group group = g_hGroups[groupId];
             if (group == null) {
                 Overlord_GroupMenu(client);
@@ -84,8 +84,7 @@ static int Callback_OverlordGroupInfoMenu(Menu menu, MenuAction action, int clie
                 // TODO: Create a menu with immunity levels?
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
             } else if (StrEqual(info, "flags", true)) {
-                // TODO: Create a menu with all sourcemod admin flags, have a checkmark or star to symbol if the group already has that flag.
-                Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
+                Overlord_GroupFlagsMenu(client, groupId);
             } else {
                 Overlord_GroupInfoMenu(client, groupId, GetMenuSelectionPosition());
             }

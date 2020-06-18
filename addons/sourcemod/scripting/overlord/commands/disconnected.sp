@@ -14,7 +14,8 @@ public Action Command_Disconnected(const int client, const int args) {
         return Plugin_Handled;
     }
 
-    if (g_alDisconnected.Length) {
+    // Check if no players have recently disconnected.
+    if (g_alDisconnected.Length < 1) {
         ReplyToCommand(client, "%s There have been no recently disconnected players.", PREFIX);
         return Plugin_Handled;
     }

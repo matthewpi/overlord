@@ -5,9 +5,11 @@
 
 // Materials
 //#define OVERLORD_MAT_LIGHTNING "materials/lightning/laserbeam.vmt"
-#define OVERLORD_MAT_LIGHTNING "materials/overlord/laserbeam.vmt"
+//#define OVERLORD_MAT_LIGHTNING "materials/overlord/laserbeam.vmt"
+#define OVERLORD_MAT_LIGHTNING "overlord/laserbeam.vmt"
 
-#define OVERLORD_MAT_SMOKE "materials/sprites/steam1.vmt"
+//#define OVERLORD_MAT_SMOKE "materials/sprites/steam1.vmt"
+#define OVERLORD_MAT_SMOKE "sprites/steam1.vmt"
 // END Materials
 
 // Sounds
@@ -16,9 +18,11 @@
 
 public void AddAssetsToDownloadTable() {
     // Materials
-    AddFileToDownloadsTable(OVERLORD_MAT_LIGHTNING);
+    // AddFileToDownloadsTable(OVERLORD_MAT_LIGHTNING);
 
-    AddFileToDownloadsTable(OVERLORD_MAT_SMOKE);
+    // AddFileToDownloadsTable(OVERLORD_MAT_SMOKE);
+    AddFileToDownloadsTable("materials/overlord/laserbeam.vmt");
+    AddFileToDownloadsTable("materials/sprites/steam1.vmt");
     // END Materials
 
     // Sounds
@@ -28,8 +32,8 @@ public void AddAssetsToDownloadTable() {
 
 public void PrecacheAssets() {
     // Materials
-    g_iLightningSprite = PrecacheModel(OVERLORD_MAT_LIGHTNING, false);
-    g_iSmokeSprite = PrecacheModel(OVERLORD_MAT_SMOKE, false);
+    g_iLightningSprite = PrecacheModel(OVERLORD_MAT_LIGHTNING, true);
+    g_iSmokeSprite = PrecacheModel(OVERLORD_MAT_SMOKE, true);
     // END Materials
 
     // Sounds

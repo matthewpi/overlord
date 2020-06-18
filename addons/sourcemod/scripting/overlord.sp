@@ -84,11 +84,15 @@
 // Menus
 #include "overlord/menus/disconnected.sp"
 #include "overlord/menus/overlord.sp"
+
 #include "overlord/menus/admin/main.sp"
 #include "overlord/menus/admin/info.sp"
 #include "overlord/menus/admin/new.sp"
+
 #include "overlord/menus/group/main.sp"
+#include "overlord/menus/group/flags.sp"
 #include "overlord/menus/group/info.sp"
+
 // END Project Files
 
 // Plugin Information
@@ -152,9 +156,9 @@ public void OnPluginStart() {
     // overlord/commands/respawn.sp
     RegAdminCmd("sm_respawn", Command_Respawn, ADMFLAG_SLAY, "sm_respawn <#userid;target> - Respawns a dead player.");
     // overlord/commands/respawn_aim.sp
-    RegAdminCmd("respawn_aim", Command_RespawnAim, ADMFLAG_SLAY, "sm_respawn_aim <#userid;target> - Respawns a client to where you are looking.");
+    RegAdminCmd("sm_respawn_aim", Command_RespawnAim, ADMFLAG_SLAY, "sm_respawn_aim <#userid;target> - Respawns a client to where you are looking.");
     // overlord/commands/respawn_here.sp
-    RegAdminCmd("respawn_here", Command_RespawnHere, ADMFLAG_SLAY, "sm_respawn_here <#userid;target> - Respawns a client to your position.");
+    RegAdminCmd("sm_respawn_here", Command_RespawnHere, ADMFLAG_SLAY, "sm_respawn_here <#userid;target> - Respawns a client to your position.");
     // overlord/commands/team.sp
     RegAdminCmd("sm_team_t", Command_Team_T, ADMFLAG_SLAY, "sm_team_t <#userid;target> [round end] - Swap a client to the terrorist team.");
     RegAdminCmd("sm_team_ct", Command_Team_CT, ADMFLAG_SLAY, "sm_team_ct <#userid;target> [round end] - Swap a client to the counter-terrorist team.");
@@ -247,6 +251,15 @@ public void OnConfigsExecuted() {
 public void OnMapStart() {
     AddAssetsToDownloadTable();
     PrecacheAssets();
+}
+
+/**
+ * OnMapEnd
+ * Is used to clear data that will be reloaded when the map changes.
+ */
+public void OnMapEnd() {
+    // Clear the recently disconnected players list.
+    g_alDisconnected = CreateArray();
 }
 
 /**

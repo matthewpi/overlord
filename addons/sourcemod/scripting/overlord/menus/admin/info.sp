@@ -8,13 +8,13 @@
  * ?
  */
 void Overlord_AdminInfoMenu(const int client, const int adminId, const int position = -1) {
-    Menu menu = CreateMenu(Callback_OverlordAdminInfoMenu);
-    menu.SetTitle("Overlord | Admins");
-
     Admin admin = g_hAdmins[adminId];
     if (admin == null) {
         return;
     }
+
+    Menu menu = CreateMenu(Callback_OverlordAdminInfoMenu);
+    menu.SetTitle("Overlord | Admins");
 
     // Update the "g_iOverlordMenu" array with the new adminId.
     g_iOverlordMenu[client] = adminId;

@@ -11,10 +11,10 @@
         "en"      "{ORANGE}{1}{NORMAL} is not alive."
     }
 
-    "Is already alive"
+    "Is still alive"
     {
         "#format" "{1:s}"
-        "en"      "{ORANGE}{1}{NORMAL} is already alive."
+        "en"      "{ORANGE}{1}{NORMAL} is still alive."
     }
 
     "Is a spectator"
@@ -155,5 +155,17 @@
     "sm_vips None"
     {
         "en" "{NORMAL}There are currently no {ORANGE}VIPs{NORMAL} online."
+    }
+
+    "Add Group Flag"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      "{ORANGE}{1}{NORMAL} now has the {ORANGE}{2}{NORMAL} flag."
+    }
+
+    "Remove Group Flag"
+    {
+        "#format" "{1:s},{2:s}"
+        "en"      "{ORANGE}{1}{NORMAL} no longer has the {ORANGE}{2}{NORMAL} flag."
     }
 }

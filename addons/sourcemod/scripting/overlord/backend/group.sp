@@ -173,6 +173,16 @@ static void Callback_UpdateGroup(Database database, DBResultSet results, const c
         return;
     }
 
+    // Get group object.
+    Group group = g_hGroups[groupId];
+    if (group == null) {
+        return;
+    }
+
+    // Get the group's name.
+    char name[32];
+    group.GetName(name, sizeof(name));
+
     // Log that we saved the group's information.
-    LogMessage("%s Update group information for %i.", CONSOLE_PREFIX, groupId);
+    LogMessage("%s Updated group information for \"%s\" (%i).", CONSOLE_PREFIX, name, groupId);
 }

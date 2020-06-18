@@ -16,12 +16,15 @@
 StringMap g_mChatTranslations = null;
 ArrayList g_alMessages = null;
 bool g_bNewMessage[MAXPLAYERS + 1];
+bool g_isProtobuf;
 
 /**
  * Chat_Register
  * ?
  */
 public void Chat_Register() {
+    g_isProtobuf = (CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available && GetUserMessageType() == UM_Protobuf);
+
     UserMsg sayText2 = GetUserMessageId("SayText2");
 
     if (sayText2 == INVALID_MESSAGE_ID) {
@@ -178,12 +181,15 @@ public void Chat_ProcessQueue() {
  * ?
  */
 public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, int playerCount, bool reliable, bool init) {
-    bool isProtobuf = (CanTestFeatures() && GetFeatureStatus(FeatureType_Native, "GetUserMessageType") == FeatureStatus_Available && GetUserMessageType() == UM_Protobuf);
+    Protobuf buf = null;
+    if (g_isProtobuf) {
+        buf = UserMessageToProtobuf(msg);
+    }
 
     // Get the sender of the message.
     int sender;
-    if (isProtobuf) {
-        sender = UserMessageToProtobuf(msg).ReadInt("ent_idx");
+    if (g_isProtobuf) {
+        sender = buf.ReadInt("ent_idx");
     } else {
         sender = msg.ReadByte();
     }
@@ -199,15 +205,15 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     // Get a boolean based off of if the message was sent by the console.
     bool console;
-    if (isProtobuf) {
-        console = UserMessageToProtobuf(msg).ReadBool("chat");
+    if (g_isProtobuf) {
+        console = buf.ReadBool("chat");
     } else {
         console = (msg.ReadByte() ? true : false);
     }
 
     char translationNameTemp[128];
-    if (isProtobuf) {
-        UserMessageToProtobuf(msg).ReadString("msg_name", translationNameTemp, sizeof(translationNameTemp));
+    if (g_isProtobuf) {
+        buf.ReadString("msg_name", translationNameTemp, sizeof(translationNameTemp));
     } else {
         msg.ReadString(translationNameTemp, sizeof(translationNameTemp));
     }
@@ -234,16 +240,16 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     // Get the sender's name.
     char senderName[CHAT_LENGTH_NAME];
-    if (isProtobuf) {
-        UserMessageToProtobuf(msg).ReadString("params", senderName, sizeof(senderName), 0);
+    if (g_isProtobuf) {
+        buf.ReadString("params", senderName, sizeof(senderName), 0);
     } else {
         msg.ReadString(senderName, sizeof(senderName));
     }
 
     // Get the message content.
     char messageContent[CHAT_LENGTH_INPUT];
-    if (isProtobuf) {
-        UserMessageToProtobuf(msg).ReadString("params", messageContent, sizeof(messageContent), 1);
+    if (g_isProtobuf) {
+        buf.ReadString("params", messageContent, sizeof(messageContent), 1);
     } else {
         msg.ReadString(messageContent, sizeof(messageContent));
     }
@@ -260,7 +266,7 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
 
     pack.WriteCell(sender);
 
-    for (int i = 0; i < recipientCount; i++) {
+    for (int i = 0; i < recipients.Length; i++) {
         int recipient = recipients.Get(i);
 
         if (!IsClientValid(recipient)) {
@@ -280,7 +286,7 @@ public Action Chat_OnSayText2(UserMsg msgId, BfRead msg, const int[] players, in
     pack.WriteString(senderName);
     pack.WriteString(messageContent);
     g_alMessages.Push(pack);
-    pack.WriteCell(isProtobuf);
+    pack.WriteCell(g_isProtobuf);
     pack.WriteCell(messageFlags);
 
     delete recipients;
