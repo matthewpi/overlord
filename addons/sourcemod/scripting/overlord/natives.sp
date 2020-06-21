@@ -57,7 +57,7 @@ public int Native_GetAdminName(Handle plugin, const int params) {
     int maxlen = GetNativeCell(3);
 
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return false;
     }
 

@@ -103,7 +103,7 @@ public Action Command_Health(const int client, const int args) {
     if (healed > 1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Set health of %i players to %i)", healed, health);
-    } else if(healed == 1) {
+    } else if (healed == 1) {
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s', Health: %i)", targetName, health);
     }

@@ -203,6 +203,7 @@ void DisarmClient(const int client, bool knife = false) {
         while (weapon > 0) {
             RemovePlayerItem(client, weapon);
             AcceptEntityInput(weapon, "Kill");
+
             weapon = GetPlayerWeaponSlot(client, i);
         }
     }

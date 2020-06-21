@@ -55,7 +55,7 @@ static int Callback_OverlordAdminMenu(Menu menu, MenuAction action, int client, 
                 int adminId = StringToInt(info);
 
                 Admin admin = g_hAdmins[adminId];
-                if(admin == null) {
+                if (admin == null) {
                     Overlord_AdminMenu(client, GetMenuSelectionPosition());
                     return;
                 }

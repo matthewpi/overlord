@@ -131,7 +131,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
         // Get the group object using the group id.
         Group group = g_hGroups[groupId];
-        if(group == null) {
+        if (group == null) {
             PrintToChat(client, "%s Failed to find the group object.", PREFIX);
             g_iOverlordAction[client] = OVERLORD_ACTION_NONE;
             return Plugin_Stop;

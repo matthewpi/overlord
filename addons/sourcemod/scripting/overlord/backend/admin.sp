@@ -9,15 +9,15 @@
  */
 public void Backend_ReloadAdmins() {
     // Check if the g_dbOverlord handle is invalid.
-    if(g_dbOverlord == INVALID_HANDLE) {
+    if (g_dbOverlord == INVALID_HANDLE) {
         LogError("%s Failed to run Backend_ReloadAdmins() due to an invalid database handle.", CONSOLE_PREFIX);
         return;
     }
 
     // Loop through all online clients.
-    for(int client = 1; client <= MaxClients; client++) {
+    for (int client = 1; client <= MaxClients; client++) {
         // Check if the client is invalid.
-        if(!IsClientValid(client)) {
+        if (!IsClientValid(client)) {
             continue;
         }
 
@@ -217,7 +217,7 @@ public void Backend_UpdateAdmin(const int client) {
 
     // Get client's admin.
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 

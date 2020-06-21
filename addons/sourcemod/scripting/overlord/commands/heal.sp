@@ -97,7 +97,7 @@ public Action Command_Heal(const int client, const int args) {
     if (healed > 1) {
         // Log the command execution.
         LogCommand(client, -1, command, "(Healed %i players)", healed);
-    } else if(healed == 1) {
+    } else if (healed == 1) {
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     }

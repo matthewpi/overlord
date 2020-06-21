@@ -9,14 +9,14 @@
  */
 public void OnRebuildAdminCache(AdminCachePart part) {
     // Check if we are reloading groups.
-    if(part == AdminCache_Groups) {
+    if (part == AdminCache_Groups) {
         // Log that we are reloading admin groups.
         LogMessage("%s Reloading admin groups.", CONSOLE_PREFIX);
 
         // Reload the admin groups.
         Backend_LoadGroups();
     // Check if we are reloading admins.
-    } else if(part == AdminCache_Admins) {
+    } else if (part == AdminCache_Admins) {
         // Log that we are reloading admins.
         LogMessage("%s Reloading admins.", CONSOLE_PREFIX);
 
@@ -31,7 +31,7 @@ public void OnRebuildAdminCache(AdminCachePart part) {
  */
 public void Admin_RefreshId(const int client) {
     Admin admin = g_hAdmins[client];
-    if(admin == null) {
+    if (admin == null) {
         return;
     }
 
@@ -41,7 +41,7 @@ public void Admin_RefreshId(const int client) {
 
     // Create admin
     AdminId adminId = GetUserAdmin(client);
-    if(adminId != INVALID_ADMIN_ID) {
+    if (adminId != INVALID_ADMIN_ID) {
         RemoveAdmin(adminId);
     }
 
@@ -51,7 +51,7 @@ public void Admin_RefreshId(const int client) {
 
     // Add admin group
     Group userGroup = g_hGroups[admin.GetGroup()];
-    if(userGroup == null) {
+    if (userGroup == null) {
         return;
     }
 
@@ -59,12 +59,12 @@ public void Admin_RefreshId(const int client) {
     userGroup.GetName(groupName, sizeof(groupName));
 
     GroupId groupId = FindAdmGroup(groupName);
-    if(groupId == INVALID_GROUP_ID) {
+    if (groupId == INVALID_GROUP_ID) {
         LogError("%s Failed to locate existing admin group.", CONSOLE_PREFIX);
         return;
     }
 
-    if(!adminId.InheritGroup(groupId)) {
+    if (!adminId.InheritGroup(groupId)) {
         LogError("%s Failed to inherit admin group.", CONSOLE_PREFIX);
         return;
     }

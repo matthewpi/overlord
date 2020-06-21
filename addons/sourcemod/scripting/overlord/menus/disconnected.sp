@@ -121,7 +121,7 @@ static int Callback_DisconnectedPlayerMenu(Menu menu, MenuAction action, int cli
         }
 
         case MenuAction_Cancel: {
-            if(itemNum == MenuCancel_ExitBack) {
+            if (itemNum == MenuCancel_ExitBack) {
                 Disconnected_Menu(client);
             }
         }

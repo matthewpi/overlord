@@ -136,7 +136,7 @@ public void Chat_ProcessQueue() {
         }
 
         // Check if the sender is on the spectator team.
-        /*if(team == CS_TEAM_SPECTATOR) {
+        /*if (team == CS_TEAM_SPECTATOR) {
             // Remove the user tag.
             userTag = "";
         }*/
