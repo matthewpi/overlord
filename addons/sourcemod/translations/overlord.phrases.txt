@@ -40,6 +40,12 @@
         "en" "{NORMAL}There are currently no {ORANGE}Admins{NORMAL} online."
     }
 
+    "sm_armor Player"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}Gave {ORANGE}{1}{NORMAL} armor."
+    }
+
     "sm_disconnected None"
     {
         "en" "{NORMAL}No players have recently disconnected."

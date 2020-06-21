@@ -22,7 +22,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 
     // Give armor to the player based off of "armor_t" or "armor_ct" convar.
     int team = GetClientTeam(client);
-    if (g_cvArmorT.IntValue > 0 && team == CS_TEAM_T) {
+    if (team == CS_TEAM_T) {
         if (g_cvArmorT.IntValue > 0) {
             SetEntProp(client, Prop_Send, "m_ArmorValue", 100);
 
@@ -38,7 +38,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
         if (IsValidEntity(entity)) {
             EquipPlayerWeapon(client, entity);
         }
-    } else if (g_cvArmorCT.IntValue > 0 && team == CS_TEAM_CT) {
+    } else if (team == CS_TEAM_CT) {
         if (g_cvArmorCT.IntValue > 0) {
             SetEntProp(client, Prop_Send, "m_ArmorValue", 100);
 

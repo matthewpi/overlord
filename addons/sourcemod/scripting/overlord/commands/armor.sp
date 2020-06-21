@@ -89,7 +89,7 @@ public Action Command_Armor(const int client, const int args) {
 
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Player", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_armor Player", client, targetName);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
