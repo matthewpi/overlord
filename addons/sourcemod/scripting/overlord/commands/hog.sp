@@ -101,7 +101,7 @@ public Action Command_Hog(const int client, const int args) {
 
         // Call the "g_hOnPlayerHog" forward.
         Call_StartForward(g_hOnPlayerHog);
-        Call_PushCell(client);
+        Call_PushCell(target);
         Call_Finish();
 
         hogCount++;

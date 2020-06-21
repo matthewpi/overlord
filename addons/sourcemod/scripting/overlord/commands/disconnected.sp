@@ -16,11 +16,25 @@ public Action Command_Disconnected(const int client, const int args) {
 
     // Check if no players have recently disconnected.
     if (g_alDisconnected.Length < 1) {
-        ReplyToCommand(client, "%s There have been no recently disconnected players.", PREFIX);
+        //ReplyToCommand(client, "%s There have been no recently disconnected players.", PREFIX);
+
+        // Get and format the translation.
+        char buffer[512];
+        GetTranslation(buffer, sizeof(buffer), "%T", "sm_disconnected None", client);
+
+        ReplyToCommand(client, buffer);
         return Plugin_Handled;
     }
 
-    ReplyToCommand(client, "%s Showing the last \x10%i\x01 disconnected players.", PREFIX, g_alDisconnected.Length);
+    //ReplyToCommand(client, "%s Showing the last \x10%i\x01 disconnected players.", PREFIX, g_alDisconnected.Length);
+
+    // Get and format the translation.
+    char buffer[512];
+    GetTranslation(buffer, sizeof(buffer), "%T", "sm_disconnected Showing", client, g_alDisconnected.Length);
+
+    ReplyToCommand(client, buffer);
+
+    // Open the menu of recently disconnected players.
     Disconnected_Menu(client);
     return Plugin_Handled;
 }

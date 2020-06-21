@@ -40,6 +40,17 @@
         "en" "{NORMAL}There are currently no {ORANGE}Admins{NORMAL} online."
     }
 
+    "sm_disconnected None"
+    {
+        "en" "{NORMAL}No players have recently disconnected."
+    }
+
+    "sm_disconnected Showing"
+    {
+        "#format" "{1:i}"
+        "en"      "{NORMAL}Showing the last {ORANGE}%i{NORMAL} disconnected players."
+    }
+
     "sm_follow Spectator"
     {
         "en" "{NORMAL}You must be on the {RED}Spectator{NORMAL} team to do this."
@@ -96,6 +107,12 @@
     {
         "#format" "{1:s}"
         "en"      "{NORMAL}Struck {ORANGE}{1}{NORMAL} with the hand of {RED}balon{NORMAL}."
+    }
+
+    "sm_respawn Spectator"
+    {
+        "#format" "{1:s}"
+        "en"      "{NORMAL}{ORANGE}{1}{NORMAL} is a {RED}Spectator{NORMAL} and cannot be respawned."
     }
 
     "sm_respawn Player"

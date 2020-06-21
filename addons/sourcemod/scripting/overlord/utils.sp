@@ -4,14 +4,14 @@
  */
 
 static char _colorNames[][] = {
-    "{NORMAL}", "{DARK_RED}", "{PINK}", "{LIME_GREEN}", "{GREEN}",
-    "{LIGHT_GREEN}", "{RED}", "{GRAY}", "{YELLOW}", "{ORANGE}",
-    "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{LIGHT_RED}"
+    "{NORMAL}",      "{DARK_RED}",  "{PINK}",   "{LIME_GREEN}", "{GREEN}",
+    "{LIGHT_GREEN}", "{RED}",       "{GRAY}",   "{YELLOW}",     "{ORANGE}",
+    "{LIGHT_BLUE}",  "{DARK_BLUE}", "{PURPLE}", "{LIGHT_RED}"
 };
 static char _colorCodes[][] = {
-    "\x01",     "\x02",       "\x03",   "\x04",    "\x05",
-    "\x06",          "\x07",  "\x08",   "\x09",     "\x10",
-    "\x0B",         "\x0C",        "\x0E",     "\x0F"
+    "\x01",          "\x02",        "\x03",     "\x04",         "\x05",
+    "\x06",          "\x07",        "\x08",     "\x09",         "\x10",
+    "\x0B",          "\x0C",        "\x0E",     "\x0F"
 };
 
 /**
@@ -175,8 +175,12 @@ public void TeleportClientToTarget(const int client, const int target) {
     float origin[3];
     GetClientAbsOrigin(target, origin);
 
+    // Get the target's angles.
+    float angles[3];
+    GetClientAbsAngles(target, angles);
+
     // Teleport the client.
-    TeleportEntity(client, origin, NULL_VECTOR, NULL_VECTOR);
+    TeleportEntity(client, origin, angles, NULL_VECTOR);
 }
 
 /**

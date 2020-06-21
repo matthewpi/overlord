@@ -87,6 +87,9 @@ Handle g_hOnAdminVisible;
 // g_hOnAdminHide
 Handle g_hOnAdminHide;
 
+// g_hOnPlayerSetArmor
+Handle g_hOnPlayerSetArmor;
+
 // g_hOnPlayerHeal
 Handle g_hOnPlayerHeal;
 

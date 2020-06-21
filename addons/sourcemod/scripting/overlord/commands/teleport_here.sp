@@ -59,7 +59,7 @@ public Action Command_TeleportHere(const int client, const int args) {
             continue;
         }
 
-        // Check if the target is alive.
+        // Check if the target is dead.
         if (!IsPlayerAlive(target)) {
             if (targetCount == 1) {
                 // Get and format the translation.

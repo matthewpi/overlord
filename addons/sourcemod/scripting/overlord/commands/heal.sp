@@ -58,7 +58,7 @@ public Action Command_Heal(const int client, const int args) {
             continue;
         }
 
-        // Check if the target is alive.
+        // Check if the target is dead.
         if (!IsPlayerAlive(target)) {
             if (targetCount == 1) {
                 // Get and format the translation.
@@ -77,7 +77,7 @@ public Action Command_Heal(const int client, const int args) {
 
         // Call the "g_hOnPlayerHeal" forward.
         Call_StartForward(g_hOnPlayerHeal);
-        Call_PushCell(client);
+        Call_PushCell(target);
         Call_Finish();
 
         // Update the target's health.

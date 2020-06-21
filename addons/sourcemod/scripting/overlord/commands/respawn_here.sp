@@ -63,8 +63,16 @@ public Action Command_RespawnHere(const int client, const int args) {
         // Check if the target is on spectator.
         if (GetClientTeam(target) == CS_TEAM_SPECTATOR) {
             if (targetCount == 1) {
-                ReplyToCommand(client, "%s \x10%N\x01 is a \x07Spectator\x01 and cannot be respawned.", PREFIX, target);
+                // ReplyToCommand(client, "%s \x10%N\x01 is a \x07Spectator\x01 and cannot be respawned.", PREFIX, target);
+
+                // Get and format the translation.
+                char buffer[512];
+                GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn Spectator", client, targetName);
+
+                // Send a message to the client.
+                ReplyToCommand(client, buffer);
             }
+
             continue;
         }
 
@@ -90,7 +98,7 @@ public Action Command_RespawnHere(const int client, const int args) {
 
         // Call the "g_hOnPlayerRespawn" forward.
         Call_StartForward(g_hOnPlayerRespawn);
-        Call_PushCell(client);
+        Call_PushCell(target);
         Call_Finish();
 
         respawned++;

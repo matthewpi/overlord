@@ -57,6 +57,7 @@
 
 // Commands
 #include "overlord/commands/admins.sp"
+#include "overlord/commands/armor.sp"
 #include "overlord/commands/disconnected.sp"
 #include "overlord/commands/follow.sp"
 #include "overlord/commands/groups.sp"
@@ -137,10 +138,13 @@ public void OnPluginStart() {
     // Commands
     // overlord/commands/admins.sp
     RegConsoleCmd("sm_admins", Command_Admins, "sm_admins - Prints a list of admins.");
+    // overlord/commands/armor.sp
+    RegAdminCmd("sm_armor", Command_Armor, ADMFLAG_SLAY, "sm_armor <#userid;target> - Gives the specified player's body armor and a helmet.");
     // overlord/commands/disconnected.sp
     RegAdminCmd("sm_disconnected", Command_Disconnected, ADMFLAG_KICK, "sm_disconnected - Opens a menu with a list of recently disconnected players.");
+    RegAdminCmd("sm_disconnects", Command_Disconnected, ADMFLAG_KICK, "sm_disconnects - Opens a menu with a list of recently disconnected players.");
     // overlord/commands/follow.sp
-    RegAdminCmd("sm_follow", Command_Follow, ADMFLAG_SLAY, "sm_follow <#userid;target> - Follows a player while in spectate.");
+    RegAdminCmd("sm_follow", Command_Follow, ADMFLAG_SLAY, "sm_follow <#userid;target> - Follows a player while in spectator mode.");
     // overlord/commands/groups.sp
     RegConsoleCmd("sm_groups", Command_Groups, "sm_groups - Prints a list of groups.");
     // overlord/commands/heal.sp
@@ -204,6 +208,7 @@ public void OnPluginStart() {
     g_hOnAdminFollow = CreateGlobalForward("Overlord_OnAdminFollow", ET_Event, Param_Cell, Param_Cell);
     g_hOnAdminVisible = CreateGlobalForward("Overlord_OnAdminVisible", ET_Event, Param_Cell);
     g_hOnAdminHide = CreateGlobalForward("Overlord_OnAdminHide", ET_Event, Param_Cell);
+    g_hOnPlayerSetArmor = CreateGlobalForward("Overlord_OnPlayerSetArmor", ET_Event, Param_Cell);
     g_hOnPlayerHeal = CreateGlobalForward("Overlord_OnPlayerHeal", ET_Event, Param_Cell);
     g_hOnPlayerHealth = CreateGlobalForward("Overlord_OnPlayerHealth", ET_Event, Param_Cell);
     g_hOnPlayerHog = CreateGlobalForward("Overlord_OnPlayerHog", ET_Event, Param_Cell);

@@ -116,7 +116,7 @@ static Action TeamCommand(const int client, const int args, const char[] command
 
     // Call the "g_hOnPlayerTeam" forward.
     Call_StartForward(g_hOnPlayerTeam);
-    Call_PushCell(client);
+    Call_PushCell(target);
     Call_PushCell(commandTeam);
     Call_Finish();
 

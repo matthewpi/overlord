@@ -4,12 +4,11 @@
  */
 
 /**
- * Command_Respawn (sm_respawn)
- * Respawns a dead client.
+ * Command_Armor (sm_armor)
+ * Heals the specified target.
  */
-public Action Command_Respawn(const int client, const int args) {
-    // Variable to hold the command name.
-    char command[64] = "sm_respawn";
+public Action Command_Armor(const int client, const int args) {
+    char command[64] = "sm_armor";
 
     // Check if the client is invalid.
     if (!IsClientValid(client)) {
@@ -38,7 +37,7 @@ public Action Command_Respawn(const int client, const int args) {
     bool tnIsMl;
 
     // Process the target string.
-    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_DEAD, targetName, sizeof(targetName), tnIsMl);
+    int targetCount = ProcessTargetString(potentialTarget, client, targets, MAXPLAYERS, COMMAND_FILTER_ALIVE, targetName, sizeof(targetName), tnIsMl);
 
     // Check if no clients were found.
     if (targetCount <= COMMAND_TARGET_NONE) {
@@ -51,73 +50,54 @@ public Action Command_Respawn(const int client, const int args) {
     }
 
     // Loop through all targets.
-    int respawned = 0;
+    int updated = 0;
     for (int i = 0; i < targetCount; i++) {
         int target = targets[i];
-
         // Check if the target is invalid.
         if (!IsClientValid(target)) {
             continue;
         }
 
-        // Check if the target is on spectator.
-        if (GetClientTeam(target) == CS_TEAM_SPECTATOR) {
+        // Check if the target is dead.
+        if (!IsPlayerAlive(target)) {
             if (targetCount == 1) {
-                // ReplyToCommand(client, "%s \x10%N\x01 is a \x07Spectator\x01 and cannot be respawned.", PREFIX, target);
-
                 // Get and format the translation.
                 char buffer[512];
-                GetTranslation(buffer, sizeof(buffer), "%T", "sm_respawn Spectator", client, targetName);
+                GetTranslation(buffer, sizeof(buffer), "%T", "Is not alive", client, targetName);
 
                 // Send a message to the client.
                 ReplyToCommand(client, buffer);
+
+                // Log the command execution.
+                LogCommand(client, targets[0], command, "(Target is not alive)");
             }
 
             continue;
         }
 
-        // Check if the target is alive.
-        if (IsPlayerAlive(target)) {
-            if (targetCount == 1) {
-                // Get and format the translation.
-                char buffer[512];
-                GetTranslation(buffer, sizeof(buffer), "%T", "Is still alive", client, targetName);
-
-                // Send a message to the client.
-                ReplyToCommand(client, buffer);
-            }
-
-            continue;
-        }
-
-        // Respawn the target.
-        CS_RespawnPlayer(target);
-
-        // Check if the target has a saved death positon.
-        if (g_fDeathPosition[target][0] != 0.0 && g_fDeathPosition[target][1] != 0.0 && g_fDeathPosition[target][2] != 0.0) {
-            // Teleport the target.
-            TeleportEntity(target, g_fDeathPosition[client], NULL_VECTOR, NULL_VECTOR);
-        }
-
-        // Call the "g_hOnPlayerRespawn" forward.
-        Call_StartForward(g_hOnPlayerRespawn);
+        // Call the "g_hOnPlayerSetArmor" forward.
+        Call_StartForward(g_hOnPlayerSetArmor);
         Call_PushCell(target);
         Call_Finish();
 
-        respawned++;
+        // Update the target's armor.
+        SetEntProp(target, Prop_Send, "m_ArmorValue", 100);
+        SetEntProp(target, Prop_Send, "m_bHasHelmet", 1);
+
+        updated++;
     }
 
     // Get and format the translation.
     char buffer[512];
-    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_respawn Player", client, targetName);
+    GetTranslationNP(buffer, sizeof(buffer), "%T", "sm_heal Player", client, targetName);
 
     // Show the activity to the players.
     LogActivity(client, buffer);
 
-    if (respawned > 1) {
+    if (updated > 1) {
         // Log the command execution.
-        LogCommand(client, -1, command, "(Respawned %i players)", respawned);
-    } else if (respawned == 1) {
+        LogCommand(client, -1, command, "(Set %i player's armor)", updated);
+    } else if (updated == 1) {
         // Log the command execution.
         LogCommand(client, targets[0], command, "(Target: '%s')", targetName);
     }
